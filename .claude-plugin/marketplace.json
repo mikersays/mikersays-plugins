@@ -8,6 +8,11 @@
       "name": "ship",
       "source": "./plugins/ship",
       "description": "Git commit and push in one command — /ship"
+    },
+    {
+      "name": "tech-writer",
+      "source": "./plugins/tech-writer",
+      "description": "Review and rewrite docs using Google's Technical Writing guidelines — /tech-writer"
     }
   ]
 }

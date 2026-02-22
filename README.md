@@ -19,6 +19,7 @@ Then install any plugin:
 | Plugin | Description | Usage |
 |--------|-------------|-------|
 | [ship](plugins/ship/) | Git commit and push in one command | `/ship [message]` |
+| [tech-writer](plugins/tech-writer/) | Review and rewrite docs using Google's Technical Writing guidelines | `/tech-writer [file path]` |
 
 ## Contributing
 
