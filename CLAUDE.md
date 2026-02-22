@@ -42,3 +42,4 @@ The Markdown body defines the skill's behavior: process steps, rules, and constr
 
 - **ship** (`plugins/ship/`) — `/ship [message]` — Git commit and push in one command
 - **tech-writer** (`plugins/tech-writer/`) — `/tech-writer [file path]` — Review and rewrite docs using Google's Technical Writing guidelines
+- **deck** (`plugins/deck/`) — `/deck [topic]` — Generate a self-contained HTML slide deck

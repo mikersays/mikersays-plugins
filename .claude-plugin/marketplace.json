@@ -1,5 +1,5 @@
 {
-  "name": "mikersays-marketplace",
+  "name": "mikersays-plugins",
   "owner": {
     "name": "mikersays"
   },
@@ -13,6 +13,11 @@
       "name": "tech-writer",
       "source": "./plugins/tech-writer",
       "description": "Review and rewrite docs using Google's Technical Writing guidelines — /tech-writer"
+    },
+    {
+      "name": "deck",
+      "source": "./plugins/deck",
+      "description": "Generate an HTML slide deck from a topic — /deck"
     }
   ]
 }

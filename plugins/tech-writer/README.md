@@ -44,5 +44,5 @@ The agent uses Sonnet for fast, cost-effective reviews and has access to Read, W
 ## Installation
 
 ```bash
-/plugin install tech-writer@mikersays-marketplace
+/plugin install tech-writer@mikersays-plugins
 ```

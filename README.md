@@ -1,17 +1,17 @@
-# mikersays-marketplace
+# mikersays-plugins
 
 A marketplace of Claude Code plugins (skills, slash commands, hooks, and more).
 
 ## Install the marketplace
 
 ```bash
-/plugin marketplace add mikersays/mikersays-marketplace
+/plugin marketplace add mikersays/mikersays-plugins
 ```
 
 Then install any plugin:
 
 ```bash
-/plugin install ship@mikersays-marketplace
+/plugin install ship@mikersays-plugins
 ```
 
 ## Plugins
@@ -20,6 +20,7 @@ Then install any plugin:
 |--------|-------------|-------|
 | [ship](plugins/ship/) | Git commit and push in one command | `/ship [message]` |
 | [tech-writer](plugins/tech-writer/) | Review and rewrite docs using Google's Technical Writing guidelines | `/tech-writer [file path]` |
+| [deck](plugins/deck/) | Generate a self-contained HTML slide deck from a topic | `/deck [topic]` |
 
 ## Contributing
 

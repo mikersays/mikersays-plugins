@@ -1,0 +1,5 @@
+{
+  "name": "deck",
+  "description": "Generate an HTML slide deck from a topic",
+  "version": "1.0.0"
+}
