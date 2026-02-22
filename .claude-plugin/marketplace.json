@@ -1,0 +1,13 @@
+{
+  "name": "mikersays-marketplace",
+  "owner": {
+    "name": "mikersays"
+  },
+  "plugins": [
+    {
+      "name": "ship",
+      "source": "./plugins/ship",
+      "description": "Git commit and push in one command — /ship"
+    }
+  ]
+}
