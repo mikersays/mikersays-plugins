@@ -23,6 +23,16 @@
       "name": "roadmap",
       "source": "./plugins/roadmap",
       "description": "Generate a visual HTML Gantt-chart roadmap from a markdown file — /roadmap"
+    },
+    {
+      "name": "diagram",
+      "source": "./plugins/diagram",
+      "description": "Generate interactive SVG diagrams from a description — /diagram"
+    },
+    {
+      "name": "pr",
+      "source": "./plugins/pr",
+      "description": "Create a GitHub PR with auto-generated title, summary, and test plan — /pr"
     }
   ]
 }

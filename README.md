@@ -21,6 +21,9 @@ Then install any plugin:
 | [ship](plugins/ship/) | Git commit and push in one command | `/ship [message]` |
 | [tech-writer](plugins/tech-writer/) | Review and rewrite docs using Google's Technical Writing guidelines | `/tech-writer [file path]` |
 | [deck](plugins/deck/) | Generate a self-contained HTML slide deck from a topic | `/deck [topic]` |
+| [roadmap](plugins/roadmap/) | Generate a visual HTML Gantt-chart roadmap from a markdown file | `/roadmap [file]` |
+| [diagram](plugins/diagram/) | Generate interactive SVG diagrams from a description | `/diagram [description]` |
+| [pr](plugins/pr/) | Create a GitHub PR with auto-generated title, summary, and test plan | `/pr [title]` |
 
 ## Contributing
 

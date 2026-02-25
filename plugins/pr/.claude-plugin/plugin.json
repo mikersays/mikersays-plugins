@@ -1,0 +1,5 @@
+{
+  "name": "pr",
+  "description": "Create a GitHub PR with auto-generated title, summary, and test plan",
+  "version": "1.0.0"
+}

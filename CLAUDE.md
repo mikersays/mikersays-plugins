@@ -43,3 +43,6 @@ The Markdown body defines the skill's behavior: process steps, rules, and constr
 - **ship** (`plugins/ship/`) — `/ship [message]` — Git commit and push in one command
 - **tech-writer** (`plugins/tech-writer/`) — `/tech-writer [file path]` — Review and rewrite docs using Google's Technical Writing guidelines
 - **deck** (`plugins/deck/`) — `/deck [topic]` — Generate a self-contained HTML slide deck
+- **roadmap** (`plugins/roadmap/`) — `/roadmap [file]` — Generate a visual HTML Gantt-chart roadmap from a markdown file
+- **diagram** (`plugins/diagram/`) — `/diagram [description]` — Generate interactive SVG diagrams from a description
+- **pr** (`plugins/pr/`) — `/pr [title]` — Create a GitHub PR with auto-generated title, summary, and test plan

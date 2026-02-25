@@ -1,0 +1,5 @@
+{
+  "name": "diagram",
+  "description": "Generate interactive SVG diagrams from a description",
+  "version": "1.0.0"
+}
