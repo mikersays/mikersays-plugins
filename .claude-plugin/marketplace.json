@@ -18,6 +18,11 @@
       "name": "deck",
       "source": "./plugins/deck",
       "description": "Generate an HTML slide deck from a topic — /deck"
+    },
+    {
+      "name": "roadmap",
+      "source": "./plugins/roadmap",
+      "description": "Generate a visual HTML Gantt-chart roadmap from a markdown file — /roadmap"
     }
   ]
 }
