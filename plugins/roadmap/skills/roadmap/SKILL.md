@@ -1,6 +1,6 @@
 ---
 name: roadmap
-description: Generate a visual HTML Gantt-chart roadmap from a markdown roadmap file
+description: Generate a visual HTML Gantt-chart roadmap from a markdown file
 argument-hint: "[path/to/roadmap.md]"
 allowed-tools: Read, Write, Bash, Glob
 ---
