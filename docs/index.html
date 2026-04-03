@@ -17,7 +17,9 @@
       --accent: #7c6af7;
       --accent-dim: #3d3470;
       --green: #3ecf8e;
+      --green-dim: #1a3d2e;
       --code-bg: #111;
+      --warn: #f59e0b;
     }
 
     html { scroll-behavior: smooth; }
@@ -30,40 +32,19 @@
       line-height: 1.6;
     }
 
-    /* ── Layout ── */
     .container { max-width: 760px; margin: 0 auto; padding: 0 24px; }
 
     /* ── Nav ── */
-    nav {
-      border-bottom: 1px solid var(--border);
-      padding: 16px 0;
-    }
-    nav .container {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .nav-brand {
-      font-weight: 700;
-      font-size: 15px;
-      color: var(--text);
-      text-decoration: none;
-    }
+    nav { border-bottom: 1px solid var(--border); padding: 16px 0; }
+    nav .container { display: flex; align-items: center; justify-content: space-between; }
+    .nav-brand { font-weight: 700; font-size: 15px; color: var(--text); text-decoration: none; }
     .nav-brand span { color: var(--accent); }
-    nav a {
-      color: var(--muted);
-      text-decoration: none;
-      font-size: 14px;
-      transition: color 0.15s;
-    }
+    nav a { color: var(--muted); text-decoration: none; font-size: 14px; transition: color 0.15s; }
     nav a:hover { color: var(--text); }
     .nav-links { display: flex; gap: 24px; align-items: center; }
 
     /* ── Hero ── */
-    .hero {
-      padding: 80px 0 56px;
-      text-align: center;
-    }
+    .hero { padding: 80px 0 56px; text-align: center; }
     .badge {
       display: inline-block;
       background: var(--accent-dim);
@@ -84,12 +65,7 @@
       margin-bottom: 16px;
     }
     h1 em { color: var(--accent); font-style: normal; }
-    .hero-sub {
-      color: var(--muted);
-      font-size: 17px;
-      max-width: 480px;
-      margin: 0 auto 36px;
-    }
+    .hero-sub { color: var(--muted); font-size: 17px; max-width: 480px; margin: 0 auto 36px; }
     .hero-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
     .btn {
       display: inline-block;
@@ -104,46 +80,130 @@
     }
     .btn:hover { opacity: 0.85; transform: translateY(-1px); }
     .btn-primary { background: var(--accent); color: #fff; }
-    .btn-ghost {
-      background: transparent;
-      border: 1px solid var(--border);
-      color: var(--muted);
-    }
+    .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--muted); }
     .btn-ghost:hover { color: var(--text); border-color: #444; }
 
     /* ── Section ── */
     section { padding: 56px 0; border-top: 1px solid var(--border); }
-    h2 {
-      font-size: 22px;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      margin-bottom: 8px;
-    }
+    h2 { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 8px; }
     .section-sub { color: var(--muted); font-size: 14px; margin-bottom: 28px; }
+    h3 {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 12px;
+    }
 
-    /* ── Plugins grid ── */
+    /* ── Plugin picker grid ── */
+    .picker-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .picker-actions { display: flex; gap: 8px; }
+    .text-btn {
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 13px;
+      cursor: pointer;
+      padding: 0;
+      transition: color 0.15s;
+    }
+    .text-btn:hover { color: var(--accent); }
+
     .plugins-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: 12px;
+      gap: 10px;
     }
     .plugin-card {
       background: var(--surface);
-      border: 1px solid var(--border);
+      border: 2px solid var(--border);
       border-radius: 10px;
-      padding: 16px;
-      transition: border-color 0.15s;
+      padding: 14px 16px;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+      user-select: none;
+      position: relative;
     }
-    .plugin-card:hover { border-color: var(--accent-dim); }
+    .plugin-card:hover { border-color: #3a3a3a; }
+    .plugin-card.selected {
+      border-color: var(--accent);
+      background: color-mix(in srgb, var(--accent) 6%, var(--surface));
+    }
+    .plugin-card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
     .plugin-name {
       font-family: "SF Mono", "Fira Code", monospace;
       font-size: 13px;
       font-weight: 600;
       color: var(--accent);
-      margin-bottom: 6px;
     }
-    .plugin-name::before { content: "/"; opacity: 0.5; }
+    .plugin-name::before { content: "/"; opacity: 0.45; }
+    .checkmark {
+      width: 18px;
+      height: 18px;
+      border-radius: 5px;
+      border: 1.5px solid var(--border);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+      font-size: 11px;
+    }
+    .plugin-card.selected .checkmark {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
     .plugin-desc { font-size: 13px; color: var(--muted); }
+
+    /* ── Selection summary pill ── */
+    .selection-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 28px;
+      transition: all 0.2s;
+    }
+    .selection-pill .count { color: var(--accent); font-weight: 700; }
+    .none-selected-warn {
+      background: color-mix(in srgb, var(--warn) 10%, transparent);
+      border-color: color-mix(in srgb, var(--warn) 30%, transparent);
+      color: var(--warn);
+    }
+
+    /* ── Tabs ── */
+    .tabs { display: flex; gap: 8px; margin-bottom: 20px; }
+    .tab {
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      background: none;
+      transition: all 0.15s;
+    }
+    .tab.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
 
     /* ── Install blocks ── */
     .install-block {
@@ -153,7 +213,6 @@
       overflow: hidden;
       margin-bottom: 16px;
     }
-    .install-block + h3 { margin-top: 32px; }
     .block-header {
       display: flex;
       align-items: center;
@@ -162,13 +221,7 @@
       border-bottom: 1px solid var(--border);
       background: var(--surface2);
     }
-    .block-label {
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--muted);
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-    }
+    .block-label { font-size: 12px; font-weight: 600; color: var(--muted); letter-spacing: 0.04em; text-transform: uppercase; }
     .copy-btn {
       background: none;
       border: 1px solid var(--border);
@@ -190,38 +243,17 @@
       background: var(--code-bg);
     }
     code { color: var(--text); }
-    .comment { color: #555; }
-    .prompt-text { color: var(--accent); }
+    .c { color: #4a4a4a; }        /* comment */
+    .kw { color: var(--accent); } /* keyword / prompt text */
 
-    h3 {
-      font-size: 15px;
-      font-weight: 700;
+    /* empty state */
+    .empty-state {
+      padding: 20px;
+      text-align: center;
       color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      margin-bottom: 12px;
-    }
-
-    /* ── Pill tabs ── */
-    .tabs { display: flex; gap: 8px; margin-bottom: 20px; }
-    .tab {
-      padding: 6px 14px;
-      border-radius: 20px;
       font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      border: 1px solid var(--border);
-      color: var(--muted);
-      background: none;
-      transition: all 0.15s;
+      background: var(--code-bg);
     }
-    .tab.active {
-      background: var(--accent-dim);
-      border-color: var(--accent);
-      color: var(--accent);
-    }
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
 
     /* ── Steps ── */
     .steps { counter-reset: step; display: flex; flex-direction: column; gap: 20px; }
@@ -229,16 +261,12 @@
     .step-num {
       counter-increment: step;
       flex-shrink: 0;
-      width: 26px;
-      height: 26px;
+      width: 26px; height: 26px;
       background: var(--accent-dim);
       color: var(--accent);
       border-radius: 50%;
-      font-size: 12px;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      font-size: 12px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
       margin-top: 2px;
     }
     .step-body { flex: 1; }
@@ -246,30 +274,12 @@
     .step-desc { color: var(--muted); font-size: 13px; margin-bottom: 10px; }
 
     /* ── What you get ── */
-    .what-list { display: flex; flex-direction: column; gap: 8px; }
-    .what-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      font-size: 14px;
-      color: var(--muted);
-    }
-    .what-item::before {
-      content: "✓";
-      color: var(--green);
-      font-weight: 700;
-      flex-shrink: 0;
-      margin-top: 1px;
-    }
+    .what-list { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+    .what-item { display: flex; align-items: flex-start; gap: 10px; font-size: 14px; color: var(--muted); }
+    .what-item::before { content: "✓"; color: var(--green); font-weight: 700; flex-shrink: 0; margin-top: 1px; }
 
     /* ── Footer ── */
-    footer {
-      border-top: 1px solid var(--border);
-      padding: 28px 0;
-      text-align: center;
-      color: var(--muted);
-      font-size: 13px;
-    }
+    footer { border-top: 1px solid var(--border); padding: 28px 0; text-align: center; color: var(--muted); font-size: 13px; }
     footer a { color: var(--muted); text-decoration: none; }
     footer a:hover { color: var(--text); }
   </style>
@@ -301,36 +311,25 @@
 
 <main>
 
-  <!-- Plugins -->
+  <!-- Plugins picker -->
   <section id="plugins">
     <div class="container">
-      <h2>Plugins</h2>
-      <p class="section-sub">Each plugin adds one or more slash commands to your agent.</p>
-      <div class="plugins-grid">
-        <div class="plugin-card">
-          <div class="plugin-name">ship</div>
-          <div class="plugin-desc">Git add, commit, and push in one step</div>
+      <h2>Choose your plugins</h2>
+      <p class="section-sub">Select the ones you want — your install commands update below.</p>
+
+      <div class="picker-header">
+        <div id="selection-pill" class="selection-pill">
+          <span class="count" id="pill-count">6</span> of 6 selected
         </div>
-        <div class="plugin-card">
-          <div class="plugin-name">pr</div>
-          <div class="plugin-desc">Create a GitHub PR with auto-generated description</div>
+        <div class="picker-actions">
+          <button class="text-btn" onclick="selectAll()">Select all</button>
+          <span style="color:var(--border)">·</span>
+          <button class="text-btn" onclick="selectNone()">Clear</button>
         </div>
-        <div class="plugin-card">
-          <div class="plugin-name">tech-writer</div>
-          <div class="plugin-desc">Review and rewrite docs via Google's style guidelines</div>
-        </div>
-        <div class="plugin-card">
-          <div class="plugin-name">deck</div>
-          <div class="plugin-desc">Generate a self-contained HTML slide deck</div>
-        </div>
-        <div class="plugin-card">
-          <div class="plugin-name">roadmap</div>
-          <div class="plugin-desc">Visual HTML Gantt chart from a markdown file</div>
-        </div>
-        <div class="plugin-card">
-          <div class="plugin-name">diagram</div>
-          <div class="plugin-desc">Generate interactive SVG diagrams from a description</div>
-        </div>
+      </div>
+
+      <div class="plugins-grid" id="plugins-grid">
+        <!-- rendered by JS -->
       </div>
     </div>
   </section>
@@ -342,31 +341,28 @@
       <p class="section-sub">Choose your agent.</p>
 
       <div class="tabs">
-        <button class="tab active" onclick="switchTab('codex')">Codex CLI</button>
-        <button class="tab" onclick="switchTab('claude')">Claude Code</button>
+        <button class="tab active" onclick="switchTab('codex', event)">Codex CLI</button>
+        <button class="tab" onclick="switchTab('claude', event)">Claude Code</button>
       </div>
 
-      <!-- Codex -->
+      <!-- Codex tab -->
       <div id="tab-codex" class="tab-content active">
 
-        <h3>Headless (one-liner)</h3>
-
-        <p class="section-sub" style="margin-bottom:12px;">Pipe the installer directly into <code>codex exec</code> — no interaction required.</p>
+        <h3 style="margin-bottom:10px;">Headless — one-liner</h3>
+        <p class="section-sub" style="margin-bottom:12px;">
+          Pipe directly into <code>codex exec</code>. No interaction required.
+          Uses <code>--full-auto</code>; safe to re-run.
+        </p>
 
         <div class="install-block">
           <div class="block-header">
             <span class="block-label">bash</span>
-            <button class="copy-btn" onclick="copy(this, 'cmd-headless')">Copy</button>
+            <button class="copy-btn" id="btn-headless" onclick="copyEl(this, 'cmd-headless')">Copy</button>
           </div>
-          <pre><code id="cmd-headless">curl -sL https://raw.githubusercontent.com/mikersays/mikersays-plugins/master/INSTALL.md \
-  | codex exec --full-auto -</code></pre>
+          <pre id="pre-headless"><code id="cmd-headless"></code></pre>
         </div>
 
-        <p class="section-sub" style="margin-top:16px;margin-bottom:28px;">
-          Uses <code>--full-auto</code> so the agent applies all steps without prompting. Safe to re-run — it detects existing installs and skips them.
-        </p>
-
-        <h3>Interactive</h3>
+        <h3 style="margin-top:28px;margin-bottom:12px;">Interactive</h3>
         <div class="steps">
           <div class="step">
             <div class="step-num"></div>
@@ -375,7 +371,7 @@
               <div class="install-block">
                 <div class="block-header">
                   <span class="block-label">bash</span>
-                  <button class="copy-btn" onclick="copy(this, 'cmd-open')">Copy</button>
+                  <button class="copy-btn" onclick="copyEl(this, 'cmd-open')">Copy</button>
                 </div>
                 <pre><code id="cmd-open">codex</code></pre>
               </div>
@@ -384,17 +380,14 @@
           <div class="step">
             <div class="step-num"></div>
             <div class="step-body">
-              <div class="step-title">Paste the install prompt</div>
-              <div class="step-desc">The agent will clone the repo, register all plugins, and install the auto-update hook.</div>
+              <div class="step-title">Paste this prompt</div>
+              <div class="step-desc">The agent clones the repo, registers your chosen plugins, and installs the auto-update hook.</div>
               <div class="install-block">
                 <div class="block-header">
                   <span class="block-label">prompt</span>
-                  <button class="copy-btn" onclick="copy(this, 'cmd-prompt')">Copy</button>
+                  <button class="copy-btn" id="btn-prompt" onclick="copyEl(this, 'cmd-prompt')">Copy</button>
                 </div>
-                <pre><code id="cmd-prompt"><span class="prompt-text">Read @INSTALL.md and follow the instructions exactly to install the
-mikersays-plugins marketplace on this machine. Create or update the
-local marketplace file and hooks config, verify the install, and tell
-me the final result.</span></code></pre>
+                <pre id="pre-prompt"><code id="cmd-prompt"></code></pre>
               </div>
             </div>
           </div>
@@ -402,38 +395,33 @@ me the final result.</span></code></pre>
 
         <div style="margin-top:32px;">
           <h3>What gets installed</h3>
-          <div class="what-list" style="margin-top:12px;">
+          <div class="what-list">
             <div class="what-item">Repo cloned to <code>~/.codex/plugins/mikersays/mikersays-plugins</code></div>
-            <div class="what-item">All 6 plugins registered in <code>~/.agents/plugins/marketplace.json</code></div>
-            <div class="what-item"><code>SessionStart</code> hook added to <code>~/.codex/hooks.json</code> — auto-pulls on every Codex startup</div>
+            <div class="what-item" id="what-plugins">Selected plugins registered in <code>~/.agents/plugins/marketplace.json</code></div>
+            <div class="what-item"><code>SessionStart</code> hook added to <code>~/.codex/hooks.json</code> — auto-pulls on every startup</div>
           </div>
         </div>
+
       </div>
 
-      <!-- Claude Code -->
+      <!-- Claude Code tab -->
       <div id="tab-claude" class="tab-content">
         <h3>Add the marketplace</h3>
         <div class="install-block">
           <div class="block-header">
             <span class="block-label">slash command</span>
-            <button class="copy-btn" onclick="copy(this, 'cmd-claude-add')">Copy</button>
+            <button class="copy-btn" onclick="copyEl(this, 'cmd-claude-add')">Copy</button>
           </div>
           <pre><code id="cmd-claude-add">/plugin marketplace add mikersays/mikersays-plugins</code></pre>
         </div>
 
-        <h3 style="margin-top:28px;">Install individual plugins</h3>
+        <h3 style="margin-top:28px;">Install your selected plugins</h3>
         <div class="install-block">
           <div class="block-header">
-            <span class="block-label">slash command</span>
-            <button class="copy-btn" onclick="copy(this, 'cmd-claude-install')">Copy</button>
+            <span class="block-label">slash commands</span>
+            <button class="copy-btn" id="btn-claude-install" onclick="copyEl(this, 'cmd-claude-install')">Copy</button>
           </div>
-          <pre><code id="cmd-claude-install"><span class="comment"># Install any plugin by name</span>
-/plugin install ship@mikersays-plugins
-/plugin install pr@mikersays-plugins
-/plugin install tech-writer@mikersays-plugins
-/plugin install deck@mikersays-plugins
-/plugin install roadmap@mikersays-plugins
-/plugin install diagram@mikersays-plugins</code></pre>
+          <pre id="pre-claude-install"><code id="cmd-claude-install"></code></pre>
         </div>
 
         <h3 style="margin-top:28px;">Usage</h3>
@@ -441,16 +429,16 @@ me the final result.</span></code></pre>
           <div class="block-header">
             <span class="block-label">examples</span>
           </div>
-          <pre><code><span class="comment"># Commit and push all changes</span>
+          <pre><code><span class="c"># Commit and push all changes</span>
 /ship fix login redirect
 
-<span class="comment"># Open a PR</span>
+<span class="c"># Open a PR</span>
 /pr add dark mode toggle
 
-<span class="comment"># Review a doc</span>
+<span class="c"># Review a doc</span>
 /tech-writer docs/api.md
 
-<span class="comment"># Build a slide deck</span>
+<span class="c"># Build a slide deck</span>
 /deck microservices architecture</code></pre>
         </div>
       </div>
@@ -471,24 +459,178 @@ me the final result.</span></code></pre>
 </footer>
 
 <script>
-  function switchTab(name) {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-    document.querySelector(`#tab-${name}`).classList.add('active');
-    event.target.classList.add('active');
+  const PLUGINS = [
+    { id: 'ship',        desc: 'Git add, commit, and push in one step' },
+    { id: 'pr',          desc: 'Create a GitHub PR with auto-generated description' },
+    { id: 'tech-writer', desc: 'Review and rewrite docs via Google\'s style guidelines' },
+    { id: 'deck',        desc: 'Generate a self-contained HTML slide deck' },
+    { id: 'roadmap',     desc: 'Visual HTML Gantt chart from a markdown file' },
+    { id: 'diagram',     desc: 'Generate interactive SVG diagrams from a description' },
+  ];
+
+  const REPO = 'https://github.com/mikersays/mikersays-plugins.git';
+  const RAW  = 'https://raw.githubusercontent.com/mikersays/mikersays-plugins/master/INSTALL.md';
+  const BASE = '../../.codex/plugins/mikersays/mikersays-plugins/plugins';
+
+  let selected = new Set(PLUGINS.map(p => p.id));
+
+  // ── Render plugin cards ──────────────────────────────────────────
+  function renderGrid() {
+    const grid = document.getElementById('plugins-grid');
+    grid.innerHTML = PLUGINS.map(p => `
+      <div class="plugin-card ${selected.has(p.id) ? 'selected' : ''}"
+           onclick="toggle('${p.id}')" role="checkbox"
+           aria-checked="${selected.has(p.id)}" tabindex="0"
+           onkeydown="if(event.key==='Enter'||event.key===' ')toggle('${p.id}')">
+        <div class="plugin-card-top">
+          <div class="plugin-name">${p.id}</div>
+          <div class="checkmark">${selected.has(p.id) ? '✓' : ''}</div>
+        </div>
+        <div class="plugin-desc">${p.desc}</div>
+      </div>
+    `).join('');
   }
 
-  function copy(btn, id) {
-    const text = document.getElementById(id).innerText;
-    navigator.clipboard.writeText(text).then(() => {
+  // ── Update pill ──────────────────────────────────────────────────
+  function renderPill() {
+    const n = selected.size;
+    const pill = document.getElementById('selection-pill');
+    document.getElementById('pill-count').textContent = n;
+    if (n === 0) {
+      pill.classList.add('none-selected-warn');
+      pill.innerHTML = '⚠ No plugins selected';
+    } else {
+      pill.classList.remove('none-selected-warn');
+      pill.innerHTML = `<span class="count">${n}</span> of ${PLUGINS.length} selected`;
+    }
+  }
+
+  // ── Build install commands ───────────────────────────────────────
+  function renderCommands() {
+    const sel = PLUGINS.filter(p => selected.has(p.id));
+    const ids  = sel.map(p => p.id);
+    const all  = ids.length === PLUGINS.length;
+    const none = ids.length === 0;
+
+    // ── Codex headless ──
+    const headlessEl = document.getElementById('cmd-headless');
+    const preHeadless = document.getElementById('pre-headless');
+    if (none) {
+      preHeadless.innerHTML = '<div class="empty-state">Select at least one plugin above.</div>';
+    } else if (all) {
+      preHeadless.innerHTML = '';
+      headlessEl.textContent = '';
+      preHeadless.appendChild(Object.assign(document.createElement('code'), {
+        id: 'cmd-headless',
+        textContent:
+`curl -sL ${RAW} \\
+  | codex exec --full-auto -`
+      }));
+    } else {
+      const pluginList = ids.join(', ');
+      const prompt =
+`Clone ${REPO} to ~/.codex/plugins/mikersays/mikersays-plugins (or git pull if it already exists). ` +
+`Register ONLY these plugins in ~/.agents/plugins/marketplace.json under a "mikersays-marketplace" entry: ${pluginList}. ` +
+`Use source path "../../.codex/plugins/mikersays/mikersays-plugins/plugins/<id>" for each. ` +
+`Install the SessionStart git-pull hook in ~/.codex/hooks.json. ` +
+`Verify all steps and report the final result.`;
+      preHeadless.innerHTML = '';
+      preHeadless.appendChild(Object.assign(document.createElement('code'), {
+        id: 'cmd-headless',
+        textContent: `codex exec --full-auto "${prompt}"`
+      }));
+    }
+
+    // ── Codex interactive prompt ──
+    const prePrompt = document.getElementById('pre-prompt');
+    if (none) {
+      prePrompt.innerHTML = '<div class="empty-state">Select at least one plugin above.</div>';
+    } else if (all) {
+      prePrompt.innerHTML = '';
+      const span = document.createElement('span');
+      span.className = 'kw';
+      span.id = 'cmd-prompt';
+      span.textContent =
+`Read @INSTALL.md and follow the instructions exactly to install the
+mikersays-plugins marketplace on this machine. Create or update the
+local marketplace file and hooks config, verify the install, and tell
+me the final result.`;
+      const code = document.createElement('code');
+      code.appendChild(span);
+      prePrompt.appendChild(code);
+    } else {
+      prePrompt.innerHTML = '';
+      const span = document.createElement('span');
+      span.className = 'kw';
+      span.id = 'cmd-prompt';
+      span.textContent =
+`Clone https://github.com/mikersays/mikersays-plugins.git to
+~/.codex/plugins/mikersays/mikersays-plugins (or git pull if it
+already exists). Register ONLY these plugins in
+~/.agents/plugins/marketplace.json under a "mikersays-marketplace"
+entry: ${ids.join(', ')}. Use source path
+"../../.codex/plugins/mikersays/mikersays-plugins/plugins/<id>" for
+each. Install the SessionStart git-pull hook in ~/.codex/hooks.json.
+Verify all steps and report the final result.`;
+      const code = document.createElement('code');
+      code.appendChild(span);
+      prePrompt.appendChild(code);
+    }
+
+    // ── Claude Code install commands ──
+    const preClaude = document.getElementById('pre-claude-install');
+    if (none) {
+      preClaude.innerHTML = '<div class="empty-state">Select at least one plugin above.</div>';
+    } else {
+      preClaude.innerHTML = '';
+      const code = document.createElement('code');
+      code.id = 'cmd-claude-install';
+      code.textContent = ids.map(id => `/plugin install ${id}@mikersays-plugins`).join('\n');
+      preClaude.appendChild(code);
+    }
+
+    // ── "what gets installed" summary ──
+    const whatPlugins = document.getElementById('what-plugins');
+    if (none) {
+      whatPlugins.textContent = 'No plugins selected.';
+    } else if (all) {
+      whatPlugins.innerHTML = 'All 6 plugins registered in <code>~/.agents/plugins/marketplace.json</code>';
+    } else {
+      whatPlugins.innerHTML = `${ids.length} plugin${ids.length > 1 ? 's' : ''} registered in <code>~/.agents/plugins/marketplace.json</code>: <strong>${ids.join(', ')}</strong>`;
+    }
+  }
+
+  // ── Actions ─────────────────────────────────────────────────────
+  function toggle(id) {
+    if (selected.has(id)) selected.delete(id);
+    else selected.add(id);
+    render();
+  }
+  function selectAll()  { selected = new Set(PLUGINS.map(p => p.id)); render(); }
+  function selectNone() { selected = new Set(); render(); }
+  function render()     { renderGrid(); renderPill(); renderCommands(); }
+
+  // ── Tabs ─────────────────────────────────────────────────────────
+  function switchTab(name, e) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.getElementById(`tab-${name}`).classList.add('active');
+    if (e) e.target.classList.add('active');
+  }
+
+  // ── Copy ─────────────────────────────────────────────────────────
+  function copyEl(btn, id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    navigator.clipboard.writeText(el.innerText || el.textContent).then(() => {
       btn.textContent = 'Copied!';
       btn.classList.add('copied');
-      setTimeout(() => {
-        btn.textContent = 'Copy';
-        btn.classList.remove('copied');
-      }, 2000);
+      setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
     });
   }
+
+  // ── Init ─────────────────────────────────────────────────────────
+  render();
 </script>
 
 </body>
