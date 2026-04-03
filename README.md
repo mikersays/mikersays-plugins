@@ -1,8 +1,8 @@
 # mikersays-plugins
 
-A marketplace of Claude Code plugins (skills, slash commands, hooks, and more).
+A marketplace of plugins for Claude Code and Codex CLI.
 
-## Install the marketplace
+## Install — Claude Code
 
 ```bash
 /plugin marketplace add mikersays/mikersays-plugins
@@ -13,6 +13,16 @@ Then install any plugin:
 ```bash
 /plugin install ship@mikersays-plugins
 ```
+
+## Install — Codex CLI
+
+Give this prompt to a Codex agent:
+
+```
+Read @INSTALL.md and follow the instructions exactly to install the mikersays-plugins marketplace on this machine. Create or update the local marketplace file and hooks config, verify the install, and tell me the final result.
+```
+
+This clones the repo to `~/.codex/plugins/mikersays/mikersays-plugins`, registers all plugins in `~/.agents/plugins/marketplace.json`, and installs a `SessionStart` hook that auto-updates the marketplace on every Codex startup.
 
 ## Plugins
 

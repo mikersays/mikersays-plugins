@@ -12,7 +12,9 @@ There is no build system, no tests, and no dependencies. The repo is pure Markdo
 
 ```
 .claude-plugin/marketplace.json   ← Claude Code registry of all plugins
-.codex-plugin/marketplace.json    ← Codex CLI registry of all plugins
+.codex-plugin/marketplace.json    ← Codex CLI registry with policy/category fields
+.codex-plugin/hooks.json          ← SessionStart hook config (git pull on startup)
+INSTALL.md                        ← Codex self-installer (give to a Codex agent to run)
 plugins/<name>/                   ← Each plugin lives in its own directory
   .claude-plugin/plugin.json      ← Claude Code manifest (name, description, version)
   .codex-plugin/plugin.json       ← Codex CLI manifest (same fields + "skills": "./skills/")
