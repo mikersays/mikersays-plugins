@@ -34,6 +34,8 @@ Read @INSTALL.md and follow the instructions exactly to install the mikersays-pl
 
 ## Instructions for Codex
 
+> **Important:** These steps write to `~/.codex` and `~/.agents`. Run this installer from your home directory (`cd ~`) so the sandbox allows writes to those paths.
+
 ### Step 1: Clone or update the repo
 
 Check whether `~/.codex/plugins/mikersays/mikersays-plugins` exists.
@@ -45,18 +47,36 @@ git clone https://github.com/mikersays/mikersays-plugins.git ~/.codex/plugins/mi
 ```
 
 **If it already exists:**
-- Read `.codex-plugin/marketplace.json` inside it to get the current state.
 - Run `git -C ~/.codex/plugins/mikersays/mikersays-plugins pull --ff-only` to update.
 - If already up to date, report that and continue.
 
 ### Step 2: Create or update marketplace.json
 
-Ensure this file exists: `~/.agents/plugins/marketplace.json`
+Target file: `~/.agents/plugins/marketplace.json`
 
-- If it does not exist, create it with an empty `[]` top-level array, then add the entry below.
-- If it already exists, preserve any unrelated marketplace entries and add or replace the entry whose `id` is `"mikersays-marketplace"`.
+Read the file if it exists and inspect its root structure, then follow the matching case:
 
-Use this marketplace entry:
+**Case A — file does not exist:**
+Create `~/.agents/plugins/` if needed, then write the file as a JSON array containing only the mikersays entry:
+```json
+[
+  <mikersays-entry>
+]
+```
+
+**Case B — file exists and root is a JSON array (`[...]`):**
+Remove any existing element whose `"id"` is `"mikersays-marketplace"`, then append the mikersays entry to the array.
+
+**Case C — file exists and root is a JSON object (`{...}`):**
+This is a single-marketplace file. Wrap the existing object and the mikersays entry together into an array:
+```json
+[
+  <existing-object>,
+  <mikersays-entry>
+]
+```
+
+In all cases, the mikersays entry to insert is:
 
 ```json
 {
@@ -101,24 +121,28 @@ Use this marketplace entry:
 
 ### Step 3: Install the startup hook
 
-Ensure this file exists: `~/.codex/hooks.json`
+Target file: `~/.codex/hooks.json`
 
-- If it does not exist, create it with `{ "hooks": {} }`.
-- If it already exists, preserve existing hook entries and merge in the new handler below.
-
-Add this handler to the `SessionStart` array (create the array if absent):
+- If it does not exist, create it containing only the structure below.
+- If it already exists, merge: preserve all existing hook entries and append the new handler to the `SessionStart` array (create the array key if absent).
 
 ```json
 {
-  "matcher": ".*",
-  "hooks": [
-    {
-      "type": "command",
-      "command": "git -C ~/.codex/plugins/mikersays/mikersays-plugins pull --ff-only --quiet 2>&1 | grep -v 'Already up to date' || true",
-      "statusMessage": "Updating mikersays-plugins...",
-      "timeout": 30
-    }
-  ]
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "git -C ~/.codex/plugins/mikersays/mikersays-plugins pull --ff-only --quiet 2>&1 | grep -v 'Already up to date' || true",
+            "statusMessage": "Updating mikersays-plugins...",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
 }
 ```
 

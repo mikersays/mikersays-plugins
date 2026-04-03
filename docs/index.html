@@ -351,7 +351,8 @@
         <h3 style="margin-bottom:10px;">Headless — one-liner</h3>
         <p class="section-sub" style="margin-bottom:12px;">
           Pipe directly into <code>codex exec</code>. No interaction required.
-          Uses <code>--full-auto</code>; safe to re-run.
+          Uses <code>--full-auto</code>; safe to re-run. The <code>cd ~</code> ensures
+          the sandbox can write to <code>~/.codex</code> and <code>~/.agents</code>.
         </p>
 
         <div class="install-block">
@@ -521,7 +522,7 @@
       preHeadless.appendChild(Object.assign(document.createElement('code'), {
         id: 'cmd-headless',
         textContent:
-`curl -sL ${RAW} \\
+`cd ~ && curl -sL ${RAW} \\
   | codex exec --full-auto -`
       }));
     } else {
