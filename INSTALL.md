@@ -113,7 +113,21 @@ In all cases, the mikersays entry to insert is:
 }
 ```
 
-### Step 3: Install the startup hook
+### Step 3: Symlink skills into ~/.agents/skills
+
+Codex's `/skills` command scans `~/.agents/skills/`. Create symlinks there so all 6 skills appear:
+
+```bash
+mkdir -p ~/.agents/skills
+for plugin in ship pr tech-writer deck roadmap diagram; do
+  ln -sfn "$HOME/.codex/plugins/mikersays/mikersays-plugins/plugins/$plugin/skills/$plugin" \
+    "$HOME/.agents/skills/$plugin"
+done
+```
+
+Symlinks mean the skills stay in sync with the repo automatically — no extra copy step needed on update.
+
+### Step 4: Install the startup hook
 
 Target file: `~/.codex/hooks.json`
 
@@ -140,7 +154,7 @@ Target file: `~/.codex/hooks.json`
 }
 ```
 
-### Step 3b: Enable plugins in config.toml
+### Step 4b: Enable plugins in config.toml
 
 Open `~/.codex/config.toml` and append the following entries (skip any that already exist):
 
@@ -164,7 +178,7 @@ enabled = true
 enabled = true
 ```
 
-### Step 4: Verify
+### Step 5: Verify
 
 Run the following checks and report the result for each:
 
