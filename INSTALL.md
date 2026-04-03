@@ -80,39 +80,33 @@ In all cases, the mikersays entry to insert is:
 
 ```json
 {
-  "id": "mikersays-marketplace",
+  "name": "mikersays-marketplace",
   "interface": {
     "displayName": "mikersays Plugins"
   },
   "plugins": [
     {
-      "id": "ship",
-      "interface": { "displayName": "ship" },
+      "name": "ship",
       "source": { "path": "../../.codex/plugins/mikersays/mikersays-plugins/plugins/ship" }
     },
     {
-      "id": "pr",
-      "interface": { "displayName": "pr" },
+      "name": "pr",
       "source": { "path": "../../.codex/plugins/mikersays/mikersays-plugins/plugins/pr" }
     },
     {
-      "id": "tech-writer",
-      "interface": { "displayName": "tech-writer" },
+      "name": "tech-writer",
       "source": { "path": "../../.codex/plugins/mikersays/mikersays-plugins/plugins/tech-writer" }
     },
     {
-      "id": "deck",
-      "interface": { "displayName": "deck" },
+      "name": "deck",
       "source": { "path": "../../.codex/plugins/mikersays/mikersays-plugins/plugins/deck" }
     },
     {
-      "id": "roadmap",
-      "interface": { "displayName": "roadmap" },
+      "name": "roadmap",
       "source": { "path": "../../.codex/plugins/mikersays/mikersays-plugins/plugins/roadmap" }
     },
     {
-      "id": "diagram",
-      "interface": { "displayName": "diagram" },
+      "name": "diagram",
       "source": { "path": "../../.codex/plugins/mikersays/mikersays-plugins/plugins/diagram" }
     }
   ]
@@ -144,6 +138,30 @@ Target file: `~/.codex/hooks.json`
     ]
   }
 }
+```
+
+### Step 3b: Enable plugins in config.toml
+
+Open `~/.codex/config.toml` and append the following entries (skip any that already exist):
+
+```toml
+[plugins."ship@mikersays-marketplace"]
+enabled = true
+
+[plugins."pr@mikersays-marketplace"]
+enabled = true
+
+[plugins."tech-writer@mikersays-marketplace"]
+enabled = true
+
+[plugins."deck@mikersays-marketplace"]
+enabled = true
+
+[plugins."roadmap@mikersays-marketplace"]
+enabled = true
+
+[plugins."diagram@mikersays-marketplace"]
+enabled = true
 ```
 
 ### Step 4: Verify
