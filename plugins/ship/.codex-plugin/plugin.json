@@ -1,0 +1,6 @@
+{
+  "name": "ship",
+  "description": "Git commit and push in one command",
+  "version": "1.0.0",
+  "skills": "./skills/"
+}

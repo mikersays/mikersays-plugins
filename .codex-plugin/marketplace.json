@@ -1,0 +1,75 @@
+{
+  "name": "mikersays-plugins",
+  "plugins": [
+    {
+      "name": "ship",
+      "source": {
+        "source": "local",
+        "path": "./plugins/ship"
+      },
+      "policy": {
+        "installation": "INSTALLED_BY_DEFAULT",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "developer-tools"
+    },
+    {
+      "name": "pr",
+      "source": {
+        "source": "local",
+        "path": "./plugins/pr"
+      },
+      "policy": {
+        "installation": "INSTALLED_BY_DEFAULT",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "developer-tools"
+    },
+    {
+      "name": "tech-writer",
+      "source": {
+        "source": "local",
+        "path": "./plugins/tech-writer"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_USE"
+      },
+      "category": "writing"
+    },
+    {
+      "name": "deck",
+      "source": {
+        "source": "local",
+        "path": "./plugins/deck"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_USE"
+      },
+      "category": "productivity"
+    },
+    {
+      "name": "roadmap",
+      "source": {
+        "source": "local",
+        "path": "./plugins/roadmap"
+      },
+      "policy": {
+        "installation": "NOT_AVAILABLE"
+      },
+      "category": "productivity"
+    },
+    {
+      "name": "diagram",
+      "source": {
+        "source": "local",
+        "path": "./plugins/diagram"
+      },
+      "policy": {
+        "installation": "NOT_AVAILABLE"
+      },
+      "category": "productivity"
+    }
+  ]
+}

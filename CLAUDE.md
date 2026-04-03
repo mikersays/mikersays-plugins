@@ -4,17 +4,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-This is a **Claude Code plugin marketplace** — a collection of plugins (skills, slash commands, hooks) that users install into Claude Code via the `/plugin` command.
+This is a **Claude Code + Codex CLI plugin marketplace** — a collection of plugins (skills, slash commands, hooks) that users install into Claude Code via the `/plugin` command, or into Codex CLI via `codex --install`.
 
 There is no build system, no tests, and no dependencies. The repo is pure Markdown and JSON.
 
 ## Repository Structure
 
 ```
-.claude-plugin/marketplace.json   ← Registry of all plugins (source paths, descriptions)
+.claude-plugin/marketplace.json   ← Claude Code registry of all plugins
+.codex-plugin/marketplace.json    ← Codex CLI registry of all plugins
 plugins/<name>/                   ← Each plugin lives in its own directory
-  .claude-plugin/plugin.json      ← Plugin metadata (name, description, version)
-  skills/<skill>/SKILL.md         ← Skill definitions (frontmatter + instructions)
+  .claude-plugin/plugin.json      ← Claude Code manifest (name, description, version)
+  .codex-plugin/plugin.json       ← Codex CLI manifest (same fields + "skills": "./skills/")
+  skills/<skill>/SKILL.md         ← Skill definitions (frontmatter + instructions, shared by both)
   README.md                       ← Plugin documentation
 ```
 
@@ -22,9 +24,10 @@ plugins/<name>/                   ← Each plugin lives in its own directory
 
 1. Create `plugins/<name>/`
 2. Add `.claude-plugin/plugin.json` with `name`, `description`, and `version`
-3. Add skills under `skills/<skill-name>/SKILL.md`
-4. Add a `README.md` for the plugin
-5. Register the plugin in the root `.claude-plugin/marketplace.json` under the `plugins` array
+3. Add `.codex-plugin/plugin.json` with the same fields plus `"skills": "./skills/"`
+4. Add skills under `skills/<skill-name>/SKILL.md`
+5. Add a `README.md` for the plugin
+6. Register the plugin in both root marketplace files (`plugins` array)
 
 ## SKILL.md Format
 
