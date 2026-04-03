@@ -70,6 +70,17 @@
         "installation": "NOT_AVAILABLE"
       },
       "category": "productivity"
+    },
+    {
+      "name": "maintenance",
+      "source": {
+        "source": "local",
+        "path": "./plugins/maintenance"
+      },
+      "policy": {
+        "installation": "AVAILABLE"
+      },
+      "category": "developer-tools"
     }
   ]
 }

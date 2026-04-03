@@ -33,6 +33,11 @@
       "name": "pr",
       "source": "./plugins/pr",
       "description": "Create a GitHub PR with auto-generated title, summary, and test plan — /pr"
+    },
+    {
+      "name": "maintenance",
+      "source": "./plugins/maintenance",
+      "description": "Maintenance skills for the mikersays-plugins marketplace — /sync-docs /install-marketplace /uninstall-marketplace"
     }
   ]
 }
