@@ -34,7 +34,7 @@ Read @INSTALL.md and follow the instructions exactly to install the mikersays-pl
 
 ## Instructions for Codex
 
-> **Important:** These steps write to `~/.codex` and `~/.agents`. Run this installer from your home directory (`cd ~`) so the sandbox allows writes to those paths.
+> **Important:** These steps write to `~/.codex` and `~/.agents`. The headless command uses `--add-dir` to grant the agent write access to exactly those two directories — no broader sandbox escalation required.
 
 ### Step 1: Clone or update the repo
 
