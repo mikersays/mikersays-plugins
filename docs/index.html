@@ -495,7 +495,6 @@
   function renderPill() {
     const n = selected.size;
     const pill = document.getElementById('selection-pill');
-    document.getElementById('pill-count').textContent = n;
     if (n === 0) {
       pill.classList.add('none-selected-warn');
       pill.innerHTML = '⚠ No plugins selected';
@@ -519,7 +518,6 @@
       preHeadless.innerHTML = '<div class="empty-state">Select at least one plugin above.</div>';
     } else if (all) {
       preHeadless.innerHTML = '';
-      headlessEl.textContent = '';
       preHeadless.appendChild(Object.assign(document.createElement('code'), {
         id: 'cmd-headless',
         textContent:
