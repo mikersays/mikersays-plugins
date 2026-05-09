@@ -1,5 +1,5 @@
 {
   "name": "roadmap",
-  "description": "Generate a visual HTML Gantt-chart roadmap from a markdown file",
+  "description": "Generate a self-contained interactive HTML Gantt chart from a markdown roadmap file",
   "version": "1.0.0"
 }

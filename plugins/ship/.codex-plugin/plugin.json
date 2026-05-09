@@ -1,6 +1,6 @@
 {
   "name": "ship",
-  "description": "Git commit and push in one command",
+  "description": "Stage, commit, and push all changes in one step, with auto-generated message if none given",
   "version": "1.0.0",
   "skills": "./skills/"
 }

@@ -7,32 +7,32 @@
     {
       "name": "ship",
       "source": "./plugins/ship",
-      "description": "Git commit and push in one command — /ship"
+      "description": "Stage, commit, and push all changes in one step, with auto-generated message if none given — /ship"
     },
     {
       "name": "tech-writer",
       "source": "./plugins/tech-writer",
-      "description": "Review and rewrite docs using Google's Technical Writing guidelines — /tech-writer"
+      "description": "Review and rewrite documentation in place using Google's Technical Writing guidelines — /tech-writer"
     },
     {
       "name": "deck",
       "source": "./plugins/deck",
-      "description": "Generate an HTML slide deck from a topic — /deck"
+      "description": "Generate a self-contained HTML slide deck from a topic — single file, dark theme, keyboard nav — /deck"
     },
     {
       "name": "roadmap",
       "source": "./plugins/roadmap",
-      "description": "Generate a visual HTML Gantt-chart roadmap from a markdown file — /roadmap"
+      "description": "Generate a self-contained interactive HTML Gantt chart from a markdown roadmap file — /roadmap"
     },
     {
       "name": "diagram",
       "source": "./plugins/diagram",
-      "description": "Generate interactive SVG diagrams from a description — /diagram"
+      "description": "Generate an interactive SVG diagram (architecture, sequence, flowchart, ER) from a description — /diagram"
     },
     {
       "name": "pr",
       "source": "./plugins/pr",
-      "description": "Create a GitHub PR with auto-generated title, summary, and test plan — /pr"
+      "description": "Create a GitHub PR for the current branch with auto-generated title, summary, and test plan — /pr"
     },
     {
       "name": "maintenance",

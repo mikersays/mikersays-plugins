@@ -1,12 +1,12 @@
 ---
 name: uninstall-marketplace
-description: Run the mikersays-plugins headless uninstaller on this machine and verify everything was removed
+description: Remove the mikersays-plugins marketplace from this machine via the headless UNINSTALL.md flow, then verify
 allowed-tools: Bash
 ---
 
-# uninstall-marketplace — Run the Marketplace Uninstaller
+# uninstall-marketplace
 
-Executes the UNINSTALL.md flow on the current machine using `codex exec`. Removes the repo, skill symlinks, marketplace entry, config.toml plugin entries, and the SessionStart hook — without touching anything else.
+Pipes `UNINSTALL.md` into `codex exec` to remove the repo, skill symlinks, marketplace entry, `config.toml` plugin entries, and the SessionStart hook. Other marketplaces, skills, and config entries are left untouched — that scoping lives in `UNINSTALL.md` itself, so do not reimplement removal logic here.
 
 ## Process
 
@@ -16,18 +16,19 @@ Executes the UNINSTALL.md flow on the current machine using `codex exec`. Remove
 command -v codex || echo "MISSING"
 ```
 
-If missing, stop and tell the user.
+If `codex` is missing, stop and tell the user — the headless flow cannot run without it.
 
 ### 2. Confirm intent
 
-Before running, tell the user exactly what will be removed:
-- `~/.codex/plugins/mikersays/mikersays-plugins`
-- Skill symlinks: `~/.agents/skills/{ship,pr,tech-writer,deck,roadmap,diagram}`
-- `mikersays-marketplace` entry from `~/.agents/plugins/marketplace.json`
-- 6 plugin entries from `~/.codex/config.toml`
-- SessionStart git-pull hook from `~/.codex/hooks.json`
+Uninstall is destructive and partially irreversible (the repo clone is deleted), so confirm before running. List exactly what will be removed:
 
-Ask the user to confirm before proceeding (unless `$ARGUMENTS` contains `--yes` or `--force`).
+- Repo: `~/.codex/plugins/mikersays/mikersays-plugins`
+- Skill symlinks in `~/.agents/skills/`: `ship`, `pr`, `tech-writer`, `deck`, `roadmap`, `diagram`
+- `mikersays-marketplace` entry in `~/.agents/plugins/marketplace.json`
+- 6 `mikersays-marketplace` plugin entries in `~/.codex/config.toml`
+- SessionStart git-pull hook in `~/.codex/hooks.json`
+
+Skip the confirmation prompt if `$ARGUMENTS` contains `--yes` or `--force`.
 
 ### 3. Run the headless uninstaller
 
@@ -36,11 +37,11 @@ curl -sL https://raw.githubusercontent.com/mikersays/mikersays-plugins/master/UN
   | codex exec --full-auto --add-dir ~/.codex --add-dir ~/.agents --skip-git-repo-check -
 ```
 
-Capture and display the full output.
+`--add-dir` is scoped to the two directories the uninstaller writes to, so a misbehaving step cannot reach anywhere else. Capture and surface the full output — the user needs to see what each step did.
 
-### 4. Verify the removal
+### 4. Verify
 
-Run each check and report pass/fail:
+Run each check and report pass/fail. Items already absent before the run count as pass — uninstall is idempotent.
 
 ```bash
 ls ~/.codex/plugins/mikersays 2>/dev/null && echo "STILL PRESENT" || echo "removed"
@@ -70,10 +71,9 @@ grep -c 'mikersays' ~/.codex/hooks.json 2>/dev/null && echo "STILL PRESENT" || e
 
 ### 5. Report
 
-Summarize what was removed and confirm nothing else was affected. Note if any items were already absent before the uninstall ran.
+Summarize what was removed, flag anything that was already absent, and surface any failed step verbatim. Do not retry or paper over a failure — the user may have a customized config that needs manual handling.
 
-## Rules
+## Constraints
 
-- Always confirm with the user before running unless `--yes` or `--force` is passed.
-- Do not modify any files in this repo.
-- If a removal step fails, report it clearly — do not silently continue.
+- Do not modify files in this repo. The skill operates on the user's machine state, not the marketplace source.
+- Do not invent additional removal steps. If `UNINSTALL.md` does not remove something, neither does this skill.

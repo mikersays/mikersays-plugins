@@ -1,35 +1,29 @@
 ---
 name: deck
-description: Generate an HTML slide deck from a topic
+description: Generate a self-contained HTML slide deck from a topic — single file, dark theme, keyboard nav
 argument-hint: "[topic]"
 allowed-tools: Write, Read, Bash
 ---
 
 # Deck — Generate an HTML Slide Deck
 
-Generate a self-contained HTML slide deck from a topic. Zero dependencies — pure HTML, CSS, and minimal JS in a single file.
+Produce a single `.html` file the user can double-click to present: scroll-snap slides, dark theme, arrow-key navigation, no external dependencies.
 
 ## Process
 
-1. **Get the topic.** If the user provided text via `$ARGUMENTS`, use that as the topic. If `$ARGUMENTS` is empty, ask the user what the deck should be about.
+1. **Get the topic.** Use `$ARGUMENTS` if provided. If empty, ask.
+2. **Plan 8–15 slides.** Title slide, content slides (one idea each), closing slide. If the topic is too broad, narrow it and tell the user the angle you picked.
+3. **Write the file** with the Write tool to `<topic-slug>.html` in the cwd (lowercase, hyphens — e.g. `intro-to-kubernetes.html`).
+4. **Open it.** Try `open` (macOS) or `xdg-open` (Linux). If that fails, print the absolute path so the user can open it themselves.
+5. **Report** the path and slide count.
 
-2. **Plan the outline.** Create 8–15 slides with this structure:
-   - **Slide 1:** Title slide — topic name, optional subtitle
-   - **Slides 2–N:** Content slides covering key points, one idea per slide
-   - **Last slide:** Summary or closing takeaway
+If you don't know the topic well enough to fill 8 slides accurately, say so and ask for source material rather than inventing content. Lorem ipsum and filler defeat the point of the deck.
 
-3. **Write the HTML file** using the Write tool. Save it as `<topic-slug>.html` in the current working directory (lowercase, hyphens, no spaces — e.g., `intro-to-kubernetes.html`).
+## File structure
 
-4. **Open the file** in the user's default browser:
-   - macOS: `open <file>`
-   - Linux: `xdg-open <file>`
-   - If the open command fails, tell the user the file path so they can open it manually.
+The HTML file has three parts: a `<style>` block (use the template below verbatim), a sequence of `<div class="slide">` elements, and a `<script>` block for keyboard nav. Everything inline — no CDNs, no external CSS or JS — so the file works offline and travels as a single attachment.
 
-5. **Report** the file path and slide count to the user.
-
-## HTML Template
-
-The generated HTML file MUST follow this structure exactly. Do not use external stylesheets, scripts, or CDN links.
+### Style template
 
 ```html
 <!DOCTYPE html>
@@ -74,11 +68,7 @@ The generated HTML file MUST follow this structure exactly. Do not use external 
   }
 
   /* Title slide */
-  .slide.title {
-    text-align: center;
-    justify-content: center;
-    align-items: center;
-  }
+  .slide.title { text-align: center; justify-content: center; align-items: center; }
 
   .slide.title h1 {
     font-size: clamp(2.5rem, 6vw, 5rem);
@@ -118,13 +108,8 @@ The generated HTML file MUST follow this structure exactly. Do not use external 
     margin-bottom: 1rem;
   }
 
-  li {
-    margin-bottom: 0.6rem;
-  }
-
-  li::marker {
-    color: #60a5fa;
-  }
+  li { margin-bottom: 0.6rem; }
+  li::marker { color: #60a5fa; }
 
   code {
     font-family: "SF Mono", "Fira Code", "Cascadia Code", Menlo, Consolas, monospace;
@@ -156,10 +141,7 @@ The generated HTML file MUST follow this structure exactly. Do not use external 
   em { color: #a78bfa; font-style: italic; }
 
   /* Closing slide */
-  .slide.closing {
-    text-align: center;
-    align-items: center;
-  }
+  .slide.closing { text-align: center; align-items: center; }
 
   .slide.closing h2 {
     font-size: clamp(2rem, 4vw, 3.5rem);
@@ -191,22 +173,39 @@ document.addEventListener('keydown', (e) => {
 </html>
 ```
 
-Each slide is a `<div class="slide">` with a `<div class="slide-number">` at the bottom. The title slide gets class `slide title`, the closing slide gets class `slide closing`, and content slides get just `slide`.
+### Slide examples
 
-## Slide Content Rules
+Drop these into the `<!-- SLIDES GO HERE -->` slot. The class controls the layout: `title` for the opener, `closing` for the wrap-up, plain `slide` for everything in between.
 
-- **Every slide MUST have a heading** (`<h1>` for title, `<h2>` for content).
-- **3–5 bullet points maximum per slide.** If you have more, split into two slides.
-- **One idea per slide.** Do not cram multiple topics into one slide.
-- **Use variety:** Mix bullet lists, code blocks, short paragraphs, and bold/italic emphasis across slides. Not every slide should be a bullet list.
-- **Code blocks:** Use `<pre><code>` for code examples. Keep them short (under 12 lines).
-- **No images or external resources.** Everything must be inline.
-- **Slide numbers:** Add `<div class="slide-number">N / TOTAL</div>` to every slide.
+```html
+<div class="slide title">
+  <h1>Intro to Kubernetes</h1>
+  <p>Container orchestration in 12 slides</p>
+  <div class="slide-number">1 / 12</div>
+</div>
 
-## Rules
+<div class="slide">
+  <h2>Why orchestration?</h2>
+  <ul>
+    <li>Containers are cheap; managing hundreds of them is not</li>
+    <li>You need scheduling, healing, networking, and rollout in one system</li>
+    <li>Kubernetes is the de-facto standard — every cloud speaks it</li>
+  </ul>
+  <div class="slide-number">2 / 12</div>
+</div>
 
-- The output MUST be a single, self-contained `.html` file with no external dependencies.
-- The file MUST be valid HTML5 that opens correctly by double-clicking.
-- NEVER generate placeholder or lorem ipsum content — all slide content must be real and relevant to the topic.
-- If the topic is too broad, narrow the scope and tell the user what you focused on.
-- If you don't know enough about the topic to fill 8 slides with accurate content, tell the user and ask for guidance rather than making things up.
+<div class="slide closing">
+  <h2>Start small. Grow into it.</h2>
+  <p>Run <code>minikube start</code> and deploy a single pod before reaching for Helm.</p>
+  <div class="slide-number">12 / 12</div>
+</div>
+```
+
+## Slide content guidance
+
+- One idea per slide. If a slide has more than ~5 bullets or covers two distinct points, split it — dense slides read as walls of text at presentation size.
+- Vary the shape. A deck of identical bullet lists is boring; mix in short paragraphs, a code block, a single emphasized sentence. The CSS already styles `<pre><code>`, `<strong>`, and `<em>` for this.
+- Keep code blocks under ~12 lines so they fit the viewport without scrolling.
+- Number every slide via `<div class="slide-number">N / TOTAL</div>` so the audience can orient themselves.
+- Every slide needs a heading (`<h1>` on the title, `<h2>` elsewhere) — that's what makes it feel like a slide rather than a paragraph.
+- No `<img>`, no remote fonts, no `<link>`/`<script src>` to anything off-disk. The file should render identically on a plane with no wifi.

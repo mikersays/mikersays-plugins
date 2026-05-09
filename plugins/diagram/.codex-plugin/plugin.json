@@ -1,6 +1,6 @@
 {
   "name": "diagram",
-  "description": "Generate interactive SVG diagrams from a description",
+  "description": "Generate an interactive SVG diagram (architecture, sequence, flowchart, ER) from a description",
   "version": "1.0.0",
   "skills": "./skills/"
 }

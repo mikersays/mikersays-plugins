@@ -1,49 +1,61 @@
 ---
 name: sync-docs
-description: Sync INSTALL.md, UNINSTALL.md, and docs/index.html to match the current plugin list in the repo
+description: Refresh INSTALL.md, UNINSTALL.md, docs/index.html, and both marketplace.json files to match plugins/ on disk
 allowed-tools: Bash, Read, Edit, Glob
 ---
 
 # sync-docs — Sync Marketplace Documentation
 
-Keep INSTALL.md, UNINSTALL.md, and docs/index.html in sync whenever plugins are added, removed, or renamed.
+Plugin metadata is duplicated across five files. When you add, remove, or rename a plugin, this skill propagates the change so the docs and registries match the `plugins/` directory.
+
+## Targets
+
+| File | What references plugins |
+|---|---|
+| `INSTALL.md` | "Available plugins" list, marketplace JSON block, symlink loop, `config.toml` block |
+| `UNINSTALL.md` | "What gets removed" list, unlink loop, `config.toml` block |
+| `docs/index.html` | `const PLUGINS = [...]` array inside `<script>` |
+| `.claude-plugin/marketplace.json` | `plugins[]` with `name`, `source`, `description` |
+| `.codex-plugin/marketplace.json` | `plugins[]` with `name`, `source`, `policy`, `category` |
+
+The `maintenance` plugin is its own special case — it stays in the registries but is omitted from end-user install/uninstall flows, since users don't install the maintenance plugin itself.
 
 ## Process
 
-### 1. Discover current plugins
+### 1. Discover the source of truth
 
-Read all plugin manifests to build the authoritative plugin list:
+Plugin manifests under `plugins/*/` are authoritative. Read each `plugin.json` to collect `name` and `description`:
 
 ```bash
 for dir in plugins/*/; do
   name=$(basename "$dir")
-  desc=$(cat "$dir/.claude-plugin/plugin.json" | python3 -c "import sys,json; print(json.load(sys.stdin)['description'])")
+  desc=$(python3 -c "import json; print(json.load(open('$dir/.claude-plugin/plugin.json'))['description'])")
   echo "$name|$desc"
 done
 ```
 
-Collect each plugin's `name` and `description`. Ignore the `maintenance` plugin itself.
+Skip `maintenance` for the install/uninstall doc updates (steps 2–3) but include it for marketplace registries (steps 5–6).
 
 ### 2. Update INSTALL.md
 
-In `INSTALL.md`, update every section that enumerates plugins by name:
+Regenerate every section that names plugins:
 
-- **"Available plugins"** bullet list — regenerate from current plugin list
-- **Step 2 marketplace JSON** — regenerate the `"plugins"` array with all current plugin names and their source paths (`../../.codex/plugins/mikersays/mikersays-plugins/plugins/<name>`)
-- **Step 3 symlink loop** — update the space-separated plugin list in `for plugin in ...`
-- **Step 4b config.toml block** — regenerate all `[plugins."<name>@mikersays-marketplace"]` entries
+- **"Available plugins"** — bullet list of `name — description`
+- **Marketplace JSON block (Step 2)** — `plugins[]` array with source paths like `../../.codex/plugins/mikersays/mikersays-plugins/plugins/<name>`
+- **Symlink loop (Step 3)** — space-separated names in `for plugin in ...`
+- **`config.toml` block (Step 4b)** — one `[plugins."<name>@mikersays-marketplace"]` entry per plugin
 
 ### 3. Update UNINSTALL.md
 
-In `UNINSTALL.md`, update every section that enumerates plugins:
+Mirror the install doc:
 
-- **"What gets removed"** skill symlinks bullet — update the comma-separated list
-- **Step 2 unlink loop** — update `for skill in ...` to match current plugin list
-- **Step 4 config.toml block** — regenerate all `[plugins."<name>@mikersays-marketplace"]` lines to remove
+- **"What gets removed"** — comma-separated list of skill symlinks
+- **Unlink loop (Step 2)** — names in `for skill in ...`
+- **`config.toml` block (Step 4)** — one removal line per plugin
 
 ### 4. Update docs/index.html
 
-Find the `const PLUGINS = [` array in the `<script>` block and replace its contents with entries for all current plugins:
+Find `const PLUGINS = [` in the inline `<script>` and replace only the array contents:
 
 ```js
 const PLUGINS = [
@@ -52,11 +64,11 @@ const PLUGINS = [
 ];
 ```
 
-Preserve all surrounding JS — only replace the array literal contents.
+Leave surrounding JS untouched.
 
-### 5. Register new plugins in .codex-plugin/marketplace.json
+### 5. Add new plugins to .codex-plugin/marketplace.json
 
-If any new plugins are not yet in `.codex-plugin/marketplace.json`, add them. Preserve existing entries (including their `policy` and `category` fields). New plugins default to:
+For any plugin missing from the array, append:
 
 ```json
 {
@@ -67,18 +79,19 @@ If any new plugins are not yet in `.codex-plugin/marketplace.json`, add them. Pr
 }
 ```
 
-### 6. Register new plugins in .claude-plugin/marketplace.json
+Existing entries already have hand-tuned `policy` and `category` values (e.g. `INSTALLED_BY_DEFAULT`, `developer-tools`) — preserve them rather than normalizing to the defaults above.
 
-If any new plugins are not yet in `.claude-plugin/marketplace.json`, append them with `source` and `description`.
+### 6. Add new plugins to .claude-plugin/marketplace.json
 
-### 7. Verify
+Append missing entries with `name`, `source` (string path), and `description`. Preserve existing entries.
 
-- Read back each updated file and confirm plugin names match the discovered list.
-- Report a summary: which files were changed and what was added/removed.
+### 7. Verify and report
+
+Read back each changed file, confirm the plugin set matches `plugins/*/`, and report a diff summary (added / removed / files touched). Stop there — leave committing to the user.
 
 ## Rules
 
-- Never remove or reorder plugins that are already in the docs — only add new ones or remove ones whose `plugins/<name>/` directory no longer exists.
-- Preserve all non-plugin content in INSTALL.md and UNINSTALL.md exactly as-is.
-- Preserve all non-PLUGINS-array JS in docs/index.html exactly as-is.
-- Do not commit — report the diff and let the user review before shipping.
+- The `plugins/` directory is the source of truth. Add an entry when a directory appears; remove an entry only when its directory is gone. Don't reorder existing entries — order is meaningful in the rendered docs.
+- Touch only the plugin-list regions named above. Prose, headings, and other JS in `docs/index.html` stay byte-identical.
+- Never overwrite hand-tuned `policy` or `category` fields on existing codex entries.
+- Don't commit. The user reviews the diff before shipping.

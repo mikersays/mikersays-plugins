@@ -4,33 +4,33 @@ description: Run the mikersays-plugins headless installer on this machine and ve
 allowed-tools: Bash
 ---
 
-# install-marketplace — Run the Marketplace Installer
+# install-marketplace
 
-Executes the INSTALL.md flow on the current machine using `codex exec`. Use this to do a fresh install, test that the installer works after changes, or recover a broken install.
+Run the canonical `INSTALL.md` flow via `codex exec` to do a fresh install, validate installer changes, or recover a broken setup. The installer writes only to `~/.codex` and `~/.agents`.
 
-## Process
-
-### 1. Check prerequisites
+## 1. Check prerequisites
 
 ```bash
 command -v codex || echo "MISSING"
 command -v git   || echo "MISSING"
 ```
 
-If either is missing, stop and tell the user what to install.
+If either is missing, stop and tell the user to install it. The rest of the flow needs both.
 
-### 2. Run the headless installer
+## 2. Run the headless installer
+
+Pipe `INSTALL.md` directly into `codex exec`. The `--add-dir` flags scope write access to the two install directories so no broader sandbox escalation is required.
 
 ```bash
 curl -sL https://raw.githubusercontent.com/mikersays/mikersays-plugins/master/INSTALL.md \
   | codex exec --full-auto --add-dir ~/.codex --add-dir ~/.agents --skip-git-repo-check -
 ```
 
-Capture and display the full output.
+Show the full output — the user wants to see what the installer did.
 
-### 3. Verify the install
+## 3. Verify
 
-Run each check and report pass/fail:
+Run each check and report pass/fail individually. Partial failure is informative; a single combined check would hide which step broke.
 
 ```bash
 ls ~/.codex/plugins/mikersays/mikersays-plugins/.codex-plugin/marketplace.json
@@ -55,12 +55,11 @@ ls ~/.agents/skills/ship ~/.agents/skills/pr ~/.agents/skills/tech-writer \
 git -C ~/.codex/plugins/mikersays/mikersays-plugins log --oneline -1
 ```
 
-### 4. Report
+## 4. Report
 
-Summarize: what was already installed (skipped), what was newly installed, and any failures. Show the installed commit hash.
+Summarize what was newly installed, what was skipped (already present), any failures with the exact error, and the installed commit hash.
 
-## Rules
+## Constraints
 
-- Do not modify any files in this repo — only run the installer against `~/.codex` and `~/.agents`.
-- If the installer fails partway through, report exactly which step failed and what the error was.
-- Do not retry blindly — diagnose first.
+- Don't touch this repo's working tree — the installer only writes to `~/.codex` and `~/.agents`.
+- If a step fails, diagnose before retrying. Blind retries usually re-trigger the same failure and obscure the cause.

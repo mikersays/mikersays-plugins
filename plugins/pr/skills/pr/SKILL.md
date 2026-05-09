@@ -1,77 +1,75 @@
 ---
 name: pr
-description: Create a GitHub PR with auto-generated title, summary, and test plan
+description: Create a GitHub PR for the current branch with auto-generated title, summary, and test plan
 argument-hint: "[PR title]"
 allowed-tools: Bash
 ---
 
 # PR — Create a GitHub Pull Request
 
-Analyze the current branch's changes and create a GitHub pull request with a generated title, summary, and test plan.
+Analyze the current branch and open a pull request via `gh pr create`. The user invokes this when their work is ready for review.
 
-## Process
+## 1. Preflight
 
-### 1. Preflight Checks
+Run these checks. If any fail, tell the user the specific fix and stop.
 
-Run these checks in order. If any fail, stop and tell the user what to fix.
+1. Inside a git repo: `git rev-parse --is-inside-work-tree`.
+2. Branch is checked out (not detached HEAD): `git branch --show-current` returns non-empty.
+3. Not a shallow clone: `git rev-parse --is-shallow-repository` returns `false`. Shallow clones produce wrong base diffs — ask the user to run `git fetch --unshallow`.
+4. `gh` is installed (`command -v gh`) and authenticated (`gh auth status`).
+5. At least one remote exists (`git remote -v`).
+6. Detect the base branch in this order:
+   - `gh repo view --json defaultBranchRef --jq '.defaultBranchRef.name'` (most reliable)
+   - `git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's|refs/remotes/origin/||'` (offline fallback)
+   - Probe `main` then `master` via `git ls-remote --heads origin <name>`. If neither, ask the user.
+7. Current branch is not the base branch.
+8. There are commits ahead of base: `git log --oneline <base>..HEAD` is non-empty.
+9. No open PR already exists for this branch. Run `gh pr view --json url` (do not redirect stderr — you need to read the error).
+   - Success with a URL → an open PR exists; show the URL and stop.
+   - Error containing "no pull requests found" → expected, continue.
+   - Any other error (auth, network, missing repo) → show it and stop.
 
-1. **Git repo** — Confirm this is a git repository (`git rev-parse --is-inside-work-tree`).
-2. **Not detached HEAD** — Run `git branch --show-current`. If the output is empty, the repo is in detached HEAD state. Tell the user to check out or create a branch first.
-3. **Not a shallow clone** — Run `git rev-parse --is-shallow-repository`. If `true`, tell the user to run `git fetch --unshallow` first, because diffs against the base branch may be incorrect.
-4. **`gh` installed** — Confirm `gh` is on the PATH (`command -v gh`). If not, tell the user to install it from https://cli.github.com/.
-5. **`gh` authenticated** — Run `gh auth status`. If not authenticated, tell the user to run `gh auth login`.
-6. **Remote exists** — Confirm at least one remote is configured (`git remote -v`). If there are multiple remotes, identify which one to push to: use the upstream of the current branch if set, otherwise default to `origin`.
-7. **Detect base branch** — Determine the repository's default branch using this cascade:
-   1. `gh repo view --json defaultBranchRef --jq '.defaultBranchRef.name'` (most reliable).
-   2. `git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's|refs/remotes/origin/||'` (works offline if previously fetched).
-   3. Fall back: check if `main` exists on the remote (`git ls-remote --heads origin main`), then `master`. If neither exists, ask the user which branch to target.
-8. **Not on base branch** — If the current branch IS the base branch, tell the user to create a feature branch first.
-9. **Commits ahead of base** — Run `git log --oneline <base>..HEAD`. If there are zero commits, tell the user there is nothing to open a PR for and stop.
-10. **No existing PR** — Run `gh pr view --json url` (do NOT redirect stderr). Check the result:
-    - If it succeeds and returns a URL, an open PR already exists — show the URL and stop.
-    - If it fails with a message containing "no pull requests found", that is expected — continue.
-    - If it fails for any other reason (auth error, network error, repo not found), show the error and stop.
+## 2. Analyze the diff
 
-### 2. Analyze Changes
+Get a file-level summary with `git diff <base>...HEAD --stat`, then size the diff with `git diff <base>...HEAD | wc -l`:
 
-1. Run `git diff <base>...HEAD --stat` for a file-level summary.
-2. Count the diff size: `git diff <base>...HEAD | wc -l`.
-   - If the diff is **under 1500 lines**, run `git diff <base>...HEAD` to get the full diff for analysis.
-   - If the diff is **1500 lines or more**, skip the full diff. Use only the `--stat` output and the commit log for analysis. Note in the PR body that the diff was too large to fully analyze.
-3. Note any binary files shown in `--stat` (they appear as `Bin 0 -> N bytes`). Do not attempt to diff binary content — just list the binary files in your analysis.
+- Under 1500 lines: read the full diff.
+- 1500+ lines: skip the full diff, work from `--stat` plus `git log <base>..HEAD`, and note in the PR body that the diff was too large to fully analyze.
 
-### 3. Push Unpushed Commits
+List binary files (shown as `Bin 0 -> N bytes`) by name only — don't try to diff their contents.
 
-1. Check if the current branch has an upstream: `git rev-parse --abbrev-ref @{upstream} 2>/dev/null`.
-2. If no upstream, run `git push -u origin HEAD`.
-3. If upstream exists, check whether local and remote have diverged:
-   - Run `git rev-list --left-right --count HEAD...@{upstream}` to get `<ahead> <behind>` counts.
-   - If ahead > 0 and behind == 0, run `git push`.
-   - If behind > 0 (remote has commits that local does not), tell the user the branch has diverged from its upstream and they should pull or rebase first. Do NOT push.
-4. **NEVER force push.**
+## 3. Push unpushed commits
 
-### 4. Generate PR Content
+Check the upstream with `git rev-parse --abbrev-ref @{upstream} 2>/dev/null`:
 
-Based on the diff analysis, generate:
+- No upstream → `git push -u origin HEAD` (or the tracked remote if the branch already tracks one; in fork workflows tell the user which remote you used).
+- Upstream exists → check divergence with `git rev-list --left-right --count HEAD...@{upstream}` (gives `<ahead> <behind>`). If only ahead, `git push`. If behind, the branch has diverged — stop and ask the user to pull or rebase first.
 
-- **Title**: Under 70 characters. If the user provided text via `$ARGUMENTS`, use that as the title. Otherwise, generate a concise title from the changes.
-- **Summary**: 1-3 bullet points describing what changed and why.
-- **Test plan**: 2-5 checkbox items (`- [ ]`) describing how to verify the changes. Be specific — reference actual files, endpoints, or behaviors.
+Never force push, and never create or amend commits. The skill ships existing history; it doesn't rewrite it.
 
-### 5. Create the PR
+## 4. Generate PR content
 
-Use `gh pr create` with `--base` set explicitly and a HEREDOC for the body. Use single quotes around the title to avoid shell interpretation of special characters:
+- **Title** — under 70 characters. If the user passed text via `$ARGUMENTS`, use it verbatim. Otherwise generate a concise title from the diff and commit messages.
+- **Summary** — 1–3 bullets covering what changed and why.
+- **Test plan** — 2–5 checkbox items (`- [ ]`). Reference real files, endpoints, or behaviors so a reviewer knows exactly what to verify. Skip generic items like "test that it works".
+
+## 5. Create the PR
+
+Pass the title via a variable and the body via a single-quoted heredoc — that way titles with quotes/backticks and bodies with `$` or backticks survive shell expansion intact.
+
+Input — branch with two commits adding a `/healthz` endpoint and its test:
 
 ```bash
+PR_TITLE="Add /healthz endpoint for liveness checks"
 gh pr create --base "$BASE_BRANCH" --title "$PR_TITLE" --body "$(cat <<'EOF'
 ## Summary
-- First change description
-- Second change description
+- Add `GET /healthz` returning `{"status":"ok"}` for load balancer probes
+- Wire the route into `server/router.ts` and cover it in `server/healthz.test.ts`
 
 ## Test plan
-- [ ] Verify first thing
-- [ ] Verify second thing
-- [ ] Check for regressions in related area
+- [ ] `curl localhost:3000/healthz` returns 200 with `{"status":"ok"}`
+- [ ] `npm test -- healthz` passes
+- [ ] Existing routes in `server/router.ts` still resolve
 
 ---
 Generated with [Claude Code](https://claude.com/claude-code)
@@ -79,27 +77,10 @@ EOF
 )"
 ```
 
-Important: if the title contains double quotes or shell metacharacters, escape them properly or assign to a variable first. The HEREDOC body uses `'EOF'` (single-quoted delimiter) so no expansion occurs inside the body.
+Pass `--base` explicitly so the PR targets the branch you detected, not whatever GitHub guesses.
 
-### 6. Report
+If `gh pr create` fails, show the full error. Most failures map to a preflight check that should have caught the issue (auth, no commits, unpushed branch); a title that's too long or contains invalid characters is the main runtime case — shorten and retry.
 
-Tell the user:
-- The PR URL (returned by `gh pr create`)
-- The title and base branch
-- Number of commits included
+## 6. Report
 
-## Rules
-
-- **NEVER force push.** Only use `git push` or `git push -u origin HEAD`.
-- **NEVER create commits.** This skill only creates PRs from existing commits.
-- **NEVER modify git config.** Do not change user.name, user.email, or any other git config.
-- **NEVER amend commits.** Leave the commit history as-is.
-- If `gh pr create` fails, show the full error output. Common issues:
-  - Not authenticated: tell user to run `gh auth login`
-  - No commits ahead of base: tell user there is nothing to PR
-  - Branch not pushed: this should have been handled in step 3
-  - Title too long or invalid: shorten and retry
-- If the diff is empty (no changes vs base), tell the user and stop.
-- Keep the PR body clean. Do not include raw diff output in the body.
-- The test plan should be actionable — avoid generic items like "test everything works".
-- If the repo has multiple remotes (common in fork workflows), prefer pushing to the remote that the current branch already tracks. If no tracking is set, use `origin`. Tell the user which remote was used.
+Print the PR URL returned by `gh pr create`, the title, the base branch, and the number of commits included.

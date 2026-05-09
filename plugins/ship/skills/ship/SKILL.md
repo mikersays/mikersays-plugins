@@ -1,42 +1,38 @@
 ---
 name: ship
-description: Git commit and push current changes in one step
+description: Stage, commit, and push all changes in one step, with auto-generated message if none given
 argument-hint: "[commit message]"
 disable-model-invocation: true
 allowed-tools: Bash
 ---
 
-# Ship — Commit and Push
+# Ship
 
-Commit all staged and unstaged changes, then push to the remote.
+Stage all changes, commit, and push to the remote in one shot. If `$ARGUMENTS` is empty, the script generates a timestamped message.
 
-## Process
+## Run
 
-Run the bundled script, passing `$ARGUMENTS` as the commit message:
+Invoke the bundled script, forwarding `$ARGUMENTS` as the commit message:
 
 ```bash
 bash "$(dirname "$(find . -path '*/ship/scripts/ship.sh' -print -quit 2>/dev/null || echo /dev/null)")/ship.sh" $ARGUMENTS
 ```
 
-If the script is not found at a known path, fall back to running it directly:
+Fallback if the discovery path fails:
 
 ```bash
 bash plugins/ship/scripts/ship.sh $ARGUMENTS
 ```
 
-The script will:
-1. Verify the current directory is a git repo.
-2. Exit early if the working tree is clean.
-3. `git add -A` to stage all changes.
-4. Commit with the provided message (or a default timestamped message).
-5. Push to the remote (sets upstream if needed).
-6. Print the result.
+Then surface the script's output to the user.
 
-Report the script output to the user.
+The script handles: repo check, clean-tree early exit, `git add -A`, commit (with provided or timestamped message), and push (setting upstream on first push).
 
-## Rules
+## Constraints
 
-- NEVER force push.
-- NEVER skip pre-commit hooks (no `--no-verify`).
-- If the commit or push fails, report the error clearly — do not retry blindly.
-- If a pre-commit hook fails, fix the issue, re-stage, and create a NEW commit (never amend).
+These rules exist because shipping is fast and irreversible — the safeguards keep that speed from turning destructive.
+
+- No force pushes. They rewrite remote history and can erase teammates' work.
+- No `--no-verify`. Pre-commit hooks exist for a reason; bypassing them ships broken code.
+- On failure, report the error verbatim and stop. Retrying blindly hides the real problem (auth, hook failure, conflict).
+- If a pre-commit hook fails, fix the underlying issue, re-stage, and make a **new** commit. Don't amend — the failed commit was never created, so amending would rewrite the *previous* commit and risk losing earlier work.

@@ -17,12 +17,12 @@ The hook runs `git pull` on the marketplace repo each time Codex starts, so plug
 
 ## Available plugins
 
-- `ship` — Git commit and push in one command
-- `pr` — Create a GitHub PR with auto-generated title, summary, and test plan
-- `tech-writer` — Review and rewrite docs using Google's Technical Writing guidelines
-- `deck` — Generate a self-contained HTML slide deck from a topic
-- `roadmap` — Generate a visual HTML Gantt-chart roadmap from a markdown file
-- `diagram` — Generate interactive SVG diagrams from a description
+- `ship` — Stage, commit, and push all changes in one step, with auto-generated message if none given
+- `pr` — Create a GitHub PR for the current branch with auto-generated title, summary, and test plan
+- `tech-writer` — Review and rewrite documentation in place using Google's Technical Writing guidelines
+- `deck` — Generate a self-contained HTML slide deck from a topic — single file, dark theme, keyboard nav
+- `roadmap` — Generate a self-contained interactive HTML Gantt chart from a markdown roadmap file
+- `diagram` — Generate an interactive SVG diagram (architecture, sequence, flowchart, ER) from a description
 
 ## Prompt to give Codex
 

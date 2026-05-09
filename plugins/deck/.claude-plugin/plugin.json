@@ -1,5 +1,5 @@
 {
   "name": "deck",
-  "description": "Generate an HTML slide deck from a topic",
+  "description": "Generate a self-contained HTML slide deck from a topic — single file, dark theme, keyboard nav",
   "version": "1.0.0"
 }

@@ -1,128 +1,158 @@
 ---
 name: tech-writer
-description: Review and rewrite documentation using Google's Technical Writing guidelines
+description: Review and rewrite documentation in place using Google's Technical Writing guidelines
 argument-hint: "[file path]"
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
-# Tech Writer — Review and Rewrite Documentation
+# Tech Writer
 
-Apply the conventions and guidelines from Google's Technical Writing One and Technical Writing Two courses to review and improve technical documentation.
+Review and rewrite documentation against the conventions from Google's Technical Writing One and Two courses. Improve how content is expressed; do not change what it says.
 
 ## Process
 
-1. **Determine the target file.**
-   - If the user provided a file path via `$ARGUMENTS`, read that file.
-   - If no argument was provided, identify the file currently in context (most recently discussed or open). If no file is apparent, ask the user which file to review.
+1. **Pick the target file.** Use `$ARGUMENTS` if provided. Otherwise use the file currently in context. If neither exists, ask.
+2. **Read the whole file** before editing — context matters for terminology and pronouns.
+3. **Edit in place.** Preserve the author's intent, voice, and technical accuracy. Restructure and reword; do not add new content or delete information.
+4. **Report changes** grouped by rule (e.g. "Active voice: 4 sentences. Filler: removed 7 phrases.").
 
-2. **Read the file** in its entirety.
+If the document is already well-written, say so and stop. Don't churn for the sake of churn.
 
-3. **Analyze the document** against every rule below. Track each change you make.
+## Boundaries
 
-4. **Rewrite the file in place**, applying all applicable rules. Preserve the author's intent, meaning, and technical accuracy. Do not add new technical content or remove information — only improve how existing content is expressed and organized.
-
-5. **Report a summary** of changes made, grouped by rule category (e.g., "Active Voice: converted 4 passive sentences," "Short Sentences: split 3 long sentences").
+- Don't change technical meaning. If something reads as factually wrong, flag it instead of silently fixing it.
+- Don't add sections, features, or claims the author didn't write.
+- Don't delete information — reword or relocate it.
+- Preserve the author's voice. The goal is clarity, not homogenization.
 
 ---
 
-## Rules
+## Rules with examples
 
-Apply these rules in order. Every rule is mandatory when applicable.
+The rules below come from the Google courses. Each one has a short rationale and a before/after — apply by analogy, not by pattern-matching to these exact phrases.
 
-### Words and Terminology
+### Active voice
 
-- **Define new or unfamiliar terms** where they first appear, or link to an existing definition. If the document introduces many terms, collect them in a glossary.
-- **Use one term consistently** for each concept throughout the document. Never rename a concept midway.
-- **Acronyms:** On first use, spell out the full term followed by the acronym in parentheses, both in bold — e.g., **Transmission Control Protocol** (**TCP**). After that, use only the acronym. Only create an acronym if it is significantly shorter than the full term AND appears many times. If used only a few times, spell it out every time.
-- **Pronouns:** Place pronouns within five words of their referent noun. If a second noun intervenes, repeat the original noun instead. Replace ambiguous uses of *it*, *they*, *them*, *their*, *this*, and *that* with the specific noun. Place a noun immediately after *this* or *that* when used as a determiner (e.g., "this variable" not just "this").
+Active voice (actor + verb + target) is shorter and tells the reader who did what. Passive hides the actor.
 
-### Active Voice
+- Before: `The error is raised when the input is divided by zero.`
+- After:  `Dividing by zero raises the error.`
 
-- **Prefer active voice** (actor + verb + target) over passive voice (target + verb + actor).
-- Convert passive constructions to active. If the actor is missing from a passive sentence, determine who performs the action and name them.
-- Imperative sentences (commands) are already active voice.
+If a passive sentence has no actor, figure out who acts and name them. Imperatives are already active.
 
-### Clear Sentences
+### Strong verbs
 
-- **Replace weak verbs** — forms of *be* (is, are, was, were), *occur*, *happen* — with strong, specific verbs. Example: "The error occurs when..." → "Dividing by zero raises the error..."
-- **Eliminate "There is" and "There are"** constructions. Move the real subject to the front. Example: "There is a variable called `count` that stores..." → "The `count` variable stores..."
-- **Replace vague adjectives and adverbs** with objective, measurable data. Example: "significantly faster" → "225–250% faster."
+Forms of *be* (`is`, `are`, `was`), plus `occur` and `happen`, do little work. Replace them with verbs that name the action.
 
-### Short Sentences
+- Before: `A timeout occurs when the server is unresponsive.`
+- After:  `The client times out when the server stops responding.`
 
-- **One idea per sentence.** If a sentence contains two thoughts, split it into two sentences.
-- **Convert embedded lists into actual lists.** When a sentence uses "or" or "and" to chain three or more items, extract them into a bulleted or numbered list.
-- **Remove filler words and phrases:**
-  - "at this point in time" → "now"
-  - "is able to" → "can"
-  - "causes the triggering of" → "triggers"
-  - "provides a detailed description of" → "describes"
-  - "in order to" → "to"
-- **Subordinate clauses:** If a subordinate clause (starting with *which*, *that*, *because*, *whose*, *until*, *unless*, *since*) branches away from the main idea, break it into its own sentence.
-- **That vs. which (US English):** Use *that* for essential (restrictive) clauses without a comma. Use *which* for nonessential (nonrestrictive) clauses, preceded by a comma.
+Drop `There is` / `There are` openers — move the real subject to the front.
 
-### Lists and Tables
+- Before: `There is a variable named count that stores the total.`
+- After:  `The count variable stores the total.`
 
-- **Bulleted lists** for unordered items. **Numbered lists** for sequential steps or ranked items.
-- **Parallel structure:** All items in a list must share the same grammatical form, capitalization, and punctuation.
-- **Numbered list items** start with an imperative verb (e.g., "Download the package," "Configure the server").
-- **Introduce every list and table** with a contextual sentence ending in a colon, ideally using the word "following."
-- **Table cells:** Limit content to two sentences. Label every column with a meaningful header.
+### Specific, measurable claims
+
+Vague intensifiers (`significantly`, `much`, `very`) are noise. Use numbers when you have them.
+
+- Before: `The new index is significantly faster.`
+- After:  `The new index is 225–250% faster on the benchmark suite.`
+
+### One idea per sentence
+
+If a sentence has two ideas joined by `and`, `but`, or a subordinate clause that branches away from the main point, split it.
+
+- Before: `The build runs in CI, which uses a cached image that is rebuilt nightly, and fails fast on lint errors.`
+- After:  `The build runs in CI and fails fast on lint errors. CI uses a cached image, rebuilt nightly.`
+
+When a sentence chains three or more items with `and` / `or`, lift them into a list.
+
+### Cut filler
+
+These phrases add length without meaning:
+
+| Before | After |
+|---|---|
+| `at this point in time` | `now` |
+| `is able to` | `can` |
+| `in order to` | `to` |
+| `causes the triggering of` | `triggers` |
+| `provides a detailed description of` | `describes` |
+| `due to the fact that` | `because` |
+
+### Pronouns
+
+Place pronouns within about five words of the noun they refer to. If another noun gets in between, repeat the original noun. After `this` or `that` used as a determiner, add the noun.
+
+- Before: `The parser reads the config and validates the schema. It then writes it to disk.`
+- After:  `The parser reads the config and validates the schema. The parser then writes the config to disk.`
+
+- Before: `This means the request will be retried.`
+- After:  `This retry policy means the request will run again.`
+
+### Terminology
+
+Use one term per concept across the whole document. Switching between `user`, `caller`, and `client` for the same actor forces the reader to re-map every time.
+
+For acronyms: spell out on first use with the acronym in parentheses — **Transmission Control Protocol** (**TCP**) — then use the acronym. Skip the acronym entirely if the term appears only two or three times.
+
+### That vs. which (US English)
+
+`that` introduces a restrictive clause (no comma). `which` introduces a nonrestrictive clause (comma).
+
+- `The file that you uploaded is corrupted.` (which file? the one you uploaded)
+- `The file, which you uploaded yesterday, is corrupted.` (extra info about a known file)
+
+### Lists and tables
+
+- Bullets for unordered items, numbers for ordered steps.
+- Make items grammatically parallel — same starting part of speech, same capitalization, same punctuation.
+- Start numbered steps with an imperative verb: `Download the binary.` `Run the installer.`
+- Introduce every list and table with a sentence that ends in a colon — often using the word "following."
+- Keep table cells to two sentences or fewer; give every column a meaningful header.
+
+Before (mixed forms):
+```
+- Downloading the package
+- Run installer
+- Configuration of the server
+```
+
+After (parallel imperatives):
+```
+- Download the package.
+- Run the installer.
+- Configure the server.
+```
 
 ### Paragraphs
 
-- **Opening sentence** must state the paragraph's central point. Busy readers may read only this sentence.
-- **One topic per paragraph.** Remove or relocate sentences that don't belong.
-- **Length:** Aim for 3–5 sentences. Avoid walls of text (7+ sentences) and excessive one-sentence paragraphs.
-- **Each paragraph should answer** what you're telling the reader, why it matters, and how to use it.
+The opening sentence states the point — a busy reader may read only that sentence. One topic per paragraph. Aim for 3–5 sentences. A wall of seven-plus sentences usually contains two paragraphs that haven't been separated yet.
 
-### Audience
+### Audience and scope
 
-- **State the target audience** near the top of the document.
-- **Avoid idioms** ("Bob's your uncle," "hit the ground running") and cultural references. Use plain, direct language.
-- **Explain jargon and abbreviations.** Account for the curse of knowledge — terms obvious to the author may be opaque to the reader.
+State the target audience and prerequisites near the top, and say what the document does *not* cover. Skip idioms (`hit the ground running`, `Bob's your uncle`) and culture-specific references — they trip non-native readers and add nothing.
 
-### Document Organization
+### Self-editing pass
 
-- **State scope explicitly:** What the document covers and what it does not cover.
-- **State prerequisites:** What the reader must know or have installed before reading.
-- **Lead with key points.** Invest heavily in the opening section — readers decide within the first paragraph whether to continue.
-- **Remove tangential content** that falls outside the stated scope, even if it's interesting.
+- Use **you**, not **we**. The reader is doing the work, not the author.
+- Put conditions before instructions: `If the build fails, run make clean.` — not `Run make clean if the build fails.` Readers can skip the instruction faster when the condition comes first.
+- Wrap file names, variables, commands, and class names in `code font`.
 
-### Self-Editing (Technical Writing Two)
+### Headings
 
-- **Use second person** ("you") instead of first-person plural ("we").
-- **Place conditions before instructions.** Example: "If the build fails, run `make clean`" — not "Run `make clean` if the build fails."
-- **Format code-related text** — file names, variable names, commands, class names — in code font (backticks in Markdown).
+Headings should describe the reader's task, not the topic abstractly.
 
-### Large Documents (Technical Writing Two)
+- Before: `Database configuration`
+- After:  `Configure the database`
 
-- **Introduction must state** three things: what the document covers, what prior knowledge the reader needs, and what the document does not cover.
-- **Headings describe the reader's task** (e.g., "Configure the database" not "Database configuration"). Provide at least one sentence of text under every heading.
-- **Progressive disclosure:** Introduce concepts from simple to complex. Define terms near where they are first needed, not all upfront.
-- **Break walls of text** with lists, tables, diagrams, or code samples.
+Put at least one sentence of prose under every heading — orphan headings stacked together force the reader to guess what's coming.
 
-### Sample Code (Technical Writing Two)
+### Sample code
 
-- Code samples must be **correct, concise, and understandable.**
-- Use **descriptive names** for variables, functions, and classes. Avoid abbreviations, single-letter names, and clever tricks.
-- **Avoid deep nesting.** Flatten logic where possible.
-- **Comment the "why,"** not the "what." Skip comments for obvious operations.
-- When relevant, show **anti-examples** (what NOT to do) alongside correct examples.
-- Provide **run instructions** and describe expected output.
+Code samples should be correct, short, and readable. Use descriptive names (no `x`, `tmp`, `data2`). Flatten deep nesting. Comment *why*, not *what*. When a common mistake exists, show the anti-example next to the correct one. Include run instructions and expected output where relevant.
 
-### Illustrations (Technical Writing Two)
+### Illustrations
 
-- **Write the caption before creating the illustration.** The caption should be brief and state the key takeaway.
-- **Limit information density:** No more than one paragraph's worth of information per diagram. Split complex systems into multiple diagrams.
-- **Use callouts, arrows, or highlights** to focus the reader's attention on relevant details.
-
----
-
-## Rules for This Skill
-
-- NEVER change the technical meaning or accuracy of the content. If something looks technically wrong, flag it to the user rather than silently changing it.
-- NEVER add new sections, features, or content that the author did not write. Only improve expression of existing content.
-- NEVER delete information — restructure or reword it instead.
-- If the document is already well-written and few changes apply, say so. Do not make changes for the sake of making changes.
-- When rewriting, preserve the author's voice and tone as much as possible while applying the rules.
+Write the caption first — it's the takeaway. Cap each diagram at roughly one paragraph's worth of information; split complex systems across diagrams. Use callouts and arrows to direct attention.
