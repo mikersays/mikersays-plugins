@@ -12,17 +12,13 @@ Stage all changes, commit, and push to the remote in one shot. If `$ARGUMENTS` i
 
 ## Run
 
-Invoke the bundled script, forwarding `$ARGUMENTS` as the commit message:
+Invoke the bundled script, forwarding `$ARGUMENTS` as the commit message. The script lives inside the installed plugin tree under `~/.claude/plugins`, so search there (not the current working directory):
 
 ```bash
-bash "$(dirname "$(find . -path '*/ship/scripts/ship.sh' -print -quit 2>/dev/null || echo /dev/null)")/ship.sh" $ARGUMENTS
+bash "$(find ~/.claude/plugins -path '*/ship/scripts/ship.sh' -print -quit 2>/dev/null)" $ARGUMENTS
 ```
 
-Fallback if the discovery path fails:
-
-```bash
-bash plugins/ship/scripts/ship.sh $ARGUMENTS
-```
+If `find` returns nothing (plugin not installed in the expected location), report the error and stop — do not retry.
 
 Then surface the script's output to the user.
 
