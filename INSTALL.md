@@ -23,6 +23,7 @@ The hook runs `git pull` on the marketplace repo each time Codex starts, so plug
 - `deck` — Generate a self-contained HTML slide deck from a topic — single file, dark theme, keyboard nav
 - `roadmap` — Generate a self-contained interactive HTML Gantt chart from a markdown roadmap file
 - `diagram` — Generate an interactive SVG diagram (architecture, sequence, flowchart, ER) from a description
+- `plan` — Lightweight markdown-based tracker for bugs/features/chores/todos that lives in docs/plan/ inside your repo
 
 ## Prompt to give Codex
 
@@ -108,6 +109,10 @@ In all cases, the mikersays entry to insert is:
     {
       "name": "diagram",
       "source": { "path": "../../.codex/plugins/mikersays/mikersays-plugins/plugins/diagram" }
+    },
+    {
+      "name": "plan",
+      "source": { "path": "../../.codex/plugins/mikersays/mikersays-plugins/plugins/plan" }
     }
   ]
 }
@@ -115,13 +120,23 @@ In all cases, the mikersays entry to insert is:
 
 ### Step 3: Symlink skills into ~/.agents/skills
 
-Codex's `/skills` command scans `~/.agents/skills/`. Create symlinks there so all 6 skills appear:
+Codex's `/skills` command scans `~/.agents/skills/`. Create symlinks there so all skills appear.
+
+`ship`, `pr`, `tech-writer`, `deck`, `roadmap`, and `diagram` each ship a single same-named skill — one symlink per plugin. The `plan` plugin ships five skills (`plan-init`, `plan-add`, `plan-list`, `plan-update`, `plan-close`) — one symlink per skill.
 
 ```bash
 mkdir -p ~/.agents/skills
+
+# Single-skill plugins
 for plugin in ship pr tech-writer deck roadmap diagram; do
   ln -sfn "$HOME/.codex/plugins/mikersays/mikersays-plugins/plugins/$plugin/skills/$plugin" \
     "$HOME/.agents/skills/$plugin"
+done
+
+# plan ships five skills
+for skill in plan-init plan-add plan-list plan-update plan-close; do
+  ln -sfn "$HOME/.codex/plugins/mikersays/mikersays-plugins/plugins/plan/skills/$skill" \
+    "$HOME/.agents/skills/$skill"
 done
 ```
 
@@ -175,6 +190,9 @@ enabled = true
 enabled = true
 
 [plugins."diagram@mikersays-marketplace"]
+enabled = true
+
+[plugins."plan@mikersays-marketplace"]
 enabled = true
 ```
 

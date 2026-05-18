@@ -30,7 +30,7 @@ Show the full output — the user wants to see what the installer did.
 
 ## 3. Verify
 
-Run each check and report pass/fail individually. Partial failure is informative; a single combined check would hide which step broke.
+Run each check and report pass/fail individually. Partial failure is informative; a single combined check would hide which step broke. The skill list is derived at run time from the cloned repo, so it stays correct as plugins are added or removed.
 
 ```bash
 ls ~/.codex/plugins/mikersays/mikersays-plugins/.codex-plugin/marketplace.json
@@ -48,8 +48,19 @@ print('FOUND' if found else 'MISSING')
 grep -c 'mikersays-marketplace' ~/.codex/config.toml && echo "config entries present"
 ```
 ```bash
-ls ~/.agents/skills/ship ~/.agents/skills/pr ~/.agents/skills/tech-writer \
-   ~/.agents/skills/deck ~/.agents/skills/roadmap ~/.agents/skills/diagram
+# Discover expected skills from the freshly cloned repo, then check each symlink.
+REPO=~/.codex/plugins/mikersays/mikersays-plugins
+expected=$(find "$REPO/plugins" -mindepth 3 -maxdepth 3 -type d -path '*/skills/*' -exec basename {} \; | sort)
+missing=0
+for skill in $expected; do
+  if [ -L "$HOME/.agents/skills/$skill" ] || [ -e "$HOME/.agents/skills/$skill" ]; then
+    echo "✓ $skill"
+  else
+    echo "✗ $skill MISSING"
+    missing=$((missing + 1))
+  fi
+done
+[ "$missing" -eq 0 ] && echo "All skill symlinks present" || echo "$missing skill symlink(s) missing"
 ```
 ```bash
 git -C ~/.codex/plugins/mikersays/mikersays-plugins log --oneline -1

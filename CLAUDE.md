@@ -29,7 +29,26 @@ plugins/<name>/                   ← Each plugin lives in its own directory
 3. Add `.codex-plugin/plugin.json` with the same fields plus `"skills": "./skills/"`
 4. Add skills under `skills/<skill-name>/SKILL.md`
 5. Add a `README.md` for the plugin
-6. Register the plugin in both root marketplace files (`plugins` array)
+6. Run `/sync-docs` to propagate the new plugin into both marketplace files, `INSTALL.md`, `UNINSTALL.md`, and `docs/index.html`. (Doing it by hand also works — `/sync-docs` just automates it.)
+7. Run `python3 scripts/validate.py` to confirm everything stayed consistent. The pre-commit hook and CI run the same check.
+
+## Validation and maintenance
+
+`scripts/validate.py` is the source of truth for "is the marketplace internally consistent." It runs on every push and PR via `.github/workflows/validate.yml`, and locally via `.githooks/pre-commit`.
+
+Enable the pre-commit hook once per clone:
+
+```bash
+git config core.hooksPath .githooks
+```
+
+The validator checks:
+- Both marketplace JSON files parse and contain every `plugins/<name>/` directory
+- Every `plugins/<name>/` has both `.claude-plugin/plugin.json` and `.codex-plugin/plugin.json` with matching `name` fields
+- Every `SKILL.md` has parseable frontmatter with `name` matching its directory
+- Every user-facing plugin and skill (everything except `maintenance`) appears in `INSTALL.md`, `UNINSTALL.md`, and `docs/index.html`
+
+Pure stdlib Python 3.9+ — no install step.
 
 ## SKILL.md Format
 

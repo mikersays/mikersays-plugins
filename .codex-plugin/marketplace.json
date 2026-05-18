@@ -72,6 +72,17 @@
       "category": "productivity"
     },
     {
+      "name": "plan",
+      "source": {
+        "source": "local",
+        "path": "./plugins/plan"
+      },
+      "policy": {
+        "installation": "AVAILABLE"
+      },
+      "category": "productivity"
+    },
+    {
       "name": "maintenance",
       "source": {
         "source": "local",

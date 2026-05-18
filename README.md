@@ -41,12 +41,14 @@ This clones the repo to `~/.codex/plugins/mikersays/mikersays-plugins`, symlinks
 | [roadmap](plugins/roadmap/) | Generate a visual HTML Gantt-chart roadmap from a markdown file | `/roadmap [file]` |
 | [diagram](plugins/diagram/) | Generate interactive SVG diagrams from a description | `/diagram [description]` |
 | [pr](plugins/pr/) | Create a GitHub PR with auto-generated title, summary, and test plan | `/pr [title]` |
+| [plan](plugins/plan/) | Track bugs, features, chores, and todos as markdown in `docs/plan/` | `/plan-init` `/plan-add` `/plan-list` `/plan-update` `/plan-close` |
 | [maintenance](plugins/maintenance/) | Sync docs, run installer, run uninstaller | `/sync-docs` `/install-marketplace` `/uninstall-marketplace` |
 
 ## Contributing
 
 1. Create a directory under `plugins/<name>/`
-2. Add `.claude-plugin/plugin.json` with name, description, and version
+2. Add `.claude-plugin/plugin.json` and `.codex-plugin/plugin.json` (name, description, version; codex also needs `"skills": "./skills/"`)
 3. Add your skills under `skills/<skill-name>/SKILL.md`
 4. Add a `README.md` for documentation
-5. Register your plugin in `.claude-plugin/marketplace.json`
+5. Run `/sync-docs` (from the `maintenance` plugin) to register the plugin across both marketplace files, `INSTALL.md`, `UNINSTALL.md`, and `docs/index.html`
+6. Run `python3 scripts/validate.py` to confirm consistency. Enable the pre-commit hook once per clone with `git config core.hooksPath .githooks` so this runs automatically.

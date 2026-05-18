@@ -321,7 +321,7 @@
 
       <div class="picker-header">
         <div id="selection-pill" class="selection-pill">
-          <span class="count" id="pill-count">6</span> of 6 selected
+          <span class="count" id="pill-count">7</span> of 7 selected
         </div>
         <div class="picker-actions">
           <button class="text-btn" onclick="selectAll()">Select all</button>
@@ -471,6 +471,7 @@
     { id: 'deck',        desc: 'Generate a self-contained HTML slide deck from a topic — single file, dark theme, keyboard nav' },
     { id: 'roadmap',     desc: 'Generate a self-contained interactive HTML Gantt chart from a markdown roadmap file' },
     { id: 'diagram',     desc: 'Generate an interactive SVG diagram (architecture, sequence, flowchart, ER) from a description' },
+    { id: 'plan',        desc: 'Lightweight markdown-based tracker for bugs/features/chores/todos that lives in docs/plan/ inside your repo' },
   ];
 
   const REPO = 'https://github.com/mikersays/mikersays-plugins.git';
@@ -597,7 +598,7 @@ Verify all steps and report the final result.`;
     if (none) {
       whatPlugins.textContent = 'No plugins selected.';
     } else if (all) {
-      whatPlugins.innerHTML = 'All 6 plugins registered in <code>~/.agents/plugins/marketplace.json</code>';
+      whatPlugins.innerHTML = `All ${PLUGINS.length} plugins registered in <code>~/.agents/plugins/marketplace.json</code>`;
     } else {
       whatPlugins.innerHTML = `${ids.length} plugin${ids.length > 1 ? 's' : ''} registered in <code>~/.agents/plugins/marketplace.json</code>: <strong>${ids.join(', ')}</strong>`;
     }

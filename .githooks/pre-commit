@@ -1,0 +1,16 @@
+#!/bin/sh
+# Validates the marketplace on every commit. Run once after cloning:
+#   git config core.hooksPath .githooks
+#
+# To bypass for a single commit (not recommended): git commit --no-verify
+
+set -e
+
+cd "$(git rev-parse --show-toplevel)"
+
+if ! command -v python3 >/dev/null 2>&1; then
+  echo "pre-commit: python3 not found; skipping marketplace validation" >&2
+  exit 0
+fi
+
+exec python3 scripts/validate.py

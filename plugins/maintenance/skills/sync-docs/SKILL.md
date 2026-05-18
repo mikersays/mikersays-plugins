@@ -1,24 +1,29 @@
 ---
 name: sync-docs
-description: Refresh INSTALL.md, UNINSTALL.md, docs/index.html, and both marketplace.json files to match plugins/ on disk
+description: Refresh README.md, INSTALL.md, UNINSTALL.md, docs/index.html, and both marketplace.json files to match plugins/ on disk
 allowed-tools: Bash, Read, Edit, Glob
 ---
 
 # sync-docs — Sync Marketplace Documentation
 
-Plugin metadata is duplicated across five files. When you add, remove, or rename a plugin, this skill propagates the change so the docs and registries match the `plugins/` directory.
+Plugin metadata is duplicated across six files. When you add, remove, or rename a plugin, this skill propagates the change so the docs and registries match the `plugins/` directory.
 
 ## Targets
 
 | File | What references plugins |
 |---|---|
+| `README.md` | Plugins table (one row per user-facing plugin) |
 | `INSTALL.md` | "Available plugins" list, marketplace JSON block, symlink loop, `config.toml` block |
 | `UNINSTALL.md` | "What gets removed" list, unlink loop, `config.toml` block |
 | `docs/index.html` | `const PLUGINS = [...]` array inside `<script>` |
 | `.claude-plugin/marketplace.json` | `plugins[]` with `name`, `source`, `description` |
 | `.codex-plugin/marketplace.json` | `plugins[]` with `name`, `source`, `policy`, `category` |
 
-The `maintenance` plugin is its own special case — it stays in the registries but is omitted from end-user install/uninstall flows, since users don't install the maintenance plugin itself.
+The `maintenance` plugin is its own special case — it stays in the registries and in `README.md` but is omitted from end-user install/uninstall flows and the landing page, since users don't install the maintenance plugin itself.
+
+The two `maintenance` skills `install-marketplace` and `uninstall-marketplace` derive their plugin/skill lists at run time from the cloned repo, so they don't need to be touched by `sync-docs` — they stay correct automatically.
+
+After running, the user should run `python3 scripts/validate.py` (or rely on the pre-commit hook / CI) to confirm consistency.
 
 ## Process
 
@@ -35,6 +40,10 @@ done
 ```
 
 Skip `maintenance` for the install/uninstall doc updates (steps 2–3) but include it for marketplace registries (steps 5–6).
+
+### 2a. Update README.md
+
+The repo `README.md` has a markdown table under "## Plugins" with one row per user-facing plugin (everything except `maintenance` — which is listed last as a separate convention). Each row is `[name](plugins/name/) | description | usage`. Add a row for new plugins; remove rows for deleted ones; never reorder existing rows (the order is meaningful — feature plugins first, maintenance last).
 
 ### 2. Update INSTALL.md
 

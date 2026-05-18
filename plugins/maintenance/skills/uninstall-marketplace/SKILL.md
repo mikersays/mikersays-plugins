@@ -20,12 +20,30 @@ If `codex` is missing, stop and tell the user — the headless flow cannot run w
 
 ### 2. Confirm intent
 
-Uninstall is destructive and partially irreversible (the repo clone is deleted), so confirm before running. List exactly what will be removed:
+Uninstall is destructive and partially irreversible (the repo clone is deleted), so confirm before running. Inspect the current install state and list exactly what's about to disappear — derive the lists at runtime so this stays correct no matter how the marketplace evolves:
+
+```bash
+# Skill symlinks pointing into our marketplace
+echo "Skill symlinks to remove from ~/.agents/skills/:"
+for s in "$HOME/.agents/skills"/*; do
+  [ -L "$s" ] || continue
+  target=$(readlink "$s")
+  case "$target" in
+    *mikersays-plugins*) echo "  - $(basename "$s")" ;;
+  esac
+done
+
+# config.toml plugin entries
+echo ""
+echo "config.toml plugin entries to remove:"
+grep -E '^\[plugins\."[^"]+@mikersays-marketplace"\]' ~/.codex/config.toml 2>/dev/null \
+  | sed 's/^/  - /' || echo "  (none — config.toml absent or no entries)"
+```
+
+Also fixed:
 
 - Repo: `~/.codex/plugins/mikersays/mikersays-plugins`
-- Skill symlinks in `~/.agents/skills/`: `ship`, `pr`, `tech-writer`, `deck`, `roadmap`, `diagram`
 - `mikersays-marketplace` entry in `~/.agents/plugins/marketplace.json`
-- 6 `mikersays-marketplace` plugin entries in `~/.codex/config.toml`
 - SessionStart git-pull hook in `~/.codex/hooks.json`
 
 Skip the confirmation prompt if `$ARGUMENTS` contains `--yes` or `--force`.
@@ -47,7 +65,16 @@ Run each check and report pass/fail. Items already absent before the run count a
 ls ~/.codex/plugins/mikersays 2>/dev/null && echo "STILL PRESENT" || echo "removed"
 ```
 ```bash
-ls ~/.agents/skills/ship 2>/dev/null && echo "STILL PRESENT" || echo "removed"
+# Any symlink in ~/.agents/skills/ still pointing at our marketplace?
+leftover=0
+for s in "$HOME/.agents/skills"/*; do
+  [ -L "$s" ] || continue
+  target=$(readlink "$s")
+  case "$target" in
+    *mikersays-plugins*) echo "STILL PRESENT: $(basename "$s")"; leftover=$((leftover + 1)) ;;
+  esac
+done
+[ "$leftover" -eq 0 ] && echo "removed (no mikersays symlinks remain)"
 ```
 ```bash
 python3 -c "

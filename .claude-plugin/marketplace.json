@@ -35,6 +35,11 @@
       "description": "Create a GitHub PR for the current branch with auto-generated title, summary, and test plan — /pr"
     },
     {
+      "name": "plan",
+      "source": "./plugins/plan",
+      "description": "Lightweight markdown-based tracker for bugs/features/chores/todos in docs/plan/ — /plan-init /plan-add /plan-list /plan-update /plan-close"
+    },
+    {
       "name": "maintenance",
       "source": "./plugins/maintenance",
       "description": "Maintenance skills for the mikersays-plugins marketplace — /sync-docs /install-marketplace /uninstall-marketplace"
