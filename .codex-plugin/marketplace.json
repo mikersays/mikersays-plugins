@@ -83,6 +83,17 @@
       "category": "productivity"
     },
     {
+      "name": "issues",
+      "source": {
+        "source": "local",
+        "path": "./plugins/issues"
+      },
+      "policy": {
+        "installation": "AVAILABLE"
+      },
+      "category": "productivity"
+    },
+    {
       "name": "maintenance",
       "source": {
         "source": "local",

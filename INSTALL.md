@@ -24,6 +24,7 @@ The hook runs `git pull` on the marketplace repo each time Codex starts, so plug
 - `roadmap` — Generate a self-contained interactive HTML Gantt chart from a markdown roadmap file
 - `diagram` — Generate an interactive SVG diagram (architecture, sequence, flowchart, ER) from a description
 - `plan` — Lightweight markdown-based tracker for bugs/features/chores/todos that lives in docs/plan/ inside your repo
+- `issues` — Per-issue bug/feature/incident tracker in docs/issues/ — one file per ticket with symptom/repro/root cause/fix/verification, branch-on-start, and a hard rule to align with the user before implementing
 
 ## Prompt to give Codex
 
@@ -113,6 +114,10 @@ In all cases, the mikersays entry to insert is:
     {
       "name": "plan",
       "source": { "path": "../../.codex/plugins/mikersays/mikersays-plugins/plugins/plan" }
+    },
+    {
+      "name": "issues",
+      "source": { "path": "../../.codex/plugins/mikersays/mikersays-plugins/plugins/issues" }
     }
   ]
 }
@@ -122,7 +127,7 @@ In all cases, the mikersays entry to insert is:
 
 Codex's `/skills` command scans `~/.agents/skills/`. Create symlinks there so all skills appear.
 
-`ship`, `pr`, `tech-writer`, `deck`, `roadmap`, and `diagram` each ship a single same-named skill — one symlink per plugin. The `plan` plugin ships five skills (`plan-init`, `plan-add`, `plan-list`, `plan-update`, `plan-close`) — one symlink per skill.
+`ship`, `pr`, `tech-writer`, `deck`, `roadmap`, and `diagram` each ship a single same-named skill — one symlink per plugin. The `plan` plugin ships five skills (`plan-init`, `plan-add`, `plan-list`, `plan-update`, `plan-close`); the `issues` plugin ships four (`issue-init`, `issue-new`, `issue-start`, `issue-close`) — one symlink per skill.
 
 ```bash
 mkdir -p ~/.agents/skills
@@ -136,6 +141,12 @@ done
 # plan ships five skills
 for skill in plan-init plan-add plan-list plan-update plan-close; do
   ln -sfn "$HOME/.codex/plugins/mikersays/mikersays-plugins/plugins/plan/skills/$skill" \
+    "$HOME/.agents/skills/$skill"
+done
+
+# issues ships four skills
+for skill in issue-init issue-new issue-start issue-close; do
+  ln -sfn "$HOME/.codex/plugins/mikersays/mikersays-plugins/plugins/issues/skills/$skill" \
     "$HOME/.agents/skills/$skill"
 done
 ```
@@ -193,6 +204,9 @@ enabled = true
 enabled = true
 
 [plugins."plan@mikersays-marketplace"]
+enabled = true
+
+[plugins."issues@mikersays-marketplace"]
 enabled = true
 ```
 

@@ -42,6 +42,7 @@ This clones the repo to `~/.codex/plugins/mikersays/mikersays-plugins`, symlinks
 | [diagram](plugins/diagram/) | Generate interactive SVG diagrams from a description | `/diagram [description]` |
 | [pr](plugins/pr/) | Create a GitHub PR with auto-generated title, summary, and test plan | `/pr [title]` |
 | [plan](plugins/plan/) | Track bugs, features, chores, and todos as markdown in `docs/plan/` | `/plan-init` `/plan-add` `/plan-list` `/plan-update` `/plan-close` |
+| [issues](plugins/issues/) | Per-issue bug/feature/incident tracker in `docs/issues/` with symptom/repro/root cause/fix/verification, branch-on-start, and an alignment-before-implement rule | `/issue-init` `/issue-new` `/issue-start` `/issue-close` |
 | [maintenance](plugins/maintenance/) | Sync docs, run installer, run uninstaller | `/sync-docs` `/install-marketplace` `/uninstall-marketplace` |
 
 ## Contributing

@@ -71,4 +71,5 @@ The Markdown body defines the skill's behavior: process steps, rules, and constr
 - **diagram** (`plugins/diagram/`) — `/diagram [description]` — Generate interactive SVG diagrams from a description
 - **pr** (`plugins/pr/`) — `/pr [title]` — Create a GitHub PR with auto-generated title, summary, and test plan
 - **plan** (`plugins/plan/`) — `/plan-init`, `/plan-add`, `/plan-list`, `/plan-update`, `/plan-close` — Lightweight markdown tracker for bugs/features/chores/todos in `docs/plan/`
+- **issues** (`plugins/issues/`) — `/issue-init`, `/issue-new`, `/issue-start`, `/issue-close` — Per-issue bug/feature/incident tracker in `docs/issues/` with symptom/repro/root cause/fix/verification, branch-on-start, and an alignment-before-implement rule
 - **maintenance** (`plugins/maintenance/`) — `/sync-docs`, `/install-marketplace`, `/uninstall-marketplace` — Marketplace maintenance skills; not installed by end users
