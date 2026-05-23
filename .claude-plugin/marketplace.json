@@ -30,6 +30,11 @@
       "description": "Generate an interactive SVG diagram (architecture, sequence, flowchart, ER) from a description — /diagram"
     },
     {
+      "name": "monograph",
+      "source": "./plugins/monograph",
+      "description": "Build a multi-page PhD-level GitHub Pages site on any topic — research, free-licensed photography, a distinctive topic-tuned design, all built by a team of parallel expert subagents and shipped to docs/ — /monograph"
+    },
+    {
       "name": "pr",
       "source": "./plugins/pr",
       "description": "Create a GitHub PR for the current branch with auto-generated title, summary, and test plan — /pr"
