@@ -1,0 +1,6 @@
+{
+  "name": "handoff",
+  "description": "Audit session context and persist what matters for the next agent — decisions, dead ends, insights, and in-flight work",
+  "version": "1.0.0",
+  "skills": "./skills/"
+}

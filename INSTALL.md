@@ -26,6 +26,7 @@ The hook runs `git pull` on the marketplace repo each time Codex starts, so plug
 - `monograph` — Build a multi-page PhD-level GitHub Pages site on any topic — research, free-licensed photography, a distinctive topic-tuned design, all built by a team of parallel expert subagents and shipped to docs/
 - `plan` — Lightweight markdown-based tracker for bugs/features/chores/todos that lives in docs/plan/ inside your repo
 - `issues` — Per-issue bug/feature/incident tracker in docs/issues/ — one file per ticket with symptom/repro/root cause/fix/verification, branch-on-start, and a hard rule to align with the user before implementing
+- `handoff` — Audit session context and persist what matters for the next agent — decisions, dead ends, insights, and in-flight work
 
 ## Prompt to give Codex
 
@@ -123,6 +124,10 @@ In all cases, the mikersays entry to insert is:
     {
       "name": "issues",
       "source": { "path": "../../.codex/plugins/mikersays/mikersays-plugins/plugins/issues" }
+    },
+    {
+      "name": "handoff",
+      "source": { "path": "../../.codex/plugins/mikersays/mikersays-plugins/plugins/handoff" }
     }
   ]
 }
@@ -138,7 +143,7 @@ Codex's `/skills` command scans `~/.agents/skills/`. Create symlinks there so al
 mkdir -p ~/.agents/skills
 
 # Single-skill plugins
-for plugin in ship pr tech-writer deck roadmap diagram monograph; do
+for plugin in ship pr tech-writer deck roadmap diagram monograph handoff; do
   ln -sfn "$HOME/.codex/plugins/mikersays/mikersays-plugins/plugins/$plugin/skills/$plugin" \
     "$HOME/.agents/skills/$plugin"
 done
@@ -215,6 +220,9 @@ enabled = true
 enabled = true
 
 [plugins."issues@mikersays-marketplace"]
+enabled = true
+
+[plugins."handoff@mikersays-marketplace"]
 enabled = true
 ```
 

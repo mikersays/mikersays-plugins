@@ -106,6 +106,17 @@
       "category": "productivity"
     },
     {
+      "name": "handoff",
+      "source": {
+        "source": "local",
+        "path": "./plugins/handoff"
+      },
+      "policy": {
+        "installation": "AVAILABLE"
+      },
+      "category": "productivity"
+    },
+    {
       "name": "maintenance",
       "source": {
         "source": "local",

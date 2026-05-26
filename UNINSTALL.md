@@ -5,7 +5,7 @@ This page removes everything the mikersays installer placed on the current machi
 ## What gets removed
 
 - Repo at `~/.codex/plugins/mikersays/mikersays-plugins`
-- Skill symlinks from `~/.agents/skills/`: `ship`, `pr`, `tech-writer`, `deck`, `roadmap`, `diagram`, `monograph`, `plan-init`, `plan-add`, `plan-list`, `plan-update`, `plan-close`, `issue-init`, `issue-new`, `issue-start`, `issue-close`
+- Skill symlinks from `~/.agents/skills/`: `ship`, `pr`, `tech-writer`, `deck`, `roadmap`, `diagram`, `monograph`, `handoff`, `plan-init`, `plan-add`, `plan-list`, `plan-update`, `plan-close`, `issue-init`, `issue-new`, `issue-start`, `issue-close`
 - `mikersays-marketplace` entry from `~/.agents/plugins/marketplace.json`
 - `mikersays` plugin entries from `~/.codex/config.toml`
 - `SessionStart` git-pull hook from `~/.codex/hooks.json`
@@ -46,7 +46,7 @@ rmdir ~/.codex/plugins/mikersays 2>/dev/null || true
 ### Step 2: Remove skill symlinks
 
 ```bash
-for skill in ship pr tech-writer deck roadmap diagram monograph plan-init plan-add plan-list plan-update plan-close issue-init issue-new issue-start issue-close; do
+for skill in ship pr tech-writer deck roadmap diagram monograph handoff plan-init plan-add plan-list plan-update plan-close issue-init issue-new issue-start issue-close; do
   rm -f ~/.agents/skills/$skill
 done
 ```
@@ -105,6 +105,9 @@ enabled = true
 enabled = true
 
 [plugins."issues@mikersays-marketplace"]
+enabled = true
+
+[plugins."handoff@mikersays-marketplace"]
 enabled = true
 ```
 
