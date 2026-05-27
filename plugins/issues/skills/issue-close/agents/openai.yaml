@@ -1,0 +1,5 @@
+interface:
+  display_name: Issue Close
+  short_description: Close an issue with resolution details
+policy:
+  allow_implicit_invocation: true

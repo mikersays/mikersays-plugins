@@ -16,6 +16,12 @@ Then install any plugin:
 
 ## Install — Codex CLI
 
+**Native (recommended):**
+
+```bash
+codex plugin marketplace add mikersays/mikersays-plugins
+```
+
 **Headless (one-liner):**
 
 ```bash
@@ -29,7 +35,7 @@ curl -sL https://raw.githubusercontent.com/mikersays/mikersays-plugins/master/IN
 Read https://raw.githubusercontent.com/mikersays/mikersays-plugins/master/INSTALL.md and follow the instructions exactly to install the mikersays-plugins marketplace on this machine. Create or update the local marketplace file and hooks config, verify the install, and tell me the final result.
 ```
 
-This clones the repo to `~/.codex/plugins/mikersays/mikersays-plugins`, symlinks skills into `~/.agents/skills/`, registers all plugins in `~/.agents/plugins/marketplace.json`, and installs a `SessionStart` hook that auto-updates the marketplace on every Codex startup.
+The headless/interactive methods clone the repo to `~/.codex/plugins/mikersays/mikersays-plugins`, symlink skills into `~/.agents/skills/`, register all plugins in `~/.agents/plugins/marketplace.json`, and install a `SessionStart` hook that auto-updates the marketplace on every Codex startup.
 
 ## Plugins
 
@@ -44,13 +50,14 @@ This clones the repo to `~/.codex/plugins/mikersays/mikersays-plugins`, symlinks
 | [pr](plugins/pr/) | Create a GitHub PR with auto-generated title, summary, and test plan | `/pr [title]` |
 | [plan](plugins/plan/) | Track bugs, features, chores, and todos as markdown in `docs/plan/` | `/plan-init` `/plan-add` `/plan-list` `/plan-update` `/plan-close` |
 | [issues](plugins/issues/) | Per-issue bug/feature/incident tracker in `docs/issues/` with symptom/repro/root cause/fix/verification, branch-on-start, and an alignment-before-implement rule | `/issue-init` `/issue-new` `/issue-start` `/issue-close` |
+| [handoff](plugins/handoff/) | Audit session context and persist what matters for the next agent | `/handoff` |
 | [maintenance](plugins/maintenance/) | Sync docs, run installer, run uninstaller | `/sync-docs` `/install-marketplace` `/uninstall-marketplace` |
 
 ## Contributing
 
 1. Create a directory under `plugins/<name>/`
-2. Add `.claude-plugin/plugin.json` and `.codex-plugin/plugin.json` (name, description, version; codex also needs `"skills": "./skills/"`)
-3. Add your skills under `skills/<skill-name>/SKILL.md`
+2. Add `.claude-plugin/plugin.json` and `.codex-plugin/plugin.json` (name, description, version; codex also needs `"skills": "./skills/"` and an `interface` object)
+3. Add your skills under `skills/<skill-name>/SKILL.md` (optionally add `agents/openai.yaml` for Codex UI metadata)
 4. Add a `README.md` for documentation
-5. Run `/sync-docs` (from the `maintenance` plugin) to register the plugin across both marketplace files, `INSTALL.md`, `UNINSTALL.md`, and `docs/index.html`
+5. Run `/sync-docs` (from the `maintenance` plugin) to register the plugin across all three marketplace files, `INSTALL.md`, `UNINSTALL.md`, and `docs/index.html`
 6. Run `python3 scripts/validate.py` to confirm consistency. Enable the pre-commit hook once per clone with `git config core.hooksPath .githooks` so this runs automatically.

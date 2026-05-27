@@ -1,0 +1,5 @@
+interface:
+  display_name: Issue Init
+  short_description: Initialize the issue tracker in docs/issues/
+policy:
+  allow_implicit_invocation: false

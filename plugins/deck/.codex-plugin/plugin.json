@@ -2,5 +2,10 @@
   "name": "deck",
   "description": "Generate a self-contained HTML slide deck from a topic — single file, dark theme, keyboard nav",
   "version": "1.0.0",
-  "skills": "./skills/"
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Deck",
+    "shortDescription": "Generate self-contained HTML slide decks",
+    "category": "Productivity"
+  }
 }

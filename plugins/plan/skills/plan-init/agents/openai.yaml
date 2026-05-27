@@ -1,0 +1,5 @@
+interface:
+  display_name: Plan Init
+  short_description: Initialize the plan tracker in docs/plan/
+policy:
+  allow_implicit_invocation: false

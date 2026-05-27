@@ -2,5 +2,10 @@
   "name": "pr",
   "description": "Create a GitHub PR for the current branch with auto-generated title, summary, and test plan",
   "version": "1.0.0",
-  "skills": "./skills/"
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "PR",
+    "shortDescription": "Auto-generate GitHub PRs with title, summary, and test plan",
+    "category": "Developer Tools"
+  }
 }

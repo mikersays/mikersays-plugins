@@ -1,0 +1,5 @@
+interface:
+  display_name: Tech Writer
+  short_description: Review and rewrite documentation using Google's Technical Writing guidelines
+policy:
+  allow_implicit_invocation: true

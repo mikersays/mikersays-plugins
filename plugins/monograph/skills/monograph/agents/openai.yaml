@@ -1,0 +1,5 @@
+interface:
+  display_name: Monograph
+  short_description: Build a multi-page scholarly GitHub Pages site on any topic
+policy:
+  allow_implicit_invocation: true

@@ -1,0 +1,5 @@
+interface:
+  display_name: Issue New
+  short_description: Create a new issue ticket with structured fields
+policy:
+  allow_implicit_invocation: true

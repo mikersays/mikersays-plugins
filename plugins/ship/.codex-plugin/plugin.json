@@ -2,5 +2,10 @@
   "name": "ship",
   "description": "Stage, commit, and push all changes in one step, with auto-generated message if none given",
   "version": "1.0.0",
-  "skills": "./skills/"
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Ship",
+    "shortDescription": "Git commit and push in one command",
+    "category": "Developer Tools"
+  }
 }

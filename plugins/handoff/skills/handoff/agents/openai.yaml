@@ -1,0 +1,5 @@
+interface:
+  display_name: Handoff
+  short_description: Audit session context and persist what matters for the next agent
+policy:
+  allow_implicit_invocation: true

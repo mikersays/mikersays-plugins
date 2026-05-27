@@ -2,5 +2,10 @@
   "name": "tech-writer",
   "description": "Review and rewrite documentation in place using Google's Technical Writing guidelines",
   "version": "1.0.0",
-  "skills": "./skills/"
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Tech Writer",
+    "shortDescription": "Review and rewrite docs using Google's Technical Writing guidelines",
+    "category": "Writing"
+  }
 }

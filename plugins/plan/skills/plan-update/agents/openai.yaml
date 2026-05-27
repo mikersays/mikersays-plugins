@@ -1,0 +1,5 @@
+interface:
+  display_name: Plan Update
+  short_description: Update an existing plan item's status or details
+policy:
+  allow_implicit_invocation: true

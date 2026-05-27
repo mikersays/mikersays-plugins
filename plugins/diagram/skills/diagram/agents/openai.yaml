@@ -1,0 +1,5 @@
+interface:
+  display_name: Diagram
+  short_description: Generate interactive SVG diagrams from a description
+policy:
+  allow_implicit_invocation: true

@@ -1,0 +1,5 @@
+interface:
+  display_name: Sync Docs
+  short_description: Propagate plugin changes across marketplace files and docs
+policy:
+  allow_implicit_invocation: false

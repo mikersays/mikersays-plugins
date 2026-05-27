@@ -2,5 +2,10 @@
   "name": "roadmap",
   "description": "Generate a self-contained interactive HTML Gantt chart from a markdown roadmap file",
   "version": "1.0.0",
-  "skills": "./skills/"
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Roadmap",
+    "shortDescription": "Generate interactive HTML Gantt charts from markdown",
+    "category": "Productivity"
+  }
 }

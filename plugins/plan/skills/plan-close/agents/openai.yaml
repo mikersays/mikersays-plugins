@@ -1,0 +1,5 @@
+interface:
+  display_name: Plan Close
+  short_description: Close a completed plan item
+policy:
+  allow_implicit_invocation: true

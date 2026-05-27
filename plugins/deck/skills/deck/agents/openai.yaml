@@ -1,0 +1,5 @@
+interface:
+  display_name: Deck
+  short_description: Generate a self-contained HTML slide deck from a topic
+policy:
+  allow_implicit_invocation: true

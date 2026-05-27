@@ -1,0 +1,5 @@
+interface:
+  display_name: Ship
+  short_description: Stage, commit, and push all changes in one step
+policy:
+  allow_implicit_invocation: true

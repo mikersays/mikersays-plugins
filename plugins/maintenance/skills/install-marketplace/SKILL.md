@@ -33,7 +33,7 @@ Show the full output — the user wants to see what the installer did.
 Run each check and report pass/fail individually. Partial failure is informative; a single combined check would hide which step broke. The skill list is derived at run time from the cloned repo, so it stays correct as plugins are added or removed.
 
 ```bash
-ls ~/.codex/plugins/mikersays/mikersays-plugins/.codex-plugin/marketplace.json
+ls ~/.codex/plugins/mikersays/mikersays-plugins/.agents/plugins/marketplace.json
 ```
 ```bash
 python3 -c "

@@ -2,5 +2,10 @@
   "name": "maintenance",
   "description": "Maintenance skills for the mikersays-plugins marketplace",
   "version": "1.0.0",
-  "skills": "./skills/"
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Maintenance",
+    "shortDescription": "Marketplace sync and management utilities",
+    "category": "Developer Tools"
+  }
 }

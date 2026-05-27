@@ -2,5 +2,10 @@
   "name": "diagram",
   "description": "Generate an interactive SVG diagram (architecture, sequence, flowchart, ER) from a description",
   "version": "1.0.0",
-  "skills": "./skills/"
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Diagram",
+    "shortDescription": "Generate interactive SVG diagrams from descriptions",
+    "category": "Productivity"
+  }
 }

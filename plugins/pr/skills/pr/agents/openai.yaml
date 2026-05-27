@@ -1,0 +1,5 @@
+interface:
+  display_name: PR
+  short_description: Create a GitHub PR with auto-generated title, summary, and test plan
+policy:
+  allow_implicit_invocation: true

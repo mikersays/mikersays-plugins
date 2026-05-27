@@ -1,12 +1,12 @@
 ---
 name: sync-docs
-description: Refresh README.md, INSTALL.md, UNINSTALL.md, docs/index.html, and both marketplace.json files to match plugins/ on disk
+description: Refresh README.md, INSTALL.md, UNINSTALL.md, docs/index.html, and all three marketplace.json files to match plugins/ on disk
 allowed-tools: Bash, Read, Edit, Glob
 ---
 
 # sync-docs — Sync Marketplace Documentation
 
-Plugin metadata is duplicated across six files. When you add, remove, or rename a plugin, this skill propagates the change so the docs and registries match the `plugins/` directory.
+Plugin metadata is duplicated across seven files. When you add, remove, or rename a plugin, this skill propagates the change so the docs and registries match the `plugins/` directory.
 
 ## Targets
 
@@ -17,7 +17,8 @@ Plugin metadata is duplicated across six files. When you add, remove, or rename 
 | `UNINSTALL.md` | "What gets removed" list, unlink loop, `config.toml` block |
 | `docs/index.html` | `const PLUGINS = [...]` array inside `<script>` |
 | `.claude-plugin/marketplace.json` | `plugins[]` with `name`, `source`, `description` |
-| `.codex-plugin/marketplace.json` | `plugins[]` with `name`, `source`, `policy`, `category` |
+| `.codex-plugin/marketplace.json` | `plugins[]` with `name`, `source`, `policy`, `category` (legacy fallback) |
+| `.agents/plugins/marketplace.json` | `plugins[]` with `name`, `source`, `policy`, `category` (canonical Codex path) |
 
 The `maintenance` plugin is its own special case — it stays in the registries and in `README.md` but is omitted from end-user install/uninstall flows and the landing page, since users don't install the maintenance plugin itself.
 
@@ -75,9 +76,9 @@ const PLUGINS = [
 
 Leave surrounding JS untouched.
 
-### 5. Add new plugins to .codex-plugin/marketplace.json
+### 5. Add new plugins to .codex-plugin/marketplace.json and .agents/plugins/marketplace.json
 
-For any plugin missing from the array, append:
+Both Codex marketplace files use the same schema. For any plugin missing from either array, append:
 
 ```json
 {
@@ -88,7 +89,7 @@ For any plugin missing from the array, append:
 }
 ```
 
-Existing entries already have hand-tuned `policy` and `category` values (e.g. `INSTALLED_BY_DEFAULT`, `developer-tools`) — preserve them rather than normalizing to the defaults above.
+Existing entries already have hand-tuned `policy` and `category` values (e.g. `INSTALLED_BY_DEFAULT`, `developer-tools`) — preserve them rather than normalizing to the defaults above. Keep both files in sync — they should have identical plugin entries.
 
 ### 6. Add new plugins to .claude-plugin/marketplace.json
 

@@ -1,0 +1,5 @@
+interface:
+  display_name: Install Marketplace
+  short_description: Install the mikersays marketplace on a machine
+policy:
+  allow_implicit_invocation: false

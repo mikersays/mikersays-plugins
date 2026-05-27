@@ -2,5 +2,10 @@
   "name": "plan",
   "description": "Lightweight markdown-based tracker for bugs, features, chores, and todos that lives in docs/plan/ inside your repo",
   "version": "1.0.0",
-  "skills": "./skills/"
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Plan",
+    "shortDescription": "Lightweight markdown tracker for bugs, features, and todos",
+    "category": "Productivity"
+  }
 }

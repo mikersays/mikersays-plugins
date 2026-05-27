@@ -350,7 +350,32 @@
       <!-- Codex tab -->
       <div id="tab-codex" class="tab-content active">
 
-        <h3 style="margin-bottom:10px;">Headless — one-liner</h3>
+        <h3 style="margin-bottom:10px;">Native — recommended</h3>
+        <p class="section-sub" style="margin-bottom:12px;">
+          Use the built-in marketplace command. Run from any Codex session or the terminal.
+        </p>
+
+        <div class="install-block">
+          <div class="block-header">
+            <span class="block-label">bash</span>
+            <button class="copy-btn" onclick="copyEl(this, 'cmd-native')">Copy</button>
+          </div>
+          <pre><code id="cmd-native">codex plugin marketplace add mikersays/mikersays-plugins</code></pre>
+        </div>
+
+        <p class="section-sub" style="margin-top:12px;margin-bottom:12px;">
+          Or from inside a Codex session:
+        </p>
+
+        <div class="install-block">
+          <div class="block-header">
+            <span class="block-label">prompt</span>
+            <button class="copy-btn" onclick="copyEl(this, 'cmd-native-session')">Copy</button>
+          </div>
+          <pre><code id="cmd-native-session">/plugin marketplace add mikersays/mikersays-plugins</code></pre>
+        </div>
+
+        <h3 style="margin-top:28px;margin-bottom:10px;">Headless — one-liner</h3>
         <p class="section-sub" style="margin-bottom:12px;">
           Pipe directly into <code>codex exec</code>. No interaction required. Safe to re-run.
           Uses <code>--add-dir</code> to grant write access to exactly <code>~/.codex</code>
@@ -402,6 +427,7 @@
             <div class="what-item">Repo cloned to <code>~/.codex/plugins/mikersays/mikersays-plugins</code></div>
             <div class="what-item" id="what-plugins">Selected plugins registered in <code>~/.agents/plugins/marketplace.json</code></div>
             <div class="what-item">Skills symlinked into <code>~/.agents/skills/</code> — appear in <code>/skills</code></div>
+            <div class="what-item">Plugin entries added to <code>~/.codex/config.toml</code></div>
             <div class="what-item"><code>SessionStart</code> hook added to <code>~/.codex/hooks.json</code> — auto-pulls on every startup</div>
           </div>
         </div>

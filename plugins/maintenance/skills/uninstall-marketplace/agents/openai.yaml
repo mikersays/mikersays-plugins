@@ -1,0 +1,5 @@
+interface:
+  display_name: Uninstall Marketplace
+  short_description: Remove the mikersays marketplace from a machine
+policy:
+  allow_implicit_invocation: false

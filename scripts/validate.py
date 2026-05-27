@@ -2,7 +2,7 @@
 """Validate the mikersays-plugins marketplace.
 
 Checks plugin manifests, skill frontmatter, and that every plugin appears
-consistently across the five sync surfaces (both marketplace.json files,
+consistently across the sync surfaces (all three marketplace.json files,
 INSTALL.md, UNINSTALL.md, docs/index.html). Stdlib only.
 
 Exit 0 on success, 1 on any failure. Run from anywhere — paths are resolved
@@ -18,7 +18,7 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parent.parent
 ERRORS: list[str] = []
 
-# The maintenance plugin is registered in both marketplace.json files but
+# The maintenance plugin is registered in all three marketplace.json files but
 # deliberately omitted from end-user install/uninstall flows and the landing
 # page. See plugins/maintenance/skills/sync-docs/SKILL.md.
 USER_FACING_EXCLUDE = {"maintenance"}
@@ -113,6 +113,8 @@ def check_plugin(plugin_dir: Path) -> None:
             err(f"{rel(xm)}: missing or empty description")
         if data.get("skills") != "./skills/":
             err(f"{rel(xm)}: skills should be './skills/', got {data.get('skills')!r}")
+        if not isinstance(data.get("interface"), dict):
+            err(f"{rel(xm)}: missing interface object")
 
     # Skills
     skill_dirs = discover_skills(plugin_dir)
@@ -136,6 +138,13 @@ def check_plugin(plugin_dir: Path) -> None:
             )
         if not fm.get("description"):
             err(f"{rel(smd)}: missing or empty description in frontmatter")
+        oyaml = sdir / "agents" / "openai.yaml"
+        if oyaml.exists():
+            text = oyaml.read_text().strip()
+            if not text:
+                err(f"{rel(oyaml)}: file is empty")
+            elif "interface:" not in text:
+                err(f"{rel(oyaml)}: missing 'interface:' key")
 
 
 def check_marketplace(path: Path, all_names: set[str]) -> None:
@@ -203,6 +212,11 @@ def main() -> int:
 
     check_marketplace(REPO / ".claude-plugin" / "marketplace.json", plugin_names)
     check_marketplace(REPO / ".codex-plugin" / "marketplace.json", plugin_names)
+    check_marketplace(REPO / ".agents" / "plugins" / "marketplace.json", plugin_names)
+
+    for doc in ("CLAUDE.md", "AGENTS.md"):
+        if not (REPO / doc).exists():
+            err(f"{doc}: missing (required for cross-platform compatibility)")
 
     all_skills = {s.name for p in plugins for s in discover_skills(p)}
     check_sync_surfaces(plugin_names, all_skills)

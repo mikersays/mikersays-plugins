@@ -1,0 +1,5 @@
+interface:
+  display_name: Issue Start
+  short_description: Start working on an issue with automatic branch creation
+policy:
+  allow_implicit_invocation: true

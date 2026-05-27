@@ -28,6 +28,16 @@ The hook runs `git pull` on the marketplace repo each time Codex starts, so plug
 - `issues` — Per-issue bug/feature/incident tracker in docs/issues/ — one file per ticket with symptom/repro/root cause/fix/verification, branch-on-start, and a hard rule to align with the user before implementing
 - `handoff` — Audit session context and persist what matters for the next agent — decisions, dead ends, insights, and in-flight work
 
+## Quick install (native)
+
+If you have Codex CLI v0.133+, the built-in marketplace command handles everything:
+
+```bash
+codex plugin marketplace add mikersays/mikersays-plugins
+```
+
+The rest of this document is the manual installer — use it if the native command is not available or you need fine-grained control.
+
 ## Prompt to give Codex
 
 ```
@@ -69,7 +79,7 @@ Create `~/.agents/plugins/` if needed, then write the file as a JSON array conta
 ```
 
 **Case B — file exists and root is a JSON array (`[...]`):**
-Remove any existing element whose `"id"` is `"mikersays-marketplace"`, then append the mikersays entry to the array.
+Remove any existing element whose `"name"` is `"mikersays-marketplace"`, then append the mikersays entry to the array.
 
 **Case C — file exists and root is a JSON object (`{...}`):**
 This is a single-marketplace file. Wrap the existing object and the mikersays entry together into an array:
@@ -137,7 +147,7 @@ In all cases, the mikersays entry to insert is:
 
 Codex's `/skills` command scans `~/.agents/skills/`. Create symlinks there so all skills appear.
 
-`ship`, `pr`, `tech-writer`, `deck`, `roadmap`, `diagram`, and `monograph` each ship a single same-named skill — one symlink per plugin. The `plan` plugin ships five skills (`plan-init`, `plan-add`, `plan-list`, `plan-update`, `plan-close`); the `issues` plugin ships four (`issue-init`, `issue-new`, `issue-start`, `issue-close`) — one symlink per skill.
+`ship`, `pr`, `tech-writer`, `deck`, `roadmap`, `diagram`, `monograph`, and `handoff` each ship a single same-named skill — one symlink per plugin. The `plan` plugin ships five skills (`plan-init`, `plan-add`, `plan-list`, `plan-update`, `plan-close`); the `issues` plugin ships four (`issue-init`, `issue-new`, `issue-start`, `issue-close`) — one symlink per skill.
 
 ```bash
 mkdir -p ~/.agents/skills
@@ -230,7 +240,8 @@ enabled = true
 
 Run the following checks and report the result for each:
 
-1. `ls ~/.codex/plugins/mikersays/mikersays-plugins/.codex-plugin/marketplace.json` — confirm repo is present
+1. `ls ~/.codex/plugins/mikersays/mikersays-plugins/.agents/plugins/marketplace.json` — confirm repo is present
 2. `cat ~/.agents/plugins/marketplace.json` — confirm marketplace entry exists
 3. `cat ~/.codex/hooks.json` — confirm SessionStart hook is present
-4. `git -C ~/.codex/plugins/mikersays/mikersays-plugins log --oneline -1` — show the installed commit
+4. `grep -c 'mikersays-marketplace' ~/.codex/config.toml` — confirm plugin entries in config.toml
+5. `git -C ~/.codex/plugins/mikersays/mikersays-plugins log --oneline -1` — show the installed commit
