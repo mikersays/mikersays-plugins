@@ -12,12 +12,13 @@ Invoke mid-session when you're about to wrap up or switch to a new agent. The sk
 
 ## What it does
 
-1. **Audits persistence** — scans for CLAUDE.md files, memory files, git state, plan/issue docs
-2. **Reflects on the session** — identifies decisions, rejected approaches, debugging insights, user preferences, and in-flight work from the current conversation
-3. **Categorizes context** — separates what already persists from what will be lost
-4. **Recommends saves** — suggests what to capture and where (CLAUDE.md, memory, git commit, plan docs)
-5. **Asks the user** — confirms which items to persist before writing anything
-6. **Executes** — writes to the appropriate locations and gives a receipt
+It treats the handoff as a judgment call, not a fixed checklist, and scales the effort to what the session actually produced:
+
+1. **Sees what already persists** — checks CLAUDE.md, memory files, git state, and whatever tracking docs the repo actually keeps, so it doesn't duplicate existing context
+2. **Reflects on the session** — pulls out decisions and their rationale, rejected approaches, debugging insights, implicit user preferences, and in-flight work from the conversation
+3. **Recommends saves** — shows what's about to be lost and where each piece should go, routing to the repo's own conventions rather than imposing new structure
+4. **Lets the user steer** — confirms what to persist (and skips the ceremony when the session was trivial)
+5. **Writes and reports back** — saves to the right locations and gives a one-line-per-item receipt
 
 ## Why
 

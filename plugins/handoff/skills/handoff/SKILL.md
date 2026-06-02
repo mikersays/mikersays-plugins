@@ -2,161 +2,104 @@
 name: handoff
 description: >-
   Audit the current session for context that won't survive into a new agent session and help
-  the user persist what matters. Use this skill whenever the user says "handoff", "save context",
-  "wrap up", "before I go", "new session", "pass the baton", "for next time", "preserve context",
-  "what will the next agent know", or anything suggesting they want to capture session knowledge
-  before starting fresh. Also trigger when the user asks about what persists between sessions,
-  what gets lost, or how to prepare for a handoff to another agent.
+  the user persist what matters. Use this skill whenever the user says "handoff", "persist", "persist
+  context", "save context", "wrap up", "before I go", "new session", "pass the baton", "for next time",
+  "preserve context", "prepare for the next agent", "what will the next agent know", or anything
+  suggesting they want to capture session knowledge before starting fresh. Also trigger when the user
+  asks about what persists between sessions, what gets lost, or how to prepare a handoff to another agent.
 allowed-tools: Bash, Read, Write, Edit
 ---
 
 # Handoff
 
-You are running inside an active session. The user wants to make sure the next agent that opens
-this project can pick up where this one left off. Your job is to find the gap between what this
-session knows and what the next session will see, then help the user close it.
+You are running inside an active session. The user wants the next agent that opens this project to
+pick up where this one left off, instead of re-deriving everything from scratch. Your job is to find
+the gap between what this session knows and what the next session will actually see on disk, then
+help close it.
 
-## How agent sessions work
+This is a judgment task, not a checklist. The sections below give you a mental model and a set of
+options — use them to reason about *this* session and *this* repo, not to march through fixed steps.
+A trivial session deserves a one-line "nothing worth persisting." A session full of hard-won
+decisions deserves real care. Match the effort to what actually happened.
 
-A new agent session starts with a blank conversation. It sees only what's on disk and in config:
+## What survives, and what doesn't
 
-**Persists automatically:**
-- CLAUDE.md files in the project tree (loaded into context at session start)
-- Memory files in `~/.claude/projects/*/memory/` (loaded when the system deems them relevant)
-- Git state: commits, branches, stash, working tree, diffs
-- Files on disk: anything written to the filesystem
-- Plan docs in `docs/plan/` (if the plan plugin is in use)
-- Issue docs in `docs/issues/` (if the issues plugin is in use)
+A new agent session starts with a blank conversation. It sees only what's on disk and in config —
+never the conversation you and the user just had.
+
+**Survives automatically** (anything written to the filesystem or git):
+CLAUDE.md files loaded at session start, memory files recalled when relevant, git state (commits,
+branches, stash, diffs), and any docs the project keeps. *Which* of these a repo actually uses
+varies — that's something to discover, not assume.
 
 **Lost when this session ends:**
-- This entire conversation — every question, answer, and decision
-- Reasoning and rationale behind choices made during the session
-- Approaches that were tried and rejected, and why they failed
-- Debugging insights: root causes found, subtle behaviors observed, error patterns identified
-- Mental models built up about the codebase, business logic, or problem domain
-- User preferences and working style learned implicitly during the session
-- In-flight work that wasn't committed or written to disk
-- Environment variables, running processes, and temporary state
-- Understanding of external systems, APIs, or dependencies discussed
-- Agreements about next steps that weren't tracked anywhere
+the conversation itself, and everything that lived only in it — the *why* behind decisions,
+approaches tried and abandoned, debugging insights and root causes, mental models of the codebase
+or domain, user preferences you picked up implicitly, in-flight work not yet written down, and
+agreed next steps tracked nowhere.
 
-The next agent is smart but amnesiac. Anything not written down will be re-derived from scratch —
-or worse, a different (possibly wrong) conclusion will be reached.
+The next agent is smart but amnesiac. Whatever isn't written down gets re-derived from scratch —
+or worse, re-derived *differently*, reaching a conclusion that contradicts what was settled here.
+The expensive things to lose are the ones that took real work to figure out: a dead end that looked
+promising, a root cause buried three layers deep, a constraint the user mentioned once in passing.
 
-## Process
+## How to approach it
 
-### Step 1: Audit the persistence layer
+### See what the next agent already has
 
-Run these checks to see what the next agent will already have:
+Before deciding what to save, look at what already persists, so you don't duplicate it and you know
+where new context belongs. Tailor the look to the repo — these are starting points, not a fixed
+script:
 
 ```bash
-# CLAUDE.md files
 find . -name "CLAUDE.md" -not -path "*/node_modules/*" -not -path "*/.git/*" 2>/dev/null
-
-# Memory directory
-ls ~/.claude/projects/*/memory/*.md 2>/dev/null
-
-# Git state
-git status --short
-git stash list
-git log --oneline -5
-git diff --stat
-git diff --cached --stat
-
-# Plan docs
-ls docs/plan/*.md 2>/dev/null
-
-# Issue docs
-ls docs/issues/*.md 2>/dev/null
+ls ~/.claude/projects/*/memory/*.md 2>/dev/null   # memory files + MEMORY.md index
+git status --short && git stash list && git log --oneline -5 && git diff --stat
 ```
 
-Read the CLAUDE.md files and MEMORY.md index (if present) so you know what's already captured.
+Then read what you found, and notice how *this* repo keeps knowledge. Does it have a `docs/plan/`
+or `docs/issues/` tree? A `decisions/` or ADR folder? A `NOTES.md`? Rich commit messages? Whatever
+conventions already exist are where new context should go — route to the repo's own habits rather
+than imposing a structure it doesn't use.
 
-### Step 2: Reflect on this session
+### Reflect on what this session actually produced
 
-Think through what happened in this session. Be specific — generic summaries are useless.
-Scan your memory of the conversation for:
+Replay the session and pull out the things that won't survive but should. The categories worth
+scanning for: **decisions and their rationale**, **dead ends** (what was tried, why it failed),
+**debugging insights** (root causes, quirks, things that look wrong but are intentional), **implicit
+user preferences** (pace, review style, conventions you adapted to), **in-flight work** (started,
+not finished; agreed next steps), and **domain knowledge** (business logic, data flows, external
+system behavior that came up and isn't written anywhere).
 
-**Decisions and rationale**
-What was decided and why? Architectural choices, library picks, API design, naming conventions,
-trade-offs weighed. The decision itself might be visible in code, but the *why* is in your head.
+Be concrete and honest. "Refactored the auth flow" is useless; "switched to short-lived JWTs because
+the session store couldn't handle the concurrent-login case — Redis approach was tried first and
+abandoned, see why below" is gold. And if the session was a quick question or a trivial fix with
+nothing hard-won in it, the right answer is to say so and stop. Don't manufacture busywork.
 
-**Dead ends**
-What was tried and abandoned? Why didn't it work? Without this, the next agent will walk the
-same dead-end paths. These are especially expensive to re-derive.
+### Show the user, then let them steer
 
-**Debugging insights**
-Root causes discovered, non-obvious error patterns, environment quirks, things that look wrong
-but are actually intentional. Anything that took real investigation to figure out.
+Tell the user briefly what already persists, what's about to be lost, and what you'd recommend
+saving — each recommendation paired with *where* it should go and *what breaks* without it. Keep
+this proportional: a couple of lines for a light session, a short table for a heavy one. The format
+is yours to choose; clarity matters more than any fixed template.
 
-**Implicit user preferences**
-How does the user like to work? Do they prefer concise or detailed responses? Do they want to
-review before you act, or do they want you to move fast? Any coding style preferences?
-Communication patterns you adapted to?
+Then let the user decide. For a handful of distinct items, `AskUserQuestion` makes selection easy,
+but it's a tool, not a requirement — a plain "want all of these, or a subset?" is often enough. If
+they say "your call," use judgment and save the highest-value items.
 
-**In-flight work**
-Tasks started but not finished. Features partially implemented. Known issues that surfaced
-but weren't addressed. Agreed-upon next steps.
+### Write each save where it belongs
 
-**Domain knowledge**
-Understanding of business logic, data flows, external system behaviors, or organizational
-context that came up during the session and isn't documented anywhere.
+Match the destination to the kind of knowledge:
 
-### Step 3: Present the analysis
-
-Organize your findings into three sections:
-
-**1. Already persists** — What the next agent will see without any action.
-List the specific files and summarize what each contains. Be concrete:
-"CLAUDE.md documents the build commands and test approach" not just "CLAUDE.md exists."
-
-**2. Will be lost** — What disappears when this session ends.
-List the specific knowledge, decisions, and context from this session.
-Each item should be a concrete thing, not a category.
-
-**3. Recommended saves** — What's worth persisting, with a destination for each:
-
-| Context to save | Destination | Reason |
+| Destination | Best for | Watch out for |
 |---|---|---|
-| *(specific insight from this session)* | *(where to write it)* | *(what goes wrong without it)* |
+| **CLAUDE.md** | Conventions, build/test commands, architecture decisions, constraints that affect *any* agent, always | Every word loads into every future session — keep it dense, don't duplicate what's there |
+| **Memory files** (`~/.claude/projects/*/memory/`) | User preferences, recurring project context, behavior feedback, pointers to external resources — recalled when relevant | Use the standard frontmatter; add a one-line pointer to MEMORY.md |
+| **Git commit message** | The *why* behind uncommitted work | Capture what + why; don't push unless asked |
+| **The repo's own tracking docs** (plan/issues/ADR/notes, *if present*) | Work items, next steps, bug investigations, decision records | Follow existing format; don't create new tracking infrastructure without asking |
+| **Code comments** | Non-obvious constraints tied to a specific line | One line, sparingly — only where the insight is physically bound to the code |
 
-Use this destination guide:
-- **CLAUDE.md** — Conventions, build/test commands, architectural decisions, constraints that
-  affect how any agent should work in this repo. Things that are always relevant.
-- **Memory files** — User preferences, recurring project context, feedback on agent behavior,
-  pointers to external resources. Things that are relevant when recalled.
-- **Git commit message** — If there's uncommitted work, capture the why in the commit message.
-  Descriptive commit messages are free context for `git log` and `git blame`.
-- **Plan docs** — Work items, next steps, priorities. Only if `docs/plan/` exists or the
-  user wants to set it up.
-- **Issue docs** — Bug investigations, root causes, reproduction steps. Only if `docs/issues/`
-  exists.
-- **Code comments** — Non-obvious constraints or workarounds tied to specific code locations.
-  Use sparingly — only where the insight is physically bound to the code.
-
-### Step 4: Ask the user
-
-Present the recommended saves and ask the user to confirm. Use the `AskUserQuestion` tool to
-let them select which items to persist. Offer the top 3-4 items as options.
-
-If nothing meaningful happened in the session (quick question, trivial fix, exploration with
-no findings), say so honestly. Don't manufacture busywork.
-
-If the user says "all of it" or "your call," use your judgment and proceed with the
-highest-value items.
-
-### Step 5: Execute the saves
-
-For each item the user approves:
-
-**CLAUDE.md updates:**
-Read the existing file. Find the section where the new content belongs, or create an
-appropriate section. Append concisely — every word in CLAUDE.md is loaded into every
-future session, so it should earn its place. Don't duplicate what's already there.
-
-**Memory files:**
-Write to the project memory directory at `~/.claude/projects/*/memory/`.
-Use the standard frontmatter format:
+Memory file frontmatter, when you use it:
 ```markdown
 ---
 name: short-kebab-slug
@@ -167,28 +110,15 @@ metadata:
 
 Content here.
 ```
-Update the MEMORY.md index with a one-line pointer to the new file.
 
-**Git commits:**
-If there's uncommitted work, stage the relevant files and commit with a message that
-captures the what AND the why. Don't push unless the user asks.
+When the saves are done, give a short receipt — one line per item: what was saved and where.
 
-**Plan/issue docs:**
-Follow the format conventions of existing docs in those directories. If the directory
-doesn't exist, ask before creating the tracking infrastructure.
+## Guardrails
 
-**Code comments:**
-Add inline, one line max. Only for non-obvious constraints or workarounds.
+A few things to hold firm on, because they're easy to get wrong and costly when you do:
 
-After all saves are complete, give the user a short receipt: what was saved and where.
-One line per item.
-
-## Constraints
-
-- Never fabricate context that wasn't part of this session
-- Don't save secrets, credentials, tokens, or personal data to files
-- Don't push to remote repositories without explicit user approval
-- Don't modify code logic — this skill persists knowledge, not changes
-- Keep all saves concise — dense context beats verbose transcripts
-- If the session was trivial, say "nothing worth persisting" and stop
-- Don't create tracking infrastructure (docs/plan/, docs/issues/) without asking first
+- **Don't fabricate.** Only persist context that genuinely came from this session. An invented
+  rationale is worse than a missing one — the next agent will trust it.
+- **Don't leak secrets.** Keep credentials, tokens, and personal data out of any file you write.
+- **This skill persists knowledge, not code changes.** Don't alter program logic, and don't push to
+  a remote, unless the user explicitly asks.
