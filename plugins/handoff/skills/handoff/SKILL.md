@@ -22,15 +22,33 @@ options — use them to reason about *this* session and *this* repo, not to marc
 A trivial session deserves a one-line "nothing worth persisting." A session full of hard-won
 decisions deserves real care. Match the effort to what actually happened.
 
+## Know which agent you are
+
+This skill runs in two different harnesses, and the persistence targets differ between them. Figure
+out which one you're in before you do anything else — you already know your own harness, but confirm
+against what's on disk:
+
+- **Claude Code** — the always-loaded project-instructions file is `CLAUDE.md`. Memory files live at
+  `~/.claude/projects/*/memory/` with a `MEMORY.md` index, and are recalled when relevant.
+- **Codex CLI** — the always-loaded project-instructions file is `AGENTS.md`. There is **no memory-file
+  system**; anything you'd otherwise route to a memory file goes into `AGENTS.md` or the repo's own docs
+  instead.
+
+Throughout the rest of this skill, wherever it says "the project-instructions file," use `CLAUDE.md`
+in Claude Code and `AGENTS.md` in Codex. Some repos keep both (this marketplace does) — write to the
+one your harness loads, and only touch the other if the user asks. When in doubt, prefer the file that
+already exists in the repo root.
+
 ## What survives, and what doesn't
 
 A new agent session starts with a blank conversation. It sees only what's on disk and in config —
 never the conversation you and the user just had.
 
 **Survives automatically** (anything written to the filesystem or git):
-CLAUDE.md files loaded at session start, memory files recalled when relevant, git state (commits,
-branches, stash, diffs), and any docs the project keeps. *Which* of these a repo actually uses
-varies — that's something to discover, not assume.
+the project-instructions file loaded at session start (`CLAUDE.md` in Claude Code, `AGENTS.md` in
+Codex), memory files recalled when relevant (Claude Code only), git state (commits, branches, stash,
+diffs), and any docs the project keeps. *Which* of these a repo actually uses varies — that's
+something to discover, not assume.
 
 **Lost when this session ends:**
 the conversation itself, and everything that lived only in it — the *why* behind decisions,
@@ -52,8 +70,9 @@ where new context belongs. Tailor the look to the repo — these are starting po
 script:
 
 ```bash
-find . -name "CLAUDE.md" -not -path "*/node_modules/*" -not -path "*/.git/*" 2>/dev/null
-ls ~/.claude/projects/*/memory/*.md 2>/dev/null   # memory files + MEMORY.md index
+# project-instructions files — CLAUDE.md (Claude Code) and/or AGENTS.md (Codex)
+find . \( -name "CLAUDE.md" -o -name "AGENTS.md" \) -not -path "*/node_modules/*" -not -path "*/.git/*" 2>/dev/null
+ls ~/.claude/projects/*/memory/*.md 2>/dev/null   # Claude Code only: memory files + MEMORY.md index
 git status --short && git stash list && git log --oneline -5 && git diff --stat
 ```
 
@@ -93,13 +112,13 @@ Match the destination to the kind of knowledge:
 
 | Destination | Best for | Watch out for |
 |---|---|---|
-| **CLAUDE.md** | Conventions, build/test commands, architecture decisions, constraints that affect *any* agent, always | Every word loads into every future session — keep it dense, don't duplicate what's there |
-| **Memory files** (`~/.claude/projects/*/memory/`) | User preferences, recurring project context, behavior feedback, pointers to external resources — recalled when relevant | Use the standard frontmatter; add a one-line pointer to MEMORY.md |
+| **The project-instructions file** (`CLAUDE.md` in Claude Code, `AGENTS.md` in Codex) | Conventions, build/test commands, architecture decisions, constraints that affect *any* agent, always | Every word loads into every future session — keep it dense, don't duplicate what's there. Write to the file your harness loads |
+| **Memory files** (`~/.claude/projects/*/memory/`) — *Claude Code only* | User preferences, recurring project context, behavior feedback, pointers to external resources — recalled when relevant | Use the standard frontmatter; add a one-line pointer to MEMORY.md. In Codex there are no memory files — route this kind of context into `AGENTS.md` (or the repo's docs) instead |
 | **Git commit message** | The *why* behind uncommitted work | Capture what + why; don't push unless asked |
 | **The repo's own tracking docs** (plan/issues/ADR/notes, *if present*) | Work items, next steps, bug investigations, decision records | Follow existing format; don't create new tracking infrastructure without asking |
 | **Code comments** | Non-obvious constraints tied to a specific line | One line, sparingly — only where the insight is physically bound to the code |
 
-Memory file frontmatter, when you use it:
+Memory file frontmatter, when you use it (Claude Code only):
 ```markdown
 ---
 name: short-kebab-slug
