@@ -51,9 +51,9 @@ The repo `README.md` has a markdown table under "## Plugins" with one row per us
 Regenerate every section that names plugins:
 
 - **"Available plugins"** — bullet list of `name — description`
-- **Marketplace JSON block (Step 2)** — `plugins[]` array with source paths like `../../.codex/plugins/mikersays/mikersays-plugins/plugins/<name>`
+- **Marketplace JSON block (Step 2)** — a single marketplace object with `plugins[]` entries using `source.source`, `source.path`, `policy.installation`, `policy.authentication`, and `category`
 - **Symlink loop (Step 3)** — space-separated names in `for plugin in ...`
-- **`config.toml` block (Step 4b)** — one `[plugins."<name>@mikersays-marketplace"]` entry per plugin
+- **`config.toml` block (Step 4b)** — one `[plugins."<name>@mikersays-marketplace"]` entry per plugin for the manual fallback installer
 
 ### 3. Update UNINSTALL.md
 
@@ -84,12 +84,12 @@ Both Codex marketplace files use the same schema. For any plugin missing from ei
 {
   "name": "<name>",
   "source": { "source": "local", "path": "./plugins/<name>" },
-  "policy": { "installation": "AVAILABLE" },
-  "category": "productivity"
+  "policy": { "installation": "AVAILABLE", "authentication": "ON_INSTALL" },
+  "category": "Productivity"
 }
 ```
 
-Existing entries already have hand-tuned `policy` and `category` values (e.g. `INSTALLED_BY_DEFAULT`, `developer-tools`) — preserve them rather than normalizing to the defaults above. Keep both files in sync — they should have identical plugin entries.
+Existing entries already have hand-tuned `policy` and `category` values (for example `INSTALLED_BY_DEFAULT`, `ON_USE`, `Developer Tools`, and `Writing`) — preserve them rather than normalizing to the defaults above. Keep both files in sync — they should have identical plugin entries. Current Codex authentication values are `ON_INSTALL` and `ON_USE`; do not use the old `ON_FIRST_USE` spelling.
 
 ### 6. Add new plugins to .claude-plugin/marketplace.json
 

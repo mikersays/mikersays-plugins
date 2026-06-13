@@ -1,5 +1,8 @@
 {
   "name": "tech-writer",
   "description": "Review and rewrite documentation in place using Google's Technical Writing guidelines",
-  "version": "1.0.0"
+  "version": "1.0.0",
+  "author": {
+    "name": "mikersays"
+  }
 }

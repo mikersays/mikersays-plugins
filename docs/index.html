@@ -352,7 +352,7 @@
 
         <h3 style="margin-bottom:10px;">Native — recommended</h3>
         <p class="section-sub" style="margin-bottom:12px;">
-          Use the built-in marketplace command. Run from any Codex session or the terminal.
+          Add the marketplace, then install each plugin you want. Run from the terminal.
         </p>
 
         <div class="install-block">
@@ -360,7 +360,8 @@
             <span class="block-label">bash</span>
             <button class="copy-btn" onclick="copyEl(this, 'cmd-native')">Copy</button>
           </div>
-          <pre><code id="cmd-native">codex plugin marketplace add mikersays/mikersays-plugins</code></pre>
+          <pre><code id="cmd-native">codex plugin marketplace add mikersays/mikersays-plugins
+codex plugin add ship@mikersays-plugins</code></pre>
         </div>
 
         <p class="section-sub" style="margin-top:12px;margin-bottom:12px;">
@@ -372,7 +373,8 @@
             <span class="block-label">prompt</span>
             <button class="copy-btn" onclick="copyEl(this, 'cmd-native-session')">Copy</button>
           </div>
-          <pre><code id="cmd-native-session">/plugin marketplace add mikersays/mikersays-plugins</code></pre>
+          <pre><code id="cmd-native-session">/plugin marketplace add mikersays/mikersays-plugins
+/plugin add ship@mikersays-plugins</code></pre>
         </div>
 
         <h3 style="margin-top:28px;margin-bottom:10px;">Headless — one-liner</h3>
@@ -546,6 +548,24 @@
     const all  = ids.length === PLUGINS.length;
     const none = ids.length === 0;
 
+    // ── Codex native commands ──
+    const nativeEl = document.getElementById('cmd-native');
+    const nativeSessionEl = document.getElementById('cmd-native-session');
+    if (nativeEl) {
+      nativeEl.textContent = none
+        ? 'Select at least one plugin above.'
+        : ['codex plugin marketplace add mikersays/mikersays-plugins']
+            .concat(ids.map(id => `codex plugin add ${id}@mikersays-plugins`))
+            .join('\n');
+    }
+    if (nativeSessionEl) {
+      nativeSessionEl.textContent = none
+        ? 'Select at least one plugin above.'
+        : ['/plugin marketplace add mikersays/mikersays-plugins']
+            .concat(ids.map(id => `/plugin add ${id}@mikersays-plugins`))
+            .join('\n');
+    }
+
     // ── Codex headless ──
     const headlessEl = document.getElementById('cmd-headless');
     const preHeadless = document.getElementById('pre-headless');
@@ -563,8 +583,8 @@
       const pluginList = ids.join(', ');
       const prompt =
 `Clone ${REPO} to ~/.codex/plugins/mikersays/mikersays-plugins (or git pull if it already exists). ` +
-`Register ONLY these plugins in ~/.agents/plugins/marketplace.json under a "mikersays-marketplace" entry: ${pluginList}. ` +
-`Use source path "../../.codex/plugins/mikersays/mikersays-plugins/plugins/<id>" for each. ` +
+`Create ~/.agents/plugins/marketplace.json as a single marketplace object named "mikersays-marketplace" containing ONLY these plugins: ${pluginList}. ` +
+`For each plugin, use source { "source": "local", "path": "./.codex/plugins/mikersays/mikersays-plugins/plugins/<id>" }, policy { "installation": "AVAILABLE", "authentication": "ON_INSTALL" }, and category "Productivity" unless the repo marketplace gives a more specific value. ` +
 `Install the SessionStart git-pull hook in ~/.codex/hooks.json. ` +
 `Verify all steps and report the final result.`;
       preHeadless.innerHTML = '';
@@ -599,11 +619,13 @@ me the final result.`;
       span.textContent =
 `Clone https://github.com/mikersays/mikersays-plugins.git to
 ~/.codex/plugins/mikersays/mikersays-plugins (or git pull if it
-already exists). Register ONLY these plugins in
-~/.agents/plugins/marketplace.json under a "mikersays-marketplace"
-entry: ${ids.join(', ')}. Use source path
-"../../.codex/plugins/mikersays/mikersays-plugins/plugins/<id>" for
-each. Install the SessionStart git-pull hook in ~/.codex/hooks.json.
+already exists). Create ~/.agents/plugins/marketplace.json as a
+single marketplace object named "mikersays-marketplace" containing
+ONLY these plugins: ${ids.join(', ')}. For each plugin, use source
+{ "source": "local", "path": "./.codex/plugins/mikersays/mikersays-plugins/plugins/<id>" },
+policy { "installation": "AVAILABLE", "authentication": "ON_INSTALL" },
+and category "Productivity" unless the repo marketplace gives a more
+specific value. Install the SessionStart git-pull hook in ~/.codex/hooks.json.
 Verify all steps and report the final result.`;
       const code = document.createElement('code');
       code.appendChild(span);
@@ -627,9 +649,9 @@ Verify all steps and report the final result.`;
     if (none) {
       whatPlugins.textContent = 'No plugins selected.';
     } else if (all) {
-      whatPlugins.innerHTML = `All ${PLUGINS.length} plugins registered in <code>~/.agents/plugins/marketplace.json</code>`;
+      whatPlugins.innerHTML = `All ${PLUGINS.length} plugins available through the marketplace`;
     } else {
-      whatPlugins.innerHTML = `${ids.length} plugin${ids.length > 1 ? 's' : ''} registered in <code>~/.agents/plugins/marketplace.json</code>: <strong>${ids.join(', ')}</strong>`;
+      whatPlugins.innerHTML = `${ids.length} plugin${ids.length > 1 ? 's' : ''} selected: <strong>${ids.join(', ')}</strong>`;
     }
   }
 

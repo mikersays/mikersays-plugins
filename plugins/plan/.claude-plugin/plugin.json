@@ -1,5 +1,8 @@
 {
   "name": "plan",
   "description": "Lightweight markdown-based tracker for bugs, features, chores, and todos that lives in docs/plan/ inside your repo",
-  "version": "1.0.0"
+  "version": "1.0.0",
+  "author": {
+    "name": "mikersays"
+  }
 }

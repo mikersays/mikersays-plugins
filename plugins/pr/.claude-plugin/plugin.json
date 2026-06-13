@@ -1,5 +1,8 @@
 {
   "name": "pr",
   "description": "Create a GitHub PR for the current branch with auto-generated title, summary, and test plan",
-  "version": "1.0.0"
+  "version": "1.0.0",
+  "author": {
+    "name": "mikersays"
+  }
 }

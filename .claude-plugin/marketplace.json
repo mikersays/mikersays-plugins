@@ -1,5 +1,6 @@
 {
   "name": "mikersays-plugins",
+  "description": "A marketplace of development, writing, planning, and publishing plugins for Claude Code and Codex CLI.",
   "owner": {
     "name": "mikersays"
   },

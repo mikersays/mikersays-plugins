@@ -12,6 +12,7 @@ relative to the repo root the script lives in.
 from __future__ import annotations
 
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -22,6 +23,11 @@ ERRORS: list[str] = []
 # deliberately omitted from end-user install/uninstall flows and the landing
 # page. See plugins/maintenance/skills/sync-docs/SKILL.md.
 USER_FACING_EXCLUDE = {"maintenance"}
+CODEX_INSTALLATION_VALUES = {"NOT_AVAILABLE", "AVAILABLE", "INSTALLED_BY_DEFAULT"}
+CODEX_AUTHENTICATION_VALUES = {"ON_INSTALL", "ON_USE"}
+CLAUDE_SOURCE_TYPES = {"github", "url", "git-subdir", "npm"}
+CODEX_SOURCE_TYPES = {"local", "url", "git-subdir"}
+NAME_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,63}$")
 
 
 def err(msg: str) -> None:
@@ -147,18 +153,123 @@ def check_plugin(plugin_dir: Path) -> None:
                 err(f"{rel(oyaml)}: missing 'interface:' key")
 
 
-def check_marketplace(path: Path, all_names: set[str]) -> None:
-    data = load_json(path)
+def check_source_path(path: Path, value: str, field: str) -> None:
+    if not value.startswith("./"):
+        err(f"{rel(path)}: {field} should start with './', got {value!r}")
+    if ".." in Path(value).parts:
+        err(f"{rel(path)}: {field} must not contain '..', got {value!r}")
+
+
+def check_marketplace_common(path: Path, data: dict | list | None, all_names: set[str]) -> list[dict]:
     if data is None:
-        return
-    if not isinstance(data, dict) or "plugins" not in data:
+        return []
+    if not isinstance(data, dict):
+        err(f"{rel(path)}: root should be a JSON object")
+        return []
+    if not isinstance(data.get("name"), str) or not data["name"]:
+        err(f"{rel(path)}: missing or empty top-level name")
+    elif not NAME_RE.match(data["name"]):
+        err(f"{rel(path)}: top-level name should be kebab-case, got {data['name']!r}")
+    if not isinstance(data.get("plugins"), list):
         err(f"{rel(path)}: missing top-level 'plugins' array")
-        return
-    entry_names = {p.get("name") for p in data["plugins"] if isinstance(p, dict)}
-    for missing in sorted(all_names - entry_names):
+        return []
+
+    plugins = [p for p in data["plugins"] if isinstance(p, dict)]
+    for i, plugin in enumerate(data["plugins"]):
+        if not isinstance(plugin, dict):
+            err(f"{rel(path)}: plugins[{i}] should be an object")
+
+    entry_names = [p.get("name") for p in plugins]
+    name_set = {name for name in entry_names if isinstance(name, str)}
+    for name in sorted(name for name in name_set if not NAME_RE.match(name)):
+        err(f"{rel(path)}: plugin name should be kebab-case, got {name!r}")
+    for duplicate in sorted({name for name in entry_names if entry_names.count(name) > 1}):
+        err(f"{rel(path)}: duplicate plugin entry {duplicate!r}")
+    for missing in sorted(all_names - name_set):
         err(f"{rel(path)}: missing entry for plugin {missing!r}")
-    for orphan in sorted(entry_names - all_names):
+    for orphan in sorted(name_set - all_names):
         err(f"{rel(path)}: orphan entry {orphan!r} (no plugins/{orphan}/ directory)")
+    return plugins
+
+
+def check_claude_marketplace(path: Path, all_names: set[str]) -> None:
+    data = load_json(path)
+    plugins = check_marketplace_common(path, data, all_names)
+    if not isinstance(data, dict):
+        return
+    owner = data.get("owner")
+    if not isinstance(owner, dict) or not owner.get("name"):
+        err(f"{rel(path)}: Claude marketplace should include owner.name")
+    for i, plugin in enumerate(plugins):
+        name = plugin.get("name", f"plugins[{i}]")
+        source = plugin.get("source")
+        if isinstance(source, str):
+            check_source_path(path, source, f"{name}.source")
+        elif isinstance(source, dict):
+            source_type = source.get("source")
+            if source_type not in CLAUDE_SOURCE_TYPES:
+                err(
+                    f"{rel(path)}: {name}.source.source should be one of "
+                    f"{sorted(CLAUDE_SOURCE_TYPES)}, got {source_type!r}"
+                )
+        else:
+            err(f"{rel(path)}: {name}.source should be a string or source object")
+        if not plugin.get("description"):
+            err(f"{rel(path)}: {name} missing description")
+
+
+def check_codex_marketplace(path: Path, all_names: set[str]) -> None:
+    data = load_json(path)
+    plugins = check_marketplace_common(path, data, all_names)
+    if not isinstance(data, dict):
+        return
+    interface = data.get("interface")
+    if interface is not None and not isinstance(interface, dict):
+        err(f"{rel(path)}: interface should be an object when present")
+    elif interface is not None and "displayName" in interface and not isinstance(interface["displayName"], str):
+        err(f"{rel(path)}: interface.displayName should be a string")
+
+    for i, plugin in enumerate(plugins):
+        name = plugin.get("name", f"plugins[{i}]")
+        source = plugin.get("source")
+        if isinstance(source, str):
+            check_source_path(path, source, f"{name}.source")
+        elif isinstance(source, dict):
+            source_type = source.get("source")
+            if source_type not in CODEX_SOURCE_TYPES:
+                err(
+                    f"{rel(path)}: {name}.source.source should be one of "
+                    f"{sorted(CODEX_SOURCE_TYPES)}, got {source_type!r}"
+                )
+            if source_type == "local":
+                source_path = source.get("path")
+                if not isinstance(source_path, str):
+                    err(f"{rel(path)}: {name}.source.path should be a string")
+                else:
+                    check_source_path(path, source_path, f"{name}.source.path")
+        else:
+            err(f"{rel(path)}: {name}.source should be a string or source object")
+
+        policy = plugin.get("policy")
+        if not isinstance(policy, dict):
+            err(f"{rel(path)}: {name} missing policy object")
+            continue
+        installation = policy.get("installation")
+        if installation not in CODEX_INSTALLATION_VALUES:
+            err(
+                f"{rel(path)}: {name}.policy.installation should be one of "
+                f"{sorted(CODEX_INSTALLATION_VALUES)}, got {installation!r}"
+            )
+        authentication = policy.get("authentication")
+        if authentication not in CODEX_AUTHENTICATION_VALUES:
+            err(
+                f"{rel(path)}: {name}.policy.authentication should be one of "
+                f"{sorted(CODEX_AUTHENTICATION_VALUES)}, got {authentication!r}"
+            )
+        if "products" in policy and not isinstance(policy["products"], list):
+            err(f"{rel(path)}: {name}.policy.products should be an array when present")
+        if not isinstance(plugin.get("category"), str) or not plugin["category"]:
+            err(f"{rel(path)}: {name} missing category")
 
 
 def check_sync_surfaces(plugin_names: set[str], all_skills: set[str]) -> None:
@@ -210,9 +321,9 @@ def main() -> int:
     for p in plugins:
         check_plugin(p)
 
-    check_marketplace(REPO / ".claude-plugin" / "marketplace.json", plugin_names)
-    check_marketplace(REPO / ".codex-plugin" / "marketplace.json", plugin_names)
-    check_marketplace(REPO / ".agents" / "plugins" / "marketplace.json", plugin_names)
+    check_claude_marketplace(REPO / ".claude-plugin" / "marketplace.json", plugin_names)
+    check_codex_marketplace(REPO / ".codex-plugin" / "marketplace.json", plugin_names)
+    check_codex_marketplace(REPO / ".agents" / "plugins" / "marketplace.json", plugin_names)
 
     for doc in ("CLAUDE.md", "AGENTS.md"):
         if not (REPO / doc).exists():

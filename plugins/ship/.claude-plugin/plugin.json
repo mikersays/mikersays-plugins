@@ -1,5 +1,8 @@
 {
   "name": "ship",
   "description": "Stage, commit, and push all changes in one step, with auto-generated message if none given",
-  "version": "1.0.0"
+  "version": "1.0.0",
+  "author": {
+    "name": "mikersays"
+  }
 }

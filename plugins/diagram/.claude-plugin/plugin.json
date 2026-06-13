@@ -1,5 +1,8 @@
 {
   "name": "diagram",
   "description": "Generate an interactive SVG diagram (architecture, sequence, flowchart, ER) from a description",
-  "version": "1.0.0"
+  "version": "1.0.0",
+  "author": {
+    "name": "mikersays"
+  }
 }

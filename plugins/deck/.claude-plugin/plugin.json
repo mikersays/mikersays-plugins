@@ -1,5 +1,8 @@
 {
   "name": "deck",
   "description": "Generate a self-contained HTML slide deck from a topic — single file, dark theme, keyboard nav",
-  "version": "1.0.0"
+  "version": "1.0.0",
+  "author": {
+    "name": "mikersays"
+  }
 }

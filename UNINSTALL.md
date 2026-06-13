@@ -7,7 +7,8 @@ This page removes everything the mikersays installer placed on the current machi
 - Repo at `~/.codex/plugins/mikersays/mikersays-plugins`
 - Skill symlinks from `~/.agents/skills/`: `ship`, `pr`, `tech-writer`, `deck`, `roadmap`, `diagram`, `monograph`, `handoff`, `plan-init`, `plan-add`, `plan-list`, `plan-update`, `plan-close`, `issue-init`, `issue-new`, `issue-start`, `issue-close`
 - `mikersays-marketplace` entry from `~/.agents/plugins/marketplace.json`
-- `mikersays` plugin entries from `~/.codex/config.toml`
+- Native Codex marketplace `mikersays-plugins` and installed `*@mikersays-plugins` plugin entries, when present
+- Manual `mikersays` plugin entries from `~/.codex/config.toml`
 - `SessionStart` git-pull hook from `~/.codex/hooks.json`
 
 No other marketplaces, skills, or config entries are touched.
@@ -71,7 +72,17 @@ Remove the element whose `"name"` is `"mikersays-marketplace"` and write the rem
 **Case B — root is a JSON object (`{...}`):**
 If the object's `"name"` is `"mikersays-marketplace"`, delete the file entirely. Otherwise, leave the file untouched.
 
-### Step 4: Update config.toml
+### Step 4: Remove native Codex marketplace install
+
+If the `codex` command is available, run:
+
+```bash
+codex plugin marketplace remove mikersays-plugins || true
+```
+
+Continue even if the marketplace is not installed; the manual cleanup below handles older installer flows.
+
+### Step 5: Update config.toml
 
 Target file: `~/.codex/config.toml`
 
@@ -80,6 +91,39 @@ If the file does not exist, skip this step.
 Remove these lines (and the blank line following each block) if present:
 
 ```toml
+[marketplaces.mikersays-plugins]
+source = "mikersays/mikersays-plugins"
+
+[plugins."ship@mikersays-plugins"]
+enabled = true
+
+[plugins."pr@mikersays-plugins"]
+enabled = true
+
+[plugins."tech-writer@mikersays-plugins"]
+enabled = true
+
+[plugins."deck@mikersays-plugins"]
+enabled = true
+
+[plugins."roadmap@mikersays-plugins"]
+enabled = true
+
+[plugins."diagram@mikersays-plugins"]
+enabled = true
+
+[plugins."monograph@mikersays-plugins"]
+enabled = true
+
+[plugins."plan@mikersays-plugins"]
+enabled = true
+
+[plugins."issues@mikersays-plugins"]
+enabled = true
+
+[plugins."handoff@mikersays-plugins"]
+enabled = true
+
 [plugins."ship@mikersays-marketplace"]
 enabled = true
 
@@ -113,7 +157,7 @@ enabled = true
 
 Do not modify any other lines in the file.
 
-### Step 5: Update hooks.json
+### Step 6: Update hooks.json
 
 Target file: `~/.codex/hooks.json`
 
@@ -125,12 +169,12 @@ Read the file. Find the `SessionStart` array and remove any handler object whose
 - If `hooks` is now an empty object, write `{ "hooks": {} }`.
 - If the file would be `{ "hooks": {} }` and that was the original content, delete the file entirely.
 
-### Step 6: Verify
+### Step 7: Verify
 
 Run the following checks and report the result for each:
 
 1. `ls ~/.codex/plugins/mikersays 2>/dev/null || echo "removed"` — confirm repo directory is gone
 2. `ls ~/.agents/skills/ship 2>/dev/null || echo "removed"` — confirm skill symlinks are gone
 3. Check `~/.agents/plugins/marketplace.json` does not contain `mikersays-marketplace`
-4. Check `~/.codex/config.toml` does not contain `mikersays-marketplace`
+4. Check `~/.codex/config.toml` does not contain `mikersays-marketplace` or `mikersays-plugins`
 5. Check `~/.codex/hooks.json` does not contain `mikersays`

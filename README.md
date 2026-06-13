@@ -20,7 +20,10 @@ Then install any plugin:
 
 ```bash
 codex plugin marketplace add mikersays/mikersays-plugins
+codex plugin add ship@mikersays-plugins
 ```
+
+Repeat `codex plugin add <plugin>@mikersays-plugins` for each plugin you want.
 
 **Headless (one-liner):**
 

@@ -30,13 +30,14 @@ The hook runs `git pull` on the marketplace repo each time Codex starts, so plug
 
 ## Quick install (native)
 
-If you have Codex CLI v0.133+, the built-in marketplace command handles everything:
+Current Codex CLI uses two commands: first add the marketplace, then install each plugin you want:
 
 ```bash
 codex plugin marketplace add mikersays/mikersays-plugins
+codex plugin add ship@mikersays-plugins
 ```
 
-The rest of this document is the manual installer — use it if the native command is not available or you need fine-grained control.
+Repeat `codex plugin add <plugin>@mikersays-plugins` for each plugin you want. The rest of this document is the manual installer — use it if the native command is not available or you need fine-grained control.
 
 ## Prompt to give Codex
 
@@ -68,29 +69,21 @@ git clone https://github.com/mikersays/mikersays-plugins.git ~/.codex/plugins/mi
 
 Target file: `~/.agents/plugins/marketplace.json`
 
-Read the file if it exists and inspect its root structure, then follow the matching case:
+Read the file if it exists and inspect its root structure, then follow the matching case. Codex expects this file to be a single marketplace object with a `plugins[]` array.
 
 **Case A — file does not exist:**
-Create `~/.agents/plugins/` if needed, then write the file as a JSON array containing only the mikersays entry:
+Create `~/.agents/plugins/` if needed, then write the mikersays marketplace object:
 ```json
-[
-  <mikersays-entry>
-]
+<mikersays-marketplace>
 ```
 
-**Case B — file exists and root is a JSON array (`[...]`):**
-Remove any existing element whose `"name"` is `"mikersays-marketplace"`, then append the mikersays entry to the array.
+**Case B — file exists and root is a JSON object (`{...}`):**
+If the object's `"name"` is `"mikersays-marketplace"`, replace its `plugins[]` array with the plugin list below while preserving any extra top-level fields. If it has a different `"name"`, stop and tell the user the personal marketplace file already belongs to another marketplace; use the native `codex plugin marketplace add mikersays/mikersays-plugins` flow instead.
 
-**Case C — file exists and root is a JSON object (`{...}`):**
-This is a single-marketplace file. Wrap the existing object and the mikersays entry together into an array:
-```json
-[
-  <existing-object>,
-  <mikersays-entry>
-]
-```
+**Case C — file exists and root is a legacy JSON array (`[...]`):**
+Find the element whose `"name"` is `"mikersays-marketplace"` and convert that object into the file root after applying the plugin list below. If there is no such element, stop and tell the user the existing file uses an old multi-marketplace format that needs manual migration or the native `codex plugin marketplace add mikersays/mikersays-plugins` flow.
 
-In all cases, the mikersays entry to insert is:
+For a new file, the full mikersays marketplace object is:
 
 ```json
 {
@@ -101,43 +94,63 @@ In all cases, the mikersays entry to insert is:
   "plugins": [
     {
       "name": "ship",
-      "source": { "path": "../../.codex/plugins/mikersays/mikersays-plugins/plugins/ship" }
+      "source": { "source": "local", "path": "./.codex/plugins/mikersays/mikersays-plugins/plugins/ship" },
+      "policy": { "installation": "INSTALLED_BY_DEFAULT", "authentication": "ON_INSTALL" },
+      "category": "Developer Tools"
     },
     {
       "name": "pr",
-      "source": { "path": "../../.codex/plugins/mikersays/mikersays-plugins/plugins/pr" }
+      "source": { "source": "local", "path": "./.codex/plugins/mikersays/mikersays-plugins/plugins/pr" },
+      "policy": { "installation": "INSTALLED_BY_DEFAULT", "authentication": "ON_INSTALL" },
+      "category": "Developer Tools"
     },
     {
       "name": "tech-writer",
-      "source": { "path": "../../.codex/plugins/mikersays/mikersays-plugins/plugins/tech-writer" }
+      "source": { "source": "local", "path": "./.codex/plugins/mikersays/mikersays-plugins/plugins/tech-writer" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Writing"
     },
     {
       "name": "deck",
-      "source": { "path": "../../.codex/plugins/mikersays/mikersays-plugins/plugins/deck" }
+      "source": { "source": "local", "path": "./.codex/plugins/mikersays/mikersays-plugins/plugins/deck" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Productivity"
     },
     {
       "name": "roadmap",
-      "source": { "path": "../../.codex/plugins/mikersays/mikersays-plugins/plugins/roadmap" }
+      "source": { "source": "local", "path": "./.codex/plugins/mikersays/mikersays-plugins/plugins/roadmap" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_INSTALL" },
+      "category": "Productivity"
     },
     {
       "name": "diagram",
-      "source": { "path": "../../.codex/plugins/mikersays/mikersays-plugins/plugins/diagram" }
+      "source": { "source": "local", "path": "./.codex/plugins/mikersays/mikersays-plugins/plugins/diagram" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_INSTALL" },
+      "category": "Productivity"
     },
     {
       "name": "monograph",
-      "source": { "path": "../../.codex/plugins/mikersays/mikersays-plugins/plugins/monograph" }
+      "source": { "source": "local", "path": "./.codex/plugins/mikersays/mikersays-plugins/plugins/monograph" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Productivity"
     },
     {
       "name": "plan",
-      "source": { "path": "../../.codex/plugins/mikersays/mikersays-plugins/plugins/plan" }
+      "source": { "source": "local", "path": "./.codex/plugins/mikersays/mikersays-plugins/plugins/plan" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_INSTALL" },
+      "category": "Productivity"
     },
     {
       "name": "issues",
-      "source": { "path": "../../.codex/plugins/mikersays/mikersays-plugins/plugins/issues" }
+      "source": { "source": "local", "path": "./.codex/plugins/mikersays/mikersays-plugins/plugins/issues" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_INSTALL" },
+      "category": "Productivity"
     },
     {
       "name": "handoff",
-      "source": { "path": "../../.codex/plugins/mikersays/mikersays-plugins/plugins/handoff" }
+      "source": { "source": "local", "path": "./.codex/plugins/mikersays/mikersays-plugins/plugins/handoff" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_INSTALL" },
+      "category": "Productivity"
     }
   ]
 }
