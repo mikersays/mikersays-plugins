@@ -111,7 +111,7 @@ Review the returned curriculum yourself and adjust ordering/scope before fan-out
 Spawn **in one message** one content expert per module (subagents). While they work, you build the design system yourself.
 
 **Design system — you invoke the `frontend-design` skill.** The Skill tool is in your allowed-tools; use it to drive `frontend-design` (it is the source of polish, so lean on it) and produce the course's look and feel. Do this at the orchestrator level — do **not** ask a subagent to call the Skill, since a general-purpose subagent can't be relied on to have the skill in its context. Feed it the topic, the audience, and the interaction requirements from Phase 4. Capture its output as:
-- `docs/assets/css/main.css` — a complete, distinctive design system (tokens, typography, color, layout primitives for the course-specific components listed under "Interaction & components").
+- `docs/assets/css/main.css` — a complete, distinctive design system (tokens, typography, color, layout primitives for the course-specific components listed under "Interaction & components"). Build it **mobile-first**: a great majority of learners will work through this on a phone. Start from a single-column ~390px layout and enhance up with `min-width` media queries; use fluid type (`clamp()`) and relative units so nothing relies on a fixed desktop width. Begin the page with `<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">`. Honor notch/Dynamic-Island safe areas with `env(safe-area-inset-*)` padding on sticky bars and the footer. Tap targets ≥44×44px with comfortable spacing; never require hover to reach functionality; no fixed widths or `overflow-x` that cause sideways scroll. Long code blocks scroll internally (`overflow-x:auto`) rather than stretching the page.
 - `docs/assets/js/main.js` — implements the full interaction layer of Phase 4: progress tracking, quizzes, progressive-hint solution reveals, runnable/"try it" demos, copy-code, the signature element, and whichever enhancers fit (see below). It auto-initializes from the DOM so module builders only emit the right markup.
 - `_course/design_brief.md` — ~200 words capturing the aesthetic + the exact CSS classes/markup contract module builders must follow, so every page is visually and behaviorally consistent.
 Aim for an aesthetic that fits the subject and the energy of a bootcamp; **avoid generic AI-template look** (no Inter-on-white, no purple gradient hero). Distinct, confident, legible for long study sessions. (If you prefer, spawn a UX subagent to draft the `design_brief.md` rationale first, but the `frontend-design` Skill call and the final CSS/JS stay with you.)
@@ -168,6 +168,8 @@ The one memorable, recurring interaction that defines the course. It should fit 
 
 **Builder contract.** `_course/design_brief.md` must specify the exact markup and class names for each interactive component (the `localStorage` keys, the quiz data attributes, the hint/solution structure, the run-button hook) so every module builder wires the same behavior identically. The JS auto-initializes from the DOM (no per-page bespoke scripting) and is **idempotent and accessible** — keyboard-operable, ARIA-labeled, and safe to re-run.
 
+**Touch parity.** Every interaction must work on a touchscreen, not just a mouse: drive components on `click`/`pointer` events (not `hover`), make hover-revealed UI (glossary tooltips, footnote popovers) tap-to-toggle on touch devices, give drag-to-order quizzes a tap-friendly fallback, and size every control for a fingertip. The signature interactive element must be fully operable on a phone — if it can't be (e.g. a layout that genuinely needs width), provide a graceful mobile alternative rather than a broken widget.
+
 ### Phase 5 — QA / proctor pass
 
 Spawn QA (one agent, or one per module for big builds). It verifies:
@@ -175,7 +177,7 @@ Spawn QA (one agent, or one per module for big builds). It verifies:
 1. **Technical accuracy** — re-check every code sample / factual claim against the dossier and reality. Flag anything wrong; fix before shipping. This is the most important check.
 2. **Navigation & links** — every prev/next link, the curriculum map, and cross-references resolve.
 3. **Interactivity** — start a local server and drive it with Playwright: progress persists across reloads and the bar reflects it, quizzes score and explain, hints ladder up and solutions reveal, runnable/"try it" demos execute, copy buttons work, the signature element works, and every enhancer shipped (flashcards, tooltips, notes, theme toggle, certificate…) actually functions. Also confirm the page is usable with JS disabled (graceful degradation).
-4. **Responsive layout** — screenshot desktop (1440×900) and mobile (390×844); read the screenshots; confirm no broken layout, no empty-on-first-paint sections, images loaded.
+4. **Responsive layout (mobile is a first-class target)** — most learners read on a phone, so verify mobile explicitly, not just desktop. With `browser_resize`, screenshot at desktop (1440×900) and at a current iPhone-class viewport (**393×852**, covering iPhone 15/16/17 Pro; also spot-check a small phone at 360×780). Read every screenshot and confirm, on mobile: no horizontal scroll / sideways overflow, body text readable without pinch-zoom, tap targets large and not crowded, sticky bars and footer clear of the notch/Dynamic-Island safe area, code blocks scroll internally instead of stretching the page, and the signature element + quizzes + solution reveals are usable by tap. Drive at least one quiz and one hint/solution reveal at the mobile size to confirm touch interaction works. No broken layout, no empty-on-first-paint sections, images loaded.
 
 ```bash
 cd docs && python3 -m http.server 4173 > /tmp/bootcamp-server.log 2>&1 &
@@ -217,6 +219,7 @@ The course must:
 - **Be interactive.** The full core layer works — progress persists, quizzes score and explain, hints ladder up before solutions reveal, demos run, code copies — plus a real signature element and the enhancers that fit. Interactivity carries the learning, it isn't decoration.
 - **Be hands-on.** Every module has exercises with solutions. Practice, not just prose.
 - **Look distinctive and stay readable** for long sessions — designed via the `frontend-design` skill, not a generic template.
+- **Work on a phone.** Mobile-first and fully usable on a current iPhone-class device (393×852) and small phones — no horizontal scroll, readable without zoom, fingertip-sized controls, safe-area-aware, every interaction operable by touch. Verified on a mobile viewport, not assumed.
 - **Have zero placeholders.** No "TODO", no "coming soon", no lorem ipsum.
 - **Be deployed.** Live on GitHub Pages from `docs/`, URL reported.
 

@@ -75,6 +75,10 @@ A bootcamp is something you *do*, not something you read. Every page is a worksp
 
 It stays dependency-light (vanilla JS, at most one CDN where a sandbox needs it), works offline-first, is keyboard-operable and ARIA-labeled, and degrades gracefully without JS.
 
+## Mobile-first
+
+Most learners work through a course on their phone, so the build targets mobile as a first-class surface — not an afterthought. The design system is **mobile-first** (single-column ~390px baseline, fluid `clamp()` type, enhanced up with media queries), respects notch/Dynamic-Island **safe areas** (`env(safe-area-inset-*)`), uses fingertip-sized (≥44px) tap targets, and never relies on hover — every interaction works by touch. The QA pass verifies layout and touch interaction on a current iPhone-class viewport (393×852, covering iPhone 15/16/17 Pro) and a small phone, confirming no horizontal scroll and readable text without zoom.
+
 ## Deployment
 
 The deliverable is a **live site**. After confirming with you, the skill:
