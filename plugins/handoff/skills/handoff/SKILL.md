@@ -113,7 +113,7 @@ Match the destination to the kind of knowledge:
 | Destination | Best for | Watch out for |
 |---|---|---|
 | **The project-instructions file** (`CLAUDE.md` in Claude Code, `AGENTS.md` in Codex) | Conventions, build/test commands, architecture decisions, constraints that affect *any* agent, always | Every word loads into every future session — keep it dense, don't duplicate what's there. Write to the file your harness loads |
-| **Memory files** (`~/.claude/projects/*/memory/`) — *Claude Code only* | User preferences, recurring project context, behavior feedback, pointers to external resources — recalled when relevant | Use the standard frontmatter; add a one-line pointer to MEMORY.md. In Codex there are no memory files — route this kind of context into `AGENTS.md` (or the repo's docs) instead |
+| **Memory files** (`~/.claude/projects/*/memory/`) — *Claude Code only* | Durable, cross-project *user preferences* and behavior feedback only — never the state of this project's work | Local to one machine, not shared or version-controlled; anything about *this* repo belongs in the repo (see the guardrail below). Use the standard frontmatter; add a one-line pointer to MEMORY.md. Codex has no memory files at all |
 | **Git commit message** | The *why* behind uncommitted work | Capture what + why; don't push unless asked |
 | **The repo's own tracking docs** (plan/issues/ADR/notes, *if present*) | Work items, next steps, bug investigations, decision records | Follow existing format; don't create new tracking infrastructure without asking |
 | **Code comments** | Non-obvious constraints tied to a specific line | One line, sparingly — only where the insight is physically bound to the code |
@@ -141,3 +141,10 @@ A few things to hold firm on, because they're easy to get wrong and costly when 
 - **Don't leak secrets.** Keep credentials, tokens, and personal data out of any file you write.
 - **This skill persists knowledge, not code changes.** Don't alter program logic, and don't push to
   a remote, unless the user explicitly asks.
+- **Context lives in the repo, not in the user's local memory directory.** Everything worth handing
+  off goes into files that travel with the repo — the project-instructions file, the repo's own
+  tracking docs, commit messages, or code comments — so the *next agent on any machine* sees it.
+  Do **not** route handoff context into `~/.claude/projects/*/memory/`; those files are local to one
+  user's machine, aren't shared or version-controlled, and won't reach a teammate (or the user on a
+  different machine) who opens the repo fresh. Memory files are for durable cross-project user
+  preferences, not for the state of *this* project's work.

@@ -213,25 +213,32 @@ The deliverable includes a **live, deployed site**. Confirm before doing outward
 1. Write a minimal `.gitignore` (`.playwright-mcp/`, `.DS_Store`, server logs, etc.).
 2. Stage `docs/`, `_course/`, `.gitignore` — never blind `git add -A` if the repo has unrelated files; here, on greenfield, staging the course tree is fine.
 3. Commit with a HEREDOC message summarizing: topic, module count, what the learner can do at the end, the aesthetic in one line. End with the Co-Authored-By line.
-4. **Remote.** If no remote: with the user's go-ahead, create one with `gh repo create <slug> --public --source=. --remote=origin --push` (or have them create it). Otherwise `git push -u origin <branch>`.
-5. **Enable Pages from the `docs/` folder on the branch** (this is the explicit ask). Resolve `<branch>` from the repo (`git branch --show-current`) rather than assuming `main` vs `master`, and `<owner>/<repo>` from `gh repo view --json nameWithOwner -q .nameWithOwner`:
+4. **Project-instructions files — do this before pushing to the remote.** Run the `/init` skill to generate a `CLAUDE.md` that documents the course repo (its structure, the `docs/` + `_course/` layout, how to serve and deploy it) so the next agent to open the repo has orientation. Then create a minimal `AGENTS.md` next to it whose **only** content is an instruction to read `CLAUDE.md` — so Codex CLI agents get pointed at the same context:
+   ```markdown
+   # AGENTS.md
+
+   Read CLAUDE.md.
+   ```
+   Stage and commit both files (amend the previous commit or add a small follow-up commit) so they land in the same push.
+5. **Remote.** If no remote: with the user's go-ahead, create one with `gh repo create <slug> --public --source=. --remote=origin --push` (or have them create it). Otherwise `git push -u origin <branch>`.
+6. **Enable Pages from the `docs/` folder on the branch** (this is the explicit ask). Resolve `<branch>` from the repo (`git branch --show-current`) rather than assuming `main` vs `master`, and `<owner>/<repo>` from `gh repo view --json nameWithOwner -q .nameWithOwner`:
    ```bash
    gh api -X POST repos/<owner>/<repo>/pages \
      -f "source[branch]=<branch>" -f "source[path]=/docs"
    ```
    (If Pages is already configured, `PUT` the same endpoint to update the source.)
-6. Poll until built and capture the live URL:
+7. Poll until built and capture the live URL:
    ```bash
    gh api repos/<owner>/<repo>/pages/builds/latest --jq .status   # until "built"
    ```
    The Pages URL is typically `https://<owner>.github.io/<repo>/` — confirm the exact value from `gh api repos/<owner>/<repo>/pages --jq .html_url`.
-7. **Set the repo's homepage/website to the Pages URL** so anyone who finds the repo gets a one-click link to launch the live course (it shows as the clickable link in the repo's About sidebar). Also give the repo a short, useful description:
+8. **Set the repo's homepage/website to the Pages URL** so anyone who finds the repo gets a one-click link to launch the live course (it shows as the clickable link in the repo's About sidebar). Also give the repo a short, useful description:
    ```bash
    gh repo edit <owner>/<repo> \
      --homepage "https://<owner>.github.io/<repo>/" \
      --description "<one-line: what this course teaches, zero→hero> — live: https://<owner>.github.io/<repo>/"
    ```
-8. Curl the URL, report the HTTP status and the link.
+9. Curl the URL, report the HTTP status and the link.
 
 ---
 
