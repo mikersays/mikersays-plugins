@@ -11,7 +11,7 @@
 - **Content experts** (one per module, in parallel) write deep teaching dossiers — explanations, correct/runnable worked examples, exercises with solutions, common misconceptions, and checkpoint quizzes.
 - **Module builders** (one per module, in parallel) turn each dossier into a polished, consistent HTML page.
 - A **capstone author** designs an integrative project with a spec, rubric, and reference solution.
-- A **QA / proctor** pass verifies technical accuracy, links, interactivity, and responsive layout in a headless browser.
+- A **QA / proctor** pass drives the real site in a browser via the **Playwright MCP** to verify technical accuracy, links, interactivity, and responsive/mobile layout (if the MCP isn't installed, the skill helps you set it up first).
 
 Then it commits, creates/pushes the repo, **enables GitHub Pages from the `docs/` folder**, polls until the build is green, and reports the live URL.
 
@@ -57,6 +57,23 @@ _course/
 ```
 
 The skill pins down who "zero" is and what "hero" means before building, so the ramp fits the learner. "Length doesn't matter" — it errs toward **comprehensive**, preferring more well-sequenced modules over padding.
+
+## Requirements
+
+- **`gh` CLI**, authenticated — to create the repo and enable GitHub Pages.
+- **Playwright MCP** — the QA/review pass drives the real site in a browser to verify interactivity and mobile layout. If it isn't installed, the skill walks you through adding it before QA:
+  ```bash
+  # Claude Code
+  claude mcp add playwright npx @playwright/mcp@latest
+  npx playwright install        # browser binaries
+  ```
+  ```toml
+  # Codex CLI — ~/.codex/config.toml
+  [mcp_servers.playwright]
+  command = "npx"
+  args = ["@playwright/mcp@latest"]
+  ```
+  (Restart the CLI afterward so the `browser_*` tools connect.) Without it, QA falls back to HTML/structure checks only — the skill says so rather than claiming the site works unverified.
 
 ## Interactive by default
 

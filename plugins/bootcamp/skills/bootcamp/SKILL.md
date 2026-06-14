@@ -172,7 +172,25 @@ The one memorable, recurring interaction that defines the course. It should fit 
 
 ### Phase 5 — QA / proctor pass
 
-Spawn QA (one agent, or one per module for big builds). It verifies:
+QA and review are done by **driving the real site in a browser via the Playwright MCP** (the `browser_navigate`, `browser_resize`, `browser_click`, `browser_type`, `browser_take_screenshot`, `browser_evaluate`, `browser_wait_for`, `browser_press_key` tools). Reading the HTML is not enough — interactivity, layout, and mobile behavior must be *observed*. So Playwright MCP is a hard requirement for this phase, and both you and any QA subagents should reach for it.
+
+**Preflight — make sure Playwright MCP is available.** Before QA, confirm the `browser_*` tools are present. If they are not (the tools aren't listed / calls error that the server is missing), **help the user install it** rather than skipping QA or falling back to HTML-only checks:
+
+- **Claude Code:** add the server, then make sure browsers are installed:
+  ```bash
+  claude mcp add playwright npx @playwright/mcp@latest
+  npx playwright install   # downloads the browser binaries if missing
+  ```
+  The MCP connects on the next session/restart, so the user may need to restart Claude Code (or reconnect the server) before the `browser_*` tools appear. Tell them this.
+- **Codex CLI:** add to `~/.codex/config.toml`, then restart Codex:
+  ```toml
+  [mcp_servers.playwright]
+  command = "npx"
+  args = ["@playwright/mcp@latest"]
+  ```
+- If the user can't or won't install it, say plainly that QA will be **HTML/structure-only** (links, presence of components, code correctness against the dossier) and that interactivity, responsive layout, and the mobile checks below could not be verified — don't claim the site works when you couldn't watch it work.
+
+Once Playwright MCP is confirmed, spawn QA (one agent, or one per module for big builds). It verifies:
 
 1. **Technical accuracy** — re-check every code sample / factual claim against the dossier and reality. Flag anything wrong; fix before shipping. This is the most important check.
 2. **Navigation & links** — every prev/next link, the curriculum map, and cross-references resolve.
