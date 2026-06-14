@@ -87,6 +87,23 @@
     section { padding: 56px 0; border-top: 1px solid var(--border); }
     h2 { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 8px; }
     .section-sub { color: var(--muted); font-size: 14px; margin-bottom: 28px; }
+    .callout {
+      background: var(--green-dim);
+      border: 1px solid var(--green);
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-bottom: 24px;
+      font-size: 14px;
+      line-height: 1.55;
+      color: #cfe9da;
+    }
+    .callout strong { color: var(--green); }
+    .callout code {
+      background: var(--code-bg);
+      border-radius: 4px;
+      padding: 1px 5px;
+      font-size: 0.92em;
+    }
     h3 {
       font-size: 12px;
       font-weight: 700;
@@ -438,6 +455,11 @@ codex plugin add ship@mikersays-plugins</code></pre>
 
       <!-- Claude Code tab -->
       <div id="tab-claude" class="tab-content">
+        <div class="callout">
+          <strong>Launch Claude Code first.</strong> These are <em>slash commands</em>, not terminal commands.
+          Start Claude Code in your project (run <code>claude</code> in your terminal, or open the desktop / IDE app),
+          then type the commands below at the Claude Code prompt — don't paste them into your shell.
+        </div>
         <h3>Add the marketplace</h3>
         <div class="install-block">
           <div class="block-header">
