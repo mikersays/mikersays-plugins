@@ -5,7 +5,7 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "Monograph",
-    "shortDescription": "Build multi-page scholarly GitHub Pages sites",
+    "shortDescription": "Build multi-page PhD-level GitHub Pages sites",
     "category": "Productivity"
   }
 }
