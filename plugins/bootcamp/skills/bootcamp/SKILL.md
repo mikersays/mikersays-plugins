@@ -220,11 +220,18 @@ The deliverable includes a **live, deployed site**. Confirm before doing outward
      -f "source[branch]=<branch>" -f "source[path]=/docs"
    ```
    (If Pages is already configured, `PUT` the same endpoint to update the source.)
-6. Poll until built and report the live URL:
+6. Poll until built and capture the live URL:
    ```bash
    gh api repos/<owner>/<repo>/pages/builds/latest --jq .status   # until "built"
    ```
-   Curl the URL, report the HTTP status and the link. The Pages URL is typically `https://<owner>.github.io/<repo>/`.
+   The Pages URL is typically `https://<owner>.github.io/<repo>/` — confirm the exact value from `gh api repos/<owner>/<repo>/pages --jq .html_url`.
+7. **Set the repo's homepage/website to the Pages URL** so anyone who finds the repo gets a one-click link to launch the live course (it shows as the clickable link in the repo's About sidebar). Also give the repo a short, useful description:
+   ```bash
+   gh repo edit <owner>/<repo> \
+     --homepage "https://<owner>.github.io/<repo>/" \
+     --description "<one-line: what this course teaches, zero→hero> — live: https://<owner>.github.io/<repo>/"
+   ```
+8. Curl the URL, report the HTTP status and the link.
 
 ---
 

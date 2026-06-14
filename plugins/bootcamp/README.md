@@ -104,7 +104,8 @@ The deliverable is a **live site**. After confirming with you, the skill:
 2. Creates/pushes the GitHub repo (`gh repo create … --push`)
 3. Enables GitHub Pages from the `docs/` folder via `gh api`
 4. Polls until the build is green
-5. Curls the live URL and reports the link
+5. Sets the repo's **homepage/website to the Pages URL** (`gh repo edit --homepage …`) so anyone who lands on the repo gets a one-click link to launch the live course, and gives the repo a short description
+6. Curls the live URL and reports the link
 
 ## Token budget
 
