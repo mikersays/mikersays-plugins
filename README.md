@@ -50,6 +50,7 @@ The headless/interactive methods clone the repo to `~/.codex/plugins/mikersays/m
 | [roadmap](plugins/roadmap/) | Generate a visual HTML Gantt-chart roadmap from a markdown file | `/roadmap [file]` |
 | [diagram](plugins/diagram/) | Generate interactive SVG diagrams from a description | `/diagram [description]` |
 | [monograph](plugins/monograph/) | Build a multi-page PhD-level GitHub Pages site on any topic, with research, free-licensed photography, and a topic-tuned design — shipped to `docs/` via parallel expert subagents | `/monograph [topic]` |
+| [bootcamp](plugins/bootcamp/) | Swarm of expert subagents builds an interactive zero-to-hero course site — modules, worked examples, exercises with solutions, checkpoints, a capstone, and progress tracking — shipped to `docs/` and deployed on GitHub Pages | `/bootcamp [topic]` |
 | [pr](plugins/pr/) | Create a GitHub PR with auto-generated title, summary, and test plan | `/pr [title]` |
 | [plan](plugins/plan/) | Track bugs, features, chores, and todos as markdown in `docs/plan/` | `/plan-init` `/plan-add` `/plan-list` `/plan-update` `/plan-close` |
 | [issues](plugins/issues/) | Per-issue bug/feature/incident tracker in `docs/issues/` with symptom/repro/root cause/fix/verification, branch-on-start, and an alignment-before-implement rule | `/issue-init` `/issue-new` `/issue-start` `/issue-close` |

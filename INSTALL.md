@@ -24,6 +24,7 @@ The hook runs `git pull` on the marketplace repo each time Codex starts, so plug
 - `roadmap` — Generate a self-contained interactive HTML Gantt chart from a markdown roadmap file
 - `diagram` — Generate an interactive SVG diagram (architecture, sequence, flowchart, ER) from a description
 - `monograph` — Build a multi-page PhD-level GitHub Pages site on any topic — research, free-licensed photography, a distinctive topic-tuned design, all built by a team of parallel expert subagents and shipped to docs/
+- `bootcamp` — Spin up a swarm of expert subagents to build an interactive zero-to-hero course site on any topic — progressive modules, worked examples, exercises with solutions, checkpoints, a capstone, and progress tracking — shipped to docs/ and deployed on GitHub Pages
 - `plan` — Lightweight markdown-based tracker for bugs/features/chores/todos that lives in docs/plan/ inside your repo
 - `issues` — Per-issue bug/feature/incident tracker in docs/issues/ — one file per ticket with symptom/repro/root cause/fix/verification, branch-on-start, and a hard rule to align with the user before implementing
 - `handoff` — Audit session context and persist what matters for the next agent — decisions, dead ends, insights, and in-flight work
@@ -135,6 +136,12 @@ For a new file, the full mikersays marketplace object is:
       "category": "Productivity"
     },
     {
+      "name": "bootcamp",
+      "source": { "source": "local", "path": "./.codex/plugins/mikersays/mikersays-plugins/plugins/bootcamp" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Productivity"
+    },
+    {
       "name": "plan",
       "source": { "source": "local", "path": "./.codex/plugins/mikersays/mikersays-plugins/plugins/plan" },
       "policy": { "installation": "AVAILABLE", "authentication": "ON_INSTALL" },
@@ -160,13 +167,13 @@ For a new file, the full mikersays marketplace object is:
 
 Codex's `/skills` command scans `~/.agents/skills/`. Create symlinks there so all skills appear.
 
-`ship`, `pr`, `tech-writer`, `deck`, `roadmap`, `diagram`, `monograph`, and `handoff` each ship a single same-named skill — one symlink per plugin. The `plan` plugin ships five skills (`plan-init`, `plan-add`, `plan-list`, `plan-update`, `plan-close`); the `issues` plugin ships four (`issue-init`, `issue-new`, `issue-start`, `issue-close`) — one symlink per skill.
+`ship`, `pr`, `tech-writer`, `deck`, `roadmap`, `diagram`, `monograph`, `bootcamp`, and `handoff` each ship a single same-named skill — one symlink per plugin. The `plan` plugin ships five skills (`plan-init`, `plan-add`, `plan-list`, `plan-update`, `plan-close`); the `issues` plugin ships four (`issue-init`, `issue-new`, `issue-start`, `issue-close`) — one symlink per skill.
 
 ```bash
 mkdir -p ~/.agents/skills
 
 # Single-skill plugins
-for plugin in ship pr tech-writer deck roadmap diagram monograph handoff; do
+for plugin in ship pr tech-writer deck roadmap diagram monograph bootcamp handoff; do
   ln -sfn "$HOME/.codex/plugins/mikersays/mikersays-plugins/plugins/$plugin/skills/$plugin" \
     "$HOME/.agents/skills/$plugin"
 done
@@ -239,6 +246,9 @@ enabled = true
 [plugins."monograph@mikersays-marketplace"]
 enabled = true
 
+[plugins."bootcamp@mikersays-marketplace"]
+enabled = true
+
 [plugins."plan@mikersays-marketplace"]
 enabled = true
 
@@ -253,7 +263,7 @@ enabled = true
 
 Run the following checks and report the result for each:
 
-1. `ls ~/.codex/plugins/mikersays/mikersays-plugins/.agents/plugins/marketplace.json` — confirm repo is present
+1. `ls ~/.codex/plugins/mikersays/mikersays-plugins` — confirm the cloned repo is present
 2. `cat ~/.agents/plugins/marketplace.json` — confirm marketplace entry exists
 3. `cat ~/.codex/hooks.json` — confirm SessionStart hook is present
 4. `grep -c 'mikersays-marketplace' ~/.codex/config.toml` — confirm plugin entries in config.toml

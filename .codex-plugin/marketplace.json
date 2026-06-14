@@ -89,6 +89,18 @@
       "category": "Productivity"
     },
     {
+      "name": "bootcamp",
+      "source": {
+        "source": "local",
+        "path": "./plugins/bootcamp"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_USE"
+      },
+      "category": "Productivity"
+    },
+    {
       "name": "plan",
       "source": {
         "source": "local",

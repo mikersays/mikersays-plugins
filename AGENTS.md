@@ -30,11 +30,12 @@ plugins/<name>/                   <- Each plugin lives in its own directory
 
 1. Create `plugins/<name>/`
 2. Add `.claude-plugin/plugin.json` with `name`, `description`, and `version`
-3. Add `.codex-plugin/plugin.json` with the same fields plus `"skills": "./skills/"` and an `interface` object
+3. Add `.codex-plugin/plugin.json` with the same fields plus `"skills": "./skills/"` and an `interface` object (`displayName`, `shortDescription`, `category`)
 4. Add skills under `skills/<skill-name>/SKILL.md`
 5. Optionally add `skills/<skill-name>/agents/openai.yaml` for Codex UI metadata
 6. Add a `README.md` for the plugin
-7. Run `python3 scripts/validate.py` to confirm everything stayed consistent
+7. Run `/sync-docs` to propagate the new plugin into all three marketplace files, `INSTALL.md`, `UNINSTALL.md`, and `docs/index.html`. (Doing it by hand also works — `/sync-docs` just automates it.)
+8. Run `python3 scripts/validate.py` to confirm everything stayed consistent. The pre-commit hook and CI run the same check.
 
 ## Validation
 
@@ -42,8 +43,11 @@ plugins/<name>/                   <- Each plugin lives in its own directory
 
 The validator checks:
 - All three marketplace JSON files parse and contain every `plugins/<name>/` directory
+- Both `CLAUDE.md` and `AGENTS.md` exist at the repo root
 - Every `plugins/<name>/` has both `.claude-plugin/plugin.json` and `.codex-plugin/plugin.json` with matching `name` fields
+- Every `.codex-plugin/plugin.json` has an `interface` object
 - Every `SKILL.md` has parseable frontmatter with `name` matching its directory
+- Every `agents/openai.yaml` (if present) has an `interface:` key and is non-empty
 - Every user-facing plugin and skill (everything except `maintenance`) appears in `INSTALL.md`, `UNINSTALL.md`, and `docs/index.html`
 
 ## SKILL.md Format
@@ -70,4 +74,5 @@ Claude Code also recognizes these optional fields (ignored by Codex):
 - **issues** (`plugins/issues/`) — `/issue-init`, `/issue-new`, `/issue-start`, `/issue-close` — Per-issue bug/feature/incident tracker in `docs/issues/` with symptom/repro/root cause/fix/verification, branch-on-start, and an alignment-before-implement rule
 - **handoff** (`plugins/handoff/`) — `/handoff` — Audit session context and persist what matters for the next agent
 - **monograph** (`plugins/monograph/`) — `/monograph [topic]` — Build a multi-page scholarly GitHub Pages site
+- **bootcamp** (`plugins/bootcamp/`) — `/bootcamp [topic]` — Swarm of expert subagents builds an interactive zero-to-hero course site (modules, exercises, quizzes, capstone, progress tracking) into `docs/` and deploys it on GitHub Pages
 - **maintenance** (`plugins/maintenance/`) — `/sync-docs`, `/install-marketplace`, `/uninstall-marketplace` — Marketplace maintenance skills; not installed by end users

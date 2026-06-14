@@ -1,0 +1,5 @@
+interface:
+  display_name: Bootcamp
+  short_description: Build an interactive zero-to-hero course site on any topic, shipped to GitHub Pages
+policy:
+  allow_implicit_invocation: true

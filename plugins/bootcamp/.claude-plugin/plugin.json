@@ -1,0 +1,8 @@
+{
+  "name": "bootcamp",
+  "description": "Spin up a swarm of expert subagents to build an interactive zero-to-hero course site on any topic — progressive modules, worked examples, exercises with solutions, checkpoints, a capstone, and progress tracking — shipped to docs/ and deployed on GitHub Pages",
+  "version": "1.0.0",
+  "author": {
+    "name": "mikersays"
+  }
+}

@@ -36,6 +36,11 @@
       "description": "Build a multi-page PhD-level GitHub Pages site on any topic — research, free-licensed photography, a distinctive topic-tuned design, all built by a team of parallel expert subagents and shipped to docs/ — /monograph"
     },
     {
+      "name": "bootcamp",
+      "source": "./plugins/bootcamp",
+      "description": "Spin up a swarm of expert subagents to build an interactive zero-to-hero course site on any topic — progressive modules, worked examples, exercises with solutions, checkpoints, a capstone, and progress tracking — shipped to docs/ and deployed on GitHub Pages — /bootcamp"
+    },
+    {
       "name": "pr",
       "source": "./plugins/pr",
       "description": "Create a GitHub PR for the current branch with auto-generated title, summary, and test plan — /pr"
