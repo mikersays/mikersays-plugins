@@ -232,7 +232,7 @@ The deliverable includes a **live, deployed site**. Confirm before doing outward
    gh api repos/<owner>/<repo>/pages/builds/latest --jq .status   # until "built"
    ```
    The Pages URL is typically `https://<owner>.github.io/<repo>/` — confirm the exact value from `gh api repos/<owner>/<repo>/pages --jq .html_url`.
-8. **Set the repo's homepage/website to the Pages URL** so anyone who finds the repo gets a one-click link to launch the live course (it shows as the clickable link in the repo's About sidebar). Also give the repo a short, useful description:
+8. **Always add the GitHub Pages site URL to the repository About section's Website field** by setting the repo homepage to the exact Pages `html_url` captured above, so anyone who finds the repo gets a one-click link to launch the live course. Also give the repo a short, useful description:
    ```bash
    gh repo edit <owner>/<repo> \
      --homepage "https://<owner>.github.io/<repo>/" \
