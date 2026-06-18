@@ -107,10 +107,6 @@ The deliverable is a **live site**. After confirming with you, the skill:
 5. Sets the repo's **homepage/website to the Pages URL** (`gh repo edit --homepage …`) so anyone who lands on the repo gets a one-click link to launch the live course, and gives the repo a short description
 6. Curls the live URL and reports the link
 
-## Token budget
-
-A full swarm build runs roughly **400K–900K tokens** across all agents, depending on module count and depth. The skill warns before a large run and supports a reduced build (≈5 modules, shorter dossiers, a single QA pass) — without cutting technical accuracy, hands-on exercises, the interactive layer, or deployment.
-
 ## Refusals
 
 The skill pushes back and proposes a workable version when a topic is too narrow for a multi-module course, unbounded, or would require harmful capability uplift (it declines the harmful core and offers the legitimate/defensive adjacent course).

@@ -11,7 +11,7 @@ This skill orchestrates a **swarm of expert subagents** to build a comprehensive
 
 The output is a **course**, not an essay. Where a reference site is written to be *read*, a bootcamp is built to be *worked through* — progressive modules, learning objectives, worked examples, hands-on exercises with revealable solutions, self-check quizzes, a capstone project, and a progress tracker that remembers where the learner left off.
 
-You are the **orchestrator / dean**. You shape the curriculum, stand up the design, delegate the heavy lifting to specialist agents in parallel, hold the quality bar, and ship. Read this whole file first, then adapt — the phases below are a mental model and a sensible default scale, not a rigid script. Scale the swarm to the topic and to the user's budget.
+You are the **orchestrator / dean**. You shape the curriculum, stand up the design, delegate the heavy lifting to specialist agents in parallel, hold the quality bar, and ship. Read this whole file first, then adapt — the phases below are a mental model and a sensible default scale, not a rigid script. Scale the swarm to the topic.
 
 ---
 
@@ -71,7 +71,7 @@ Delegate via the `Agent` tool. Use `subagent_type: general-purpose` for content/
 | Agent | Count | Job |
 |---|---|---|
 | **Curriculum architect** | 1 (subagent) | Designs the zero→hero learning path: module list, ordered prerequisites, per-module learning objectives, what's in/out of scope. Writes `_course/curriculum.md`. |
-| **Design system** | you + `frontend-design` skill | The design system is built by **you, the orchestrator**, by invoking the `frontend-design` skill (the Skill tool is in your allowed-tools). It produces `docs/assets/css/main.css`, `docs/assets/js/main.js`, and `_course/design_brief.md`. Don't delegate the Skill call to a subagent — a general-purpose subagent can't be relied on to have plugin skills in its context. |
+| **Design system** | you + `frontend-design` skill | Built by **you, the orchestrator**, via the `frontend-design` skill — not delegated (see Phase 2). Produces `docs/assets/css/main.css`, `docs/assets/js/main.js`, and `_course/design_brief.md`. |
 | **Content experts** | 1 per module (subagents) | Subject-matter teachers. Each produces a deep teaching dossier for one module: explanations, worked examples (with correct, runnable code/steps), exercises + solutions, common misconceptions, a checkpoint quiz. Writes `_course/modules/<slug>.md`. |
 | **Module builders** | 1 per module (subagents) | Front-end engineers. Each turns one content dossier into a polished `docs/NN-<module>.html` page using the shared design system. |
 | **Capstone author** | 1 (subagent) | Designs the integrative project: spec, milestones, grading rubric, reference solution. |
@@ -93,7 +93,6 @@ Scale: a tight build is ~5 modules and a single QA pass; a comprehensive build i
 2. **Greenfield setup.** This skill assumes a fresh repo. Check the actual state and adapt:
    - If not inside a git repo, offer to `git init` (and pick a kebab-case project slug for the eventual repo/Pages URL).
    - Create `docs/assets/{css,js,images}` and `_course/{modules}`. Don't presume any layout already exists — discover and route to what's there.
-3. **Budget heads-up.** A full swarm build is **large** — roughly **400K–900K tokens** depending on module count and depth. Tell the user before a big run; offer the reduced scale (fewer modules, shorter dossiers) if they're budget-constrained.
 
 ### Phase 1 — Curriculum architecture (1 agent)
 
@@ -112,7 +111,7 @@ Spawn **in one message** one content expert per module (subagents). While they w
 
 **Design system — you invoke the `frontend-design` skill.** The Skill tool is in your allowed-tools; use it to drive `frontend-design` (it is the source of polish, so lean on it) and produce the course's look and feel. Do this at the orchestrator level — do **not** ask a subagent to call the Skill, since a general-purpose subagent can't be relied on to have the skill in its context. Feed it the topic, the audience, and the interaction requirements from Phase 4. Capture its output as:
 - `docs/assets/css/main.css` — a complete, distinctive design system (tokens, typography, color, layout primitives for the course-specific components listed under "Interaction & components"). Build it **mobile-first**: a great majority of learners will work through this on a phone. Start from a single-column ~390px layout and enhance up with `min-width` media queries; use fluid type (`clamp()`) and relative units so nothing relies on a fixed desktop width. Begin the page with `<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">`. Honor notch/Dynamic-Island safe areas with `env(safe-area-inset-*)` padding on sticky bars and the footer. Tap targets ≥44×44px with comfortable spacing; never require hover to reach functionality; no fixed widths or `overflow-x` that cause sideways scroll. Long code blocks scroll internally (`overflow-x:auto`) rather than stretching the page.
-- `docs/assets/js/main.js` — implements the full interaction layer of Phase 4: progress tracking, quizzes, progressive-hint solution reveals, runnable/"try it" demos, copy-code, the signature element, and whichever enhancers fit (see below). It auto-initializes from the DOM so module builders only emit the right markup.
+- `docs/assets/js/main.js` — implements the full Phase 4 interaction layer (core + signature + enhancers). It auto-initializes from the DOM so module builders only emit the right markup.
 - `_course/design_brief.md` — ~200 words capturing the aesthetic + the exact CSS classes/markup contract module builders must follow, so every page is visually and behaviorally consistent.
 Aim for an aesthetic that fits the subject and the energy of a bootcamp; **avoid generic AI-template look** (no Inter-on-white, no purple gradient hero). Distinct, confident, legible for long study sessions. (If you prefer, spawn a UX subagent to draft the `design_brief.md` rationale first, but the `frontend-design` Skill call and the final CSS/JS stay with you.)
 
@@ -133,7 +132,7 @@ Once the design system and dossiers are in:
 1. **You build `docs/index.html`** — the course home. It establishes the design language for builders to mirror, and includes: the promise/outcome ("go from zero to hero in X"), who it's for + prerequisites, the **full curriculum map** (ordered, linked, showing the ramp), estimated effort, a global **progress bar** (driven by localStorage), and a clear "Start here" CTA into `00-orientation.html`.
 2. **Spawn the module builders in parallel** (one message). Each builder must:
    - Read `docs/index.html` (reference), `docs/assets/css/main.css`, `_course/design_brief.md` (the markup/class contract), and its own `_course/modules/<slug>.md`.
-   - Emit `docs/NN-<module>.html` following this pedagogical structure: module header (number, title, objectives, prerequisites) → lessons → worked examples → exercises with revealable solutions (`<details>` or JS toggle per the design contract) → "common mistakes" callout → checkpoint quiz → "you can now…" recap → prev/next module nav.
+   - Emit `docs/NN-<module>.html` that renders its dossier in the dossier's order (header → lessons → worked examples → exercises → common mistakes → checkpoint quiz → recap), with revealable solutions (`<details>` or JS toggle per the design contract) and prev/next module nav.
    - Wire each page into the **progress tracker** (mark-complete control; checkpoint completion updates the global bar) per the JS contract.
    - Use **real, correct content** from the dossier — zero placeholder text, zero "TODO", every code block runnable.
 3. Build `capstone.html` and `reference.html` (via the capstone author + a content/build pass), matching the design system.
@@ -168,7 +167,7 @@ The one memorable, recurring interaction that defines the course. It should fit 
 
 **Builder contract.** `_course/design_brief.md` must specify the exact markup and class names for each interactive component (the `localStorage` keys, the quiz data attributes, the hint/solution structure, the run-button hook) so every module builder wires the same behavior identically. The JS auto-initializes from the DOM (no per-page bespoke scripting) and is **idempotent and accessible** — keyboard-operable, ARIA-labeled, and safe to re-run.
 
-**Touch parity.** Every interaction must work on a touchscreen, not just a mouse: drive components on `click`/`pointer` events (not `hover`), make hover-revealed UI (glossary tooltips, footnote popovers) tap-to-toggle on touch devices, give drag-to-order quizzes a tap-friendly fallback, and size every control for a fingertip. The signature interactive element must be fully operable on a phone — if it can't be (e.g. a layout that genuinely needs width), provide a graceful mobile alternative rather than a broken widget.
+**Touch parity.** Every interaction must work on a touchscreen, not just a mouse: drive components on `click`/`pointer` events (not `hover`), make hover-revealed UI (glossary tooltips, footnote popovers) tap-to-toggle on touch devices, and give drag-to-order quizzes a tap-friendly fallback (control sizing is covered by the Phase 2 mobile-first rules). The signature interactive element must be fully operable on a phone — if it can't be (e.g. a layout that genuinely needs width), provide a graceful mobile alternative rather than a broken widget.
 
 ### Phase 5 — QA / proctor pass
 
@@ -188,7 +187,7 @@ QA and review are done by **driving the real site in a browser via the Playwrigh
   command = "npx"
   args = ["@playwright/mcp@latest"]
   ```
-- If the user can't or won't install it, say plainly that QA will be **HTML/structure-only** (links, presence of components, code correctness against the dossier) and that interactivity, responsive layout, and the mobile checks below could not be verified — don't claim the site works when you couldn't watch it work.
+- If the user can't or won't install it, say plainly that QA will be **HTML/structure-only** (links, presence of components, code correctness against the dossier) and that interactivity, responsive layout, and the mobile checks below could not be verified.
 
 Once Playwright MCP is confirmed, spawn QA (one agent, or one per module for big builds). It verifies:
 
@@ -262,7 +261,3 @@ The course must:
 - **Requires harmful capability uplift** (e.g. weaponization, real intrusion against third parties) → decline the harmful core; offer the legitimate/defensive adjacent course.
 
 Surface the concern and propose the version that works, rather than silently doing something smaller.
-
-## Token budget
-
-A full swarm build runs **~400K–900K tokens** across all agents. Warn the user before a large run. A reduced build still delivers the full experience: fewer modules (≈5), shorter dossiers, a single QA pass — but never cut technical accuracy, hands-on exercises, the interactive layer, or deployment.
