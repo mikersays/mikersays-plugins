@@ -219,7 +219,7 @@ The deliverable includes a **live, deployed site**. Confirm before doing outward
    Read CLAUDE.md.
    ```
    Stage and commit both files (amend the previous commit or add a small follow-up commit) so they land in the same push.
-5. **Remote.** If no remote: with the user's go-ahead, create one with `gh repo create <slug> --public --source=. --remote=origin --push` (or have them create it). Otherwise `git push -u origin <branch>`.
+5. **Remote.** If no remote: with the user's go-ahead, create one with `gh repo create <slug> --public --source=. --remote=origin --push` (or have them create it). If a remote already exists, just `git push -u origin <branch>` — **respect its current visibility.** If the repo is private (`gh repo view --json visibility -q .visibility` returns `PRIVATE`), keep it private: don't offer to make it public and never run `gh repo edit --visibility public`. (Note: GitHub Pages on a private repo requires a paid plan; if the build can't be enabled because of that, tell the user rather than suggesting they make the repo public.)
 6. **Enable Pages from the `docs/` folder on the branch** (this is the explicit ask). Resolve `<branch>` from the repo (`git branch --show-current`) rather than assuming `main` vs `master`, and `<owner>/<repo>` from `gh repo view --json nameWithOwner -q .nameWithOwner`:
    ```bash
    gh api -X POST repos/<owner>/<repo>/pages \
