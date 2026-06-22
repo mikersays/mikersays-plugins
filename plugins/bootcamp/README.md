@@ -98,10 +98,16 @@ Most learners work through a course on their phone, so the build targets mobile 
 
 ## Deployment
 
-The deliverable is a **live site**. After confirming with you, the skill:
+The deliverable is a **live site**. Deployment behavior depends on the repository state:
+
+- If an existing GitHub remote is configured, the skill commits, pushes, and deploys without asking whether to create a public repository.
+- If that repository is private, it stays private and GitHub Pages is configured on it directly. The skill only reports a plan or billing limitation if GitHub actually rejects the Pages setup.
+- If no remote exists, the skill asks before creating a new public GitHub repository.
+
+The skill then:
 
 1. Writes a `.gitignore` and commits the course
-2. Creates/pushes the GitHub repo (`gh repo create … --push`)
+2. Pushes the existing GitHub remote, or—with approval—creates one if none exists
 3. Enables GitHub Pages from the `docs/` folder via `gh api`
 4. Polls until the build is green
 5. Sets the repo's **homepage/website to the Pages URL** (`gh repo edit --homepage …`) so anyone who lands on the repo gets a one-click link to launch the live course, and gives the repo a short description

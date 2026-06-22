@@ -207,7 +207,12 @@ Fix issues, re-verify the ones you touched. Don't claim it works without having 
 
 ### Phase 6 — Ship & deploy GitHub Pages
 
-The deliverable includes a **live, deployed site**. Confirm before doing outward-facing steps (creating a remote repo, pushing) — that approval is the user's to give. Then:
+The deliverable includes a **live, deployed site**. Inspect the repository before asking any deployment question:
+
+- **Existing remote:** proceed with commit, push, and GitHub Pages deployment without asking whether the repository should be public. Preserve the repository's current visibility. In particular, if it is private, assume the user's GitHub plan supports private-repository Pages and deploy to that private repository directly.
+- **No remote:** creating a GitHub repository is a new outward-facing resource, so ask for approval before creating it. State that the proposed default is a public repository, but do not ask this question when a remote already exists.
+
+Then:
 
 1. Write a minimal `.gitignore` (`.playwright-mcp/`, `.DS_Store`, server logs, etc.).
 2. Stage `docs/`, `_course/`, `.gitignore` — never blind `git add -A` if the repo has unrelated files; here, on greenfield, staging the course tree is fine.
@@ -219,7 +224,10 @@ The deliverable includes a **live, deployed site**. Confirm before doing outward
    Read CLAUDE.md.
    ```
    Stage and commit both files (amend the previous commit or add a small follow-up commit) so they land in the same push.
-5. **Remote.** If no remote: with the user's go-ahead, create one with `gh repo create <slug> --public --source=. --remote=origin --push` (or have them create it). If a remote already exists, just `git push -u origin <branch>` — **respect its current visibility.** If the repo is private (`gh repo view --json visibility -q .visibility` returns `PRIVATE`), keep it private: don't offer to make it public and never run `gh repo edit --visibility public`. (Note: GitHub Pages on a private repo requires a paid plan; if the build can't be enabled because of that, tell the user rather than suggesting they make the repo public.)
+5. **Remote.**
+   - If no remote exists: with the user's approval, create one with `gh repo create <slug> --public --source=. --remote=origin --push` (or have them create it).
+   - If a remote already exists: do not ask about creating a public repository or changing visibility. Run `git push -u origin <branch>` and **respect its current visibility**.
+   - If the existing repository is private (`gh repo view --json visibility -q .visibility` returns `PRIVATE`), keep it private and continue directly to GitHub Pages setup. Never offer to make it public and never run `gh repo edit --visibility public`. Assume private Pages is available; only report a plan/billing limitation if the GitHub API actually rejects Pages setup for that reason.
 6. **Enable Pages from the `docs/` folder on the branch** (this is the explicit ask). Resolve `<branch>` from the repo (`git branch --show-current`) rather than assuming `main` vs `master`, and `<owner>/<repo>` from `gh repo view --json nameWithOwner -q .nameWithOwner`:
    ```bash
    gh api -X POST repos/<owner>/<repo>/pages \
