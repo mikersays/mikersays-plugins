@@ -98,3 +98,9 @@ policy:
 - **bootcamp** (`plugins/bootcamp/`) — `/bootcamp [topic]` — Swarm of expert subagents builds an interactive zero-to-hero course site (modules, exercises, quizzes, capstone, progress tracking) into `docs/` and deploys it on GitHub Pages
 - **handoff** (`plugins/handoff/`) — `/handoff` — Audit session context and persist what matters for the next agent
 - **maintenance** (`plugins/maintenance/`) — `/sync-docs`, `/install-marketplace`, `/uninstall-marketplace` — Marketplace maintenance skills; not installed by end users
+
+<!-- claude-memory-pointer -->
+## Preserved Claude context
+
+Distilled context from prior Claude Code sessions lives in [`.claude/memory/`](.claude/memory/MEMORY.md) — hand-curated facts (user preferences, project decisions, gotchas) extracted from local session history on 2026-06-21 so they travel with the repo. Start with [`.claude/memory/MEMORY.md`](.claude/memory/MEMORY.md).
+<!-- /claude-memory-pointer -->
