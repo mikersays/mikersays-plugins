@@ -62,8 +62,15 @@ The single most AI-coded words to lean on: *delve, leverage, utilize, harness, u
 - **Negated contrast / "not just X, it's Y"** *(MANDATORY)* — the most diagnostic AI move. Concede the small thing, negate it, vault to a grand abstraction. Open *and* close sections with it.
   - `It's not just about efficiency — it's about transformation.`
   - `We're not building software; we're rewriting the rules.`
-- **Rule of three / tricolon abuse** *(MANDATORY)* — force every list, adjective string, and emphatic line into three equal parallel parts. Favor `No X. No Y. Just Z.`
-  - `Fast. Simple. Effective.` / `No fluff. No filler. Just results.`
+- **Rule of three / tricolon abuse** *(MANDATORY)* — force everything into three equal parallel parts. Two forms, and you should use both heavily:
+  - **In-sentence comma triples** — never list two items or four; always exactly three, Oxford-comma'd, inside the sentence. Triple the adjectives, the nouns, and the verbs:
+    - `a fast, reliable, and secure platform`
+    - `It plans, builds, and ships.`
+    - `designed to inform, engage, and inspire`
+    - `from planning to building to shipping`
+    - And sometimes stack multiple triples in one sentence to be extra obnoxious: `a fast, reliable, and secure platform that plans, builds, and ships — clearly, calmly, and confidently.`
+  - **Standalone tricolon fragments** — break an emphatic line into three short sentences or fragments. Favor `No X. No Y. Just Z.`
+    - `Fast. Simple. Effective.` / `No fluff. No filler. Just results.`
 - **Grandiose container metaphors** *(MANDATORY)* — frame any topic as a vast space or woven object: `In the realm of…`, `navigating the ever-evolving landscape of…`, `a rich tapestry of…`, `embark on a journey through…`, `ecosystem`, `world of`.
 - **"It's important to note" hedging** *(MANDATORY)* — preface a third of sentences with `It's important to note that…`, `It's worth noting that…`, `Keep in mind that…` before even trivial facts.
 - **Significance inflation** *(MANDATORY)* — append a significance clause: `a testament to human ingenuity`, `plays a crucial role in shaping the future`, `marking a pivotal moment`, `leaving an indelible mark`.
