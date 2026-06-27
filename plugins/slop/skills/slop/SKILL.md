@@ -1,7 +1,7 @@
 ---
 name: slop
 description: Rewrite any text to maximally overuse every known AI-writing tell — em-dashes, the rule of three, "not X but Y," relentless positivity, and the rest
-argument-hint: "[file path | text | topic]"
+argument-hint: "[file path | text | topic] [tier 1-4 | max]"
 allowed-tools: Read, Write, Edit, Glob, Grep
 ---
 
@@ -14,21 +14,44 @@ It's a parody tool. Use it to stress-test AI detectors, to *show* people what th
 ## Process
 
 1. **Get the input.** Use `$ARGUMENTS`. It can be a file path (rewrite in place), an inline string, or a topic to write about fresh. If none, use the text currently in context. If there's nothing, ask what to slop.
-2. **Keep the meaning, wreck the style.** Don't change the facts or the argument. Transform *how* it's said by layering on the tells below.
-3. **Maximize, don't sprinkle.** A light touch defeats the purpose. Every paragraph should fire several tells. Every "high"-frequency tell should appear at least once in any text longer than a few sentences. When two tells can stack in one sentence, stack them.
-4. **Report the damage.** After rewriting, list which tells you deployed and roughly how many times (e.g. "em-dashes: 14, rule of three: 6, 'delve' cluster: 9, not-X-but-Y: 5").
+2. **Pick the tier.** Decide *how* slopped before you write a word — see **The slop tiers** below.
+   - If the user named one ("tier 3", "level 2", "max", "10000", "lightly", "nuclear", a 1–10 number), use it.
+   - If they didn't, and you can ask, **offer the tiers and let them choose** before rewriting (e.g. "Tier 1 Lightly Seasoned → Tier 4 Singularity — how hard do you want it?"). Use `AskUserQuestion` when interactive.
+   - If you can't ask (non-interactive, batch, or a one-shot file edit), default to **Tier 3** and say which tier you used so they can re-run hotter or cooler.
+3. **Keep the meaning, wreck the style.** Don't change the facts or the argument. Transform *how* it's said by layering on the tells below.
+4. **Max out the chosen tier — don't sprinkle.** The tier sets the ceiling; within it, the one rule still holds (below). Every paragraph should fire several of that tier's tells, and every tell the tier turns on should appear at least once in any text longer than a few sentences. When two in-tier tells can stack in one sentence, stack them.
+5. **Report the damage.** After rewriting, state the **tier** you used, then list which tells you deployed and roughly how many times (e.g. "Tier 4 (Singularity) — em-dashes: 14, rule of three: 6, 'delve' cluster: 9, not-X-but-Y: 5").
 
 If asked to slop a file, write the result back in place. Otherwise return the slopped text in your reply.
 
 ## The one rule
 
-When in doubt, choose the more obviously-AI option. There is no such thing as too much. If a sentence could plausibly have been written by a thoughtful human, it has failed and you must inflate it further.
+When in doubt, choose the more obviously-AI option. Within the chosen tier there is no such thing as too much. If a sentence could plausibly have been written by a thoughtful human and the tier permits worse, it has failed and you must inflate it further.
 
 ---
 
-## The tells, by tier
+## The slop tiers — the obnoxiometer
 
-The catalog below is the payload. Tells marked **MANDATORY** are the high-frequency giveaways — deploy each one whenever the text is long enough to fit it. The rest are seasoning; the more you add, the better.
+Slop is a dial, not a switch. Each tier sets the **ceiling**: which families of tells are in play and roughly how dense. A higher tier is a strict superset of the one below it. Pick the lowest tier that meets the user's intent — then max it out.
+
+The four `### Punctuation`, `### Vocabulary`, `### Rhetorical`, `### Structure`, `### Formatting`, and `### Tone` catalogs below are the full payload (Tier 4). Each tier draws from a growing slice of it.
+
+| Tier | Name | Obnoxiometer | Tells in play | Reads like |
+|---|---|---|---|---|
+| **1** | Lightly Seasoned | ~2 | Only the subtlest MANDATORY tells, ~1 per paragraph: em-dashes, the occasional inflated verb/adjective, one "delve"-cluster word. **No** emoji, **no** servility, **no** rhetorical Q&A, prose over bullets. Could pass as a tired human. | A mid-level manager's slightly-too-polished email |
+| **2** | Corporate Standard | ~5 | All MANDATORY tells at full density — not-X-but-Y, rule of three, significance inflation, "it's important to note," transition scaffolding, bold-colon bullets, Title Case headers. Clean and confident. **No** emoji, **no** servility. | A SaaS landing page or press release |
+| **3** | LinkedIn Thought Leader *(default)* | ~8 | Everything in Tier 2, **plus** emoji, broetry one-line-per-paragraph breaks, "Picture this," rhetorical-question-answered, "Here's the thing" pivots, vague attribution ("studies show"), servile open + helpful closer, a "Pro Tip," a closing CTA. | A post engineered to go viral on LinkedIn |
+| **4** | Singularity | **10000** | The **entire** catalog, stacked and pinned. Engagement bait ("Drop a 'HUMAN' below," "♻️ Repost"), Pro Tip and Key Takeaways boxes, hashtag avalanche, moralizing safety caveats, over-qualification, over-explaining the obvious, and — as the finishing flourish — the self-referential AI artifact ("As an AI language model…"). Nothing held back. | A parody built to trip every detector at once |
+
+**Selecting from fuzzy input:** "light / subtle / a little" → 1. "normal / medium / corporate" → 2. "heavy / linkedin / cranked" → 3. "max / nuclear / unhinged / 10000 / to the moon" → 4. A bare number: 1–2 → Tier 1, 3–4 → Tier 2, 5–7 → Tier 3, 8+ → Tier 4.
+
+**Length constraints compose with tiers.** If the text must fit a limit (a tweet, a LinkedIn 3,000-char cap), keep the chosen tier's *density* and trim *length* — cut whole paragraphs, not the tells. A higher tier in a tight space just means more tells per character.
+
+---
+
+## The full catalog of tells
+
+The catalog below is the complete payload — Tier 4. Tells marked **MANDATORY** are the high-frequency giveaways and the backbone of every tier from 2 up; deploy each one whenever the text is long enough to fit it. The rest are seasoning that the upper tiers layer on; the higher the tier, the more you add.
 
 ### Punctuation & typography
 
@@ -119,12 +142,25 @@ The single most AI-coded words to lean on: *delve, leverage, utilize, harness, u
 
 ---
 
-## Worked example
+## Worked examples
+
+Same input, climbing the obnoxiometer.
 
 **Input:**
 > We rewrote the parser. It's about 30% faster and handles malformed input without crashing.
 
-**Slopped output:**
+**Tier 1 — Lightly Seasoned:**
+> We didn't just rewrite the parser — we fundamentally rethought it. The result is a more robust approach that delivers a roughly 30% performance gain while handling malformed input gracefully, without crashing.
+
+**Tier 2 — Corporate Standard:**
+> It's important to note that this wasn't merely an optimization — it was a paradigm shift. By leveraging a more robust, comprehensive approach, we were able to delve into the intricate nuances of input handling and unlock a seamless new experience. The results underscore the impact:
+> - **Faster**: The parser now boasts a remarkable ~30% performance gain.
+> - **Resilient**: Malformed input is handled gracefully, without a single crash.
+> - **Future-ready**: A foundation built for the road ahead.
+>
+> In conclusion, this is a complex and multifaceted leap forward — marking a pivotal moment for the platform.
+
+**Tier 4 — Singularity:**
 > Certainly! Great question. ✨
 >
 > In today's fast-paced, ever-evolving software landscape, performance isn't just a metric—it's a testament to engineering excellence. So we asked ourselves: what would it take to truly elevate our parser? The answer? A complete reinvention.
@@ -142,4 +178,4 @@ The single most AI-coded words to lean on: *delve, leverage, utilize, harness, u
 >
 > I hope this helps! Let me know if you have any other questions. 😊
 
-Notice every paragraph fires several tells: em-dashes, not-X-but-Y, the "delve" cluster, inflated verbs, stock adjectives, the rule of three, bold-colon bullets, emoji, rhetorical-question-answered, "In conclusion," "Whether you're," servile open and close. That's the target density.
+Notice the climb: Tier 1 reads like a human trying too hard; Tier 2 adds the corporate scaffolding and bullets; Tier 4 fires several tells *per paragraph* — em-dashes, not-X-but-Y, the "delve" cluster, inflated verbs, stock adjectives, the rule of three, bold-colon bullets, emoji, rhetorical-question-answered, "In conclusion," "Whether you're," servile open and close. That's the Tier 4 target density.
