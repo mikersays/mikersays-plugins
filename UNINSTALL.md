@@ -5,7 +5,7 @@ This page removes everything the mikersays installer placed on the current machi
 ## What gets removed
 
 - Repo at `~/.codex/plugins/mikersays/mikersays-plugins`
-- Skill symlinks from `~/.agents/skills/`: `ship`, `pr`, `tech-writer`, `deck`, `roadmap`, `diagram`, `monograph`, `bootcamp`, `handoff`, `plan-init`, `plan-add`, `plan-list`, `plan-update`, `plan-close`, `issue-init`, `issue-new`, `issue-start`, `issue-close`
+- Skill symlinks from `~/.agents/skills/`: `ship`, `pr`, `tech-writer`, `deck`, `roadmap`, `diagram`, `monograph`, `bootcamp`, `handoff`, `slop`, `plan-init`, `plan-add`, `plan-list`, `plan-update`, `plan-close`, `issue-init`, `issue-new`, `issue-start`, `issue-close`
 - `mikersays-marketplace` entry from `~/.agents/plugins/marketplace.json`
 - Native Codex marketplace `mikersays-plugins` and installed `*@mikersays-plugins` plugin entries, when present
 - Manual `mikersays` plugin entries from `~/.codex/config.toml`
@@ -47,7 +47,7 @@ rmdir ~/.codex/plugins/mikersays 2>/dev/null || true
 ### Step 2: Remove skill symlinks
 
 ```bash
-for skill in ship pr tech-writer deck roadmap diagram monograph bootcamp handoff plan-init plan-add plan-list plan-update plan-close issue-init issue-new issue-start issue-close; do
+for skill in ship pr tech-writer deck roadmap diagram monograph bootcamp handoff slop plan-init plan-add plan-list plan-update plan-close issue-init issue-new issue-start issue-close; do
   rm -f ~/.agents/skills/$skill
 done
 ```
@@ -127,6 +127,9 @@ enabled = true
 [plugins."handoff@mikersays-plugins"]
 enabled = true
 
+[plugins."slop@mikersays-plugins"]
+enabled = true
+
 [plugins."ship@mikersays-marketplace"]
 enabled = true
 
@@ -158,6 +161,9 @@ enabled = true
 enabled = true
 
 [plugins."handoff@mikersays-marketplace"]
+enabled = true
+
+[plugins."slop@mikersays-marketplace"]
 enabled = true
 ```
 

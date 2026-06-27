@@ -137,6 +137,18 @@
       "category": "Productivity"
     },
     {
+      "name": "slop",
+      "source": {
+        "source": "local",
+        "path": "./plugins/slop"
+      },
+      "policy": {
+        "installation": "INSTALLED_BY_DEFAULT",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Writing"
+    },
+    {
       "name": "maintenance",
       "source": {
         "source": "local",

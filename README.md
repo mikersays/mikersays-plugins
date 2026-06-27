@@ -55,6 +55,7 @@ The headless/interactive methods clone the repo to `~/.codex/plugins/mikersays/m
 | [plan](plugins/plan/) | Track bugs, features, chores, and todos as markdown in `docs/plan/` | `/plan-init` `/plan-add` `/plan-list` `/plan-update` `/plan-close` |
 | [issues](plugins/issues/) | Per-issue bug/feature/incident tracker in `docs/issues/` with symptom/repro/root cause/fix/verification, branch-on-start, and an alignment-before-implement rule | `/issue-init` `/issue-new` `/issue-start` `/issue-close` |
 | [handoff](plugins/handoff/) | Audit session context and persist what matters for the next agent | `/handoff` |
+| [slop](plugins/slop/) | Rewrite any text to maximally overuse every known AI-writing tell | `/slop [file \| text \| topic]` |
 | [maintenance](plugins/maintenance/) | Sync docs, run installer, run uninstaller | `/sync-docs` `/install-marketplace` `/uninstall-marketplace` |
 
 ## Contributing

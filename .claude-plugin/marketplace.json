@@ -61,6 +61,11 @@
       "description": "Audit session context and persist what matters for the next agent — decisions, dead ends, insights, and in-flight work — /handoff"
     },
     {
+      "name": "slop",
+      "source": "./plugins/slop",
+      "description": "Rewrite any text to maximally overuse every known AI-writing tell — em-dashes, rule of three, \"not X but Y\", and more — /slop"
+    },
+    {
       "name": "maintenance",
       "source": "./plugins/maintenance",
       "description": "Maintenance skills for the mikersays-plugins marketplace — /sync-docs /install-marketplace /uninstall-marketplace"

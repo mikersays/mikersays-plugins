@@ -1,0 +1,11 @@
+{
+  "name": "slop",
+  "description": "Rewrite any text to maximally overuse every known AI-writing tell — em-dashes, rule of three, \"not X but Y\", and more — /slop",
+  "version": "1.0.0",
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Slop",
+    "shortDescription": "Rewrite text to maximally trigger every AI-detector tell",
+    "category": "Writing"
+  }
+}

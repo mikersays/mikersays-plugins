@@ -1,0 +1,8 @@
+{
+  "name": "slop",
+  "description": "Rewrite any text to maximally overuse every known AI-writing tell — em-dashes, rule of three, \"not X but Y\", and more — /slop",
+  "version": "1.0.0",
+  "author": {
+    "name": "mikersays"
+  }
+}

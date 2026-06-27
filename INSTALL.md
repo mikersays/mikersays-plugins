@@ -28,6 +28,7 @@ The hook runs `git pull` on the marketplace repo each time Codex starts, so plug
 - `plan` — Lightweight markdown-based tracker for bugs/features/chores/todos that lives in docs/plan/ inside your repo
 - `issues` — Per-issue bug/feature/incident tracker in docs/issues/ — one file per ticket with symptom/repro/root cause/fix/verification, branch-on-start, and a hard rule to align with the user before implementing
 - `handoff` — Audit session context and persist what matters for the next agent — decisions, dead ends, insights, and in-flight work
+- `slop` — Rewrite any text to maximally overuse every known AI-writing tell — em-dashes, the rule of three, "not X but Y", and the rest
 
 ## Quick install (native)
 
@@ -158,6 +159,12 @@ For a new file, the full mikersays marketplace object is:
       "source": { "source": "local", "path": "./.codex/plugins/mikersays/mikersays-plugins/plugins/handoff" },
       "policy": { "installation": "AVAILABLE", "authentication": "ON_INSTALL" },
       "category": "Productivity"
+    },
+    {
+      "name": "slop",
+      "source": { "source": "local", "path": "./.codex/plugins/mikersays/mikersays-plugins/plugins/slop" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_INSTALL" },
+      "category": "Writing"
     }
   ]
 }
@@ -167,13 +174,13 @@ For a new file, the full mikersays marketplace object is:
 
 Codex's `/skills` command scans `~/.agents/skills/`. Create symlinks there so all skills appear.
 
-`ship`, `pr`, `tech-writer`, `deck`, `roadmap`, `diagram`, `monograph`, `bootcamp`, and `handoff` each ship a single same-named skill — one symlink per plugin. The `plan` plugin ships five skills (`plan-init`, `plan-add`, `plan-list`, `plan-update`, `plan-close`); the `issues` plugin ships four (`issue-init`, `issue-new`, `issue-start`, `issue-close`) — one symlink per skill.
+`ship`, `pr`, `tech-writer`, `deck`, `roadmap`, `diagram`, `monograph`, `bootcamp`, `handoff`, and `slop` each ship a single same-named skill — one symlink per plugin. The `plan` plugin ships five skills (`plan-init`, `plan-add`, `plan-list`, `plan-update`, `plan-close`); the `issues` plugin ships four (`issue-init`, `issue-new`, `issue-start`, `issue-close`) — one symlink per skill.
 
 ```bash
 mkdir -p ~/.agents/skills
 
 # Single-skill plugins
-for plugin in ship pr tech-writer deck roadmap diagram monograph bootcamp handoff; do
+for plugin in ship pr tech-writer deck roadmap diagram monograph bootcamp handoff slop; do
   ln -sfn "$HOME/.codex/plugins/mikersays/mikersays-plugins/plugins/$plugin/skills/$plugin" \
     "$HOME/.agents/skills/$plugin"
 done
@@ -256,6 +263,9 @@ enabled = true
 enabled = true
 
 [plugins."handoff@mikersays-marketplace"]
+enabled = true
+
+[plugins."slop@mikersays-marketplace"]
 enabled = true
 ```
 

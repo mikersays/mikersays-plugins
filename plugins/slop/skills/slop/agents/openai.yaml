@@ -1,0 +1,5 @@
+interface:
+  display_name: Slop
+  short_description: Rewrite text to maximally overuse every known AI-writing tell
+policy:
+  allow_implicit_invocation: true
