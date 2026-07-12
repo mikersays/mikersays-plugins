@@ -67,7 +67,11 @@ gh api -X POST "repos/$REPO/pages" \
    curl -s -o /dev/null -w "%{http_code}" "$URL"
    ```
    A fresh site can return 404 for a minute or two after the build reports `built` — retry briefly before treating it as a failure.
-3. Optionally set the repo's About link so the site is one click away: `gh repo edit "$REPO" --homepage "$URL"`.
+3. **Set the repository's Website field to the Pages site (always, not optional).** In the repo's About section this is the "Use your GitHub Pages website" toggle; that checkbox itself is not exposed via the API, so achieve the same result by writing the exact Pages URL into the homepage field:
+   ```bash
+   gh repo edit "$REPO" --homepage "$URL"
+   ```
+   Use the `html_url` captured in step 2 verbatim — do not hand-construct the URL. This makes the live site one click away for anyone who lands on the repo. If the user later toggles "Use your GitHub Pages website" in Settings → About, it supersedes this value with the same URL; never overwrite a *different* pre-existing homepage without asking.
 4. Report to the user: the live URL, the HTTP status observed, and that Pages serves from `docs/` on `$BRANCH` (so future edits to `docs/` auto-deploy on push).
 
 ## What this skill must NOT do

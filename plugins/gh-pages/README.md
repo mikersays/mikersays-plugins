@@ -17,6 +17,7 @@ The skill also triggers implicitly — "make me a GitHub Pages site for X" or "p
 2. Commits only the site files and pushes (asks before creating a new GitHub repo; never changes visibility)
 3. Enables Pages from the `docs/` folder on the default branch via `gh api` (POST, or PUT if already configured)
 4. Polls the build, verifies the URL responds, and reports the live link
+5. Sets the repo's About **Website** field to the Pages URL (the API equivalent of the "Use your GitHub Pages website" toggle) so the site is one click away from the repo page
 
 ## Requirements
 
