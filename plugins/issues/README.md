@@ -8,7 +8,7 @@ Per-issue bug, feature, and incident tracker that lives inside your repo at `doc
 |---|---|
 | `/issue-init` | Create `docs/issues/`, seed `README.md` and `INDEX.md`. Optional — `/issue-new` auto-inits. |
 | `/issue-new <title>` | File a new ticket. Inline modifiers: `type:bug`, `severity:high`, `area:frontend`, `source:"PR review"`. |
-| `/issue-start <id-or-slug>` | Begin work. **Aligns the plan with you first**, then flips status to in-progress and creates a `{domain}/{kebab}` branch. |
+| `/issue-start <id-or-slug>` | Begin work. **Aligns the plan with you first**, then creates a `{domain}/{kebab}` branch and flips status to in-progress. |
 | `/issue-close <id-or-slug>` | Mark fixed after the change has shipped. Captures verification, stamps the commit SHA, moves the line to Done in `INDEX.md`. |
 
 ## Ticket shape

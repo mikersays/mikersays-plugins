@@ -1,6 +1,6 @@
 ---
 name: pr
-description: Create a GitHub PR for the current branch with auto-generated title, summary, and test plan
+description: Create a GitHub pull request (PR) for the current branch with auto-generated title, summary, and test plan. Use when the user asks to open, create, or make a PR or pull request.
 argument-hint: "[PR title]"
 allowed-tools: Bash
 ---
@@ -17,24 +17,27 @@ Run these checks. If any fail, tell the user the specific fix and stop.
 2. Branch is checked out (not detached HEAD): `git branch --show-current` returns non-empty.
 3. Not a shallow clone: `git rev-parse --is-shallow-repository` returns `false`. Shallow clones produce wrong base diffs — ask the user to run `git fetch --unshallow`.
 4. `gh` is installed (`command -v gh`) and authenticated (`gh auth status`).
-5. At least one remote exists (`git remote -v`).
+5. A remote named `origin` exists: `git remote get-url origin`. If not, ask the user which remote to use and substitute it for `origin` in every command below.
 6. Detect the base branch in this order:
    - `gh repo view --json defaultBranchRef --jq '.defaultBranchRef.name'` (most reliable)
    - `git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's|refs/remotes/origin/||'` (offline fallback)
    - Probe `main` then `master` via `git ls-remote --heads origin <name>`. If neither, ask the user.
+
+   Then run `git fetch origin <base>` (tolerate failure if offline) and use the remote-tracking ref `origin/<base>` in every rev expression below — a local `<base>` branch may not exist or may be stale.
 7. Current branch is not the base branch.
-8. There are commits ahead of base: `git log --oneline <base>..HEAD` is non-empty.
-9. No open PR already exists for this branch. Run `gh pr view --json url` (do not redirect stderr — you need to read the error).
-   - Success with a URL → an open PR exists; show the URL and stop.
+8. There are commits ahead of base: `git log --oneline origin/<base>..HEAD` is non-empty.
+9. No open PR already exists for this branch. Run `gh pr view --json url,state` (do not redirect stderr — you need to read the error).
+   - Success with `state` `OPEN` → an open PR exists; show the URL and stop.
+   - Success with `state` `CLOSED` or `MERGED` → a new PR is allowed; continue.
    - Error containing "no pull requests found" → expected, continue.
    - Any other error (auth, network, missing repo) → show it and stop.
 
 ## 2. Analyze the diff
 
-Get a file-level summary with `git diff <base>...HEAD --stat`, then size the diff with `git diff <base>...HEAD | wc -l`:
+Get a file-level summary with `git diff origin/<base>...HEAD --stat`, then size the diff with `git diff origin/<base>...HEAD | wc -l`:
 
 - Under 1500 lines: read the full diff.
-- 1500+ lines: skip the full diff, work from `--stat` plus `git log <base>..HEAD`, and note in the PR body that the diff was too large to fully analyze.
+- 1500+ lines: skip the full diff, work from `--stat` plus `git log origin/<base>..HEAD`, and note in the PR body that the diff was too large to fully analyze.
 
 List binary files (shown as `Bin 0 -> N bytes`) by name only — don't try to diff their contents.
 
@@ -60,6 +63,7 @@ Pass the title via a variable and the body via a single-quoted heredoc — that 
 Input — branch with two commits adding a `/healthz` endpoint and its test:
 
 ```bash
+BASE_BRANCH="main"  # bare branch name from preflight step 6 base detection (no origin/ prefix)
 PR_TITLE="Add /healthz endpoint for liveness checks"
 gh pr create --base "$BASE_BRANCH" --title "$PR_TITLE" --body "$(cat <<'EOF'
 ## Summary
@@ -70,14 +74,11 @@ gh pr create --base "$BASE_BRANCH" --title "$PR_TITLE" --body "$(cat <<'EOF'
 - [ ] `curl localhost:3000/healthz` returns 200 with `{"status":"ok"}`
 - [ ] `npm test -- healthz` passes
 - [ ] Existing routes in `server/router.ts` still resolve
-
----
-Generated with [Claude Code](https://claude.com/claude-code)
 EOF
 )"
 ```
 
-Pass `--base` explicitly so the PR targets the branch you detected, not whatever GitHub guesses.
+Pass `--base` explicitly so the PR targets the branch you detected, not whatever GitHub guesses. End the body with a `---` separator and an attribution line naming the agent that generated it (e.g. `Generated with [Claude Code](https://claude.com/claude-code)` or the Codex CLI equivalent).
 
 If `gh pr create` fails, show the full error. Most failures map to a preflight check that should have caught the issue (auth, no commits, unpushed branch); a title that's too long or contains invalid characters is the main runtime case — shorten and retry.
 

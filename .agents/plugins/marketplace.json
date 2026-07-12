@@ -149,6 +149,18 @@
       "category": "Writing"
     },
     {
+      "name": "gh-pages",
+      "source": {
+        "source": "local",
+        "path": "./plugins/gh-pages"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    },
+    {
       "name": "maintenance",
       "source": {
         "source": "local",

@@ -7,7 +7,7 @@ allowed-tools: Write, Read, Edit, Bash, Agent, AskUserQuestion, Glob, Grep, WebS
 
 # Monograph — Build a scholarly GitHub Pages site on a topic
 
-This skill orchestrates a team of parallel subagents to produce a multi-page, PhD-level long-form essay site about a single subject. The output lives in `docs/` so GitHub Pages can serve it directly from `main:/docs`.
+This skill orchestrates a team of parallel subagents to produce a multi-page, PhD-level long-form essay site about a single subject. The output lives in `docs/` so GitHub Pages can serve it directly from the repo's `/docs` folder.
 
 The **design is chosen fresh** for every topic — there is no template aesthetic. Two topics, two sites that look nothing alike.
 
@@ -51,17 +51,13 @@ Spawn the **Research** and **Image** agents in parallel at the start. Spawn the 
 
 ## Process
 
+**If subagent or browser tools are unavailable** (e.g. running under Codex CLI): do the research, image, and chapter work sequentially yourself in the same phase order, ask questions as plain text, and replace Phase 7's browser verification with `grep`-based link/image checks plus curl-ing each page on the local server.
+
 ### Phase 0 — Topic intake
 
-Use `$ARGUMENTS` if provided. If empty or vague, ask the user:
+Use `$ARGUMENTS` if provided. If empty or vague, ask the user in plain text: "What's the topic?" (AskUserQuestion requires 2–4 concrete options — only use it when you can offer real choices, letting its built-in "Other" cover free-form answers.)
 
-```
-AskUserQuestion:
-  question: "What's the topic?"
-  options: (skip — accept free-form text)
-```
-
-Then ask one follow-up if the topic is broad enough to need scoping:
+Then ask one follow-up if the topic is broad enough to need scoping — this is a good AskUserQuestion fit, with the scoping angles as options:
 
 - "The history of jazz" → ask: era, instrument focus, geography
 - "Coffee" → ask: cultivation, brewing methods, cultural history, third-wave
@@ -73,8 +69,8 @@ Aim for a topic that admits **a chronological or thematic arc with 3–5 natural
 
 Decide:
 
-1. **Chapter count and titles** (3–5). Each chapter should cover a distinct era / theme / dimension. Write them down in a TaskList for the user to see.
-2. **Site slug** — kebab-case, used for the GitHub repo / Pages URL (e.g. `casio-history`, `jazz-1917-1960`, `apollo-program`). If you are inside an existing git repo, use the repo name and skip this step.
+1. **Chapter count and titles** (3–5). Each chapter should cover a distinct era / theme / dimension. Present the chapter list to the user in your reply before proceeding.
+2. **Site slug** — kebab-case, used for the GitHub repo / Pages URL (e.g. `casio-history`, `jazz-1917-1960`, `apollo-program`). If you are inside an existing git repo, use the repo name and skip this step. If `git rev-parse --is-inside-work-tree` fails, run `git init -b main` first.
 3. **Working dir** — verify or create `docs/` at the repo root. Create `docs/assets/css/`, `docs/assets/js/`, `docs/assets/images/`, and a top-level `_research/` directory.
 
 ### Phase 2 — Parallel research (two subagents, ~5–8 min, run concurrently)
@@ -134,22 +130,22 @@ Think through these axes, in this order:
    - Architecture → an isometric elevation that rotates per page
    - Make one up if none of these fit. The signature is not optional. It is what makes the site memorable.
 
-3. **Typography pairing.** Distinctive display × refined body × technical mono. **Never Inter / Roboto / Arial on the display.** Cycle through pairings — never reuse one within a session:
+3. **Typography pairing.** Distinctive display × refined body × technical mono. **Never Inter / Roboto / Arial on the display.** All of these are on Google Fonts, so the build can actually load them. Cycle through pairings — never reuse one within a session:
 
    | Display | Body | Mono | Mood |
    |---|---|---|---|
    | Fraunces | Newsreader | JetBrains Mono | editorial warmth |
-   | Recoleta | Source Serif Pro | IBM Plex Mono | confident scholarly |
-   | GT Sectra | Cormorant Garamond | Berkeley Mono | high-contrast academic |
-   | Söhne Breit | Söhne | Söhne Mono | Swiss-modernist |
-   | PP Editorial New | PP Editorial New | JetBrains Mono | broadsheet |
-   | Druk | Tiempos Text | GT America Mono | magazine-bold |
-   | Migra | Lyon Text | Söhne Mono | luxury-editorial |
-   | Reckless | Domaine Display × Calibre | Roboto Mono | indie-publisher |
-   | Apoc | Apoc | Berkeley Mono | techno-modernist |
-   | Bagoss | Bagoss | Diatype Mono | next-millennium |
+   | Bricolage Grotesque | Source Serif 4 | Space Mono | confident scholarly |
+   | Playfair Display | Cormorant Garamond | IBM Plex Mono | high-contrast academic |
+   | Space Grotesk | Work Sans | Fragment Mono | Swiss-modernist |
+   | Instrument Serif | Spectral | Share Tech Mono | broadsheet |
+   | Anton | Lora | Roboto Mono | magazine-bold |
+   | Italiana | EB Garamond | Space Mono | luxury-editorial |
+   | DM Serif Display | Crimson Pro | DM Mono | indie-publisher |
+   | Unbounded | Manrope | Fira Code | techno-modernist |
+   | Old Standard TT | Cardo | VT323 | archival-antiquarian |
 
-   (Many of these are paid foundry fonts. For a free build, prefer Google Fonts equivalents: Fraunces, Newsreader, Crimson Pro, Cormorant, Bitter, Bricolage Grotesque, Instrument Serif, Old Standard TT, Spectral, Cardo. Pair with JetBrains Mono / Space Mono / Share Tech Mono / VT323 for technical/signal accents.)
+   Paid foundry names (GT Sectra, Söhne, Druk, PP Editorial New, Migra, Lyon Text, Berkeley Mono, Bagoss, Recoleta…) are **mood reference only — never declare them in CSS**; the build has no license and they'd silently fall back to system fonts. Load fonts via a Google Fonts `<link>` in each page's `<head>` (with `display=swap`), and declare full fallback stacks in the CSS tokens.
 
 4. **Palette.** Commit to ~5–6 colors: paper, ink, ink-muted, rule, one or two **signal colors** used very sparingly. Avoid 8-color palettes — they read as soup. The signal color must be hot enough to register but rare enough to mean something. Examples that work: cinnabar #b8341c, hunter green #1f6b32, cobalt #1b3a8c, amber #c87b1e, oxblood #8c2310.
 
@@ -192,7 +188,7 @@ When the research dossier and image manifest are in, write:
    - Master chronology / table of contents (use `.timeline` or whatever the topic suggests — for non-chronological topics, use a thematic index)
    - 3–5 specimen images in a `.specimen-grid` (or topic equivalent), pulled from the image manifest
    - Pull quote — `blockquote.tribune`
-   - Chapter cards linking to the four chapter pages
+   - Chapter cards linking to each chapter page
    - Footnotes block (for any inline `.fn` references on this page)
    - `.colophon-foot` footer
 
@@ -229,8 +225,10 @@ Write `docs/references.html`:
 Start a local server and use Playwright to verify:
 
 ```bash
-cd docs && python3 -m http.server 4173 > /tmp/monograph-server.log 2>&1 &
+cd docs && python3 -m http.server 4173 > /tmp/monograph-server.log 2>&1 & echo "PID=$!"
 ```
+
+If port 4173 is already bound, pick another (e.g. 4174) and use it consistently in the navigate URLs below.
 
 For each page:
 1. `browser_navigate` to `http://localhost:4173/<page>.html?v=1` (cache-bust)
@@ -244,7 +242,7 @@ Common issues:
 - **Images show as parchment-color placeholders** — `loading="lazy"` not firing. In production this is fine for real users; for screenshot verification, force-eager.
 - **Tall pages duplicate content in stitched screenshots** — Playwright artifact on pages over ~15,000px tall. Verify the HTML directly with `grep -c` if you suspect duplication; trust the HTML.
 
-Kill the server when done: `kill <PID>`.
+Kill the server when done: `kill <PID>` (the PID echoed at launch), or `pkill -f 'http.server 4173'`.
 
 ### Phase 8 — Ship (orchestrator, ~2 min, only if user says so)
 
@@ -257,9 +255,9 @@ Don't push without asking. When the user says "ship" / "push" / "deploy":
    - Pages, word count, image count, source count
    - Aesthetic direction (one sentence)
    - Co-Authored-By line
-4. Verify a remote is set; ask if missing.
-5. `git push -u origin main`.
-6. Enable Pages: `gh api -X POST repos/<owner>/<repo>/pages -f "source[branch]=main" -f "source[path]=/docs"`.
+4. Verify a remote is set (`git remote get-url origin`). If missing, offer to create the repo: `gh repo create <slug> --public --source=. --remote=origin` (ask public vs private first).
+5. Detect the branch — `BRANCH=$(git branch --show-current)` — and `git push -u origin "$BRANCH"`. Never assume `main`.
+6. Enable Pages: `gh api -X POST repos/<owner>/<repo>/pages -f "source[branch]=$BRANCH" -f "source[path]=/docs"`. If it returns 409 (Pages already enabled), update instead: `gh api -X PUT repos/<owner>/<repo>/pages -f "source[branch]=$BRANCH" -f "source[path]=/docs"`.
 7. Poll `gh api repos/<owner>/<repo>/pages/builds/latest --jq .status` until `built`.
 8. Curl the live URL, report HTTP code + the URL.
 

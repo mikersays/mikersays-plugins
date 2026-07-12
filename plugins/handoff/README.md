@@ -29,7 +29,7 @@ Agent sessions are ephemeral. The conversation, reasoning, and mental models bui
 | Destination | Best for |
 |---|---|
 | Project instructions (CLAUDE.md / AGENTS.md) | Conventions, architecture decisions, constraints — always loaded |
-| Memory files (Claude Code only) | User preferences, project context, feedback — loaded when relevant |
+| Memory files (Claude Code only) | Durable cross-project user preferences and feedback only — never this project's state (that belongs in the repo) |
 | Git commit messages | The "why" behind code changes — visible via `git log` |
 | Plan docs | Work items, next steps, priorities |
 | Issue docs | Bug investigations, root causes, reproduction steps |

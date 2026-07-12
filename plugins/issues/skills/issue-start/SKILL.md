@@ -1,8 +1,8 @@
 ---
 name: issue-start
-description: Begin work on an existing ticket in docs/issues/. Trigger when the user says "start ticket NNNN", "pick up issue 0016", "let's tackle the invoicing bug", "work on the Save Template thing", or otherwise indicates they're starting on something already filed. This skill enforces the project's alignment-before-implementing rule — before any code is written, the agent restates the symptom, shares a root-cause hypothesis (or names what needs read-only investigation first), proposes the minimum fix, and waits for the user to agree. Only then does it flip the ticket's Status to in-progress, create a {domain}/{kebab} branch, and move the line in docs/issues/INDEX.md to "In progress". This is the workflow-heavy cousin of /plan-update — pick this one when the work needs alignment and a dedicated branch, not just a status field flip.
+description: Begin work on an existing ticket in docs/issues/. Trigger when the user says "start ticket NNNN", "pick up issue 0016", "let's tackle the invoicing bug", "work on the Save Template thing", or otherwise indicates they're starting on something already filed. This skill enforces the project's alignment-before-implementing rule — before any code is written, the agent restates the symptom, shares a root-cause hypothesis (or names what needs read-only investigation first), proposes the minimum fix, and waits for the user to agree. Only then does it create a {domain}/{kebab} branch, flip the ticket's Status to in-progress, and move the line in docs/issues/INDEX.md to "In progress". This is the workflow-heavy cousin of /plan-update — pick this one when the work needs alignment and a dedicated branch, not just a status field flip.
 argument-hint: "[id-or-slug — e.g. 16 or invoicing-missing]"
-allowed-tools: Bash, Read, Edit, Write, Glob, Grep
+allowed-tools: Bash, Read, Edit, Glob, Grep
 ---
 
 # issue-start — begin work on a ticket
@@ -11,7 +11,7 @@ Use this at the moment you're switching from "we should fix this" to "I'm fixing
 
 ## Required reading
 
-- `references/conventions.md` — read these sections when you reach the matching step: *Locate the issues directory*, *Resolve a target*, *Compute "today"*, *Branch naming convention*, *Updating the `**Status:**` line*, *INDEX.md structure*.
+- `../../references/conventions.md` (relative to this SKILL.md) — read these sections when you reach the matching step: *Locate the issues directory*, *Resolve a target*, *Branch naming convention*, *Updating the `**Status:**` line*, *INDEX.md structure*.
 
 ## 1. Locate the ticket
 
@@ -41,16 +41,7 @@ This applies to "trivial-looking" tickets too — one-line typos, dead buttons, 
 
 If the user replies with a refinement, integrate it and re-confirm before proceeding. Don't move past this step on ambiguity.
 
-## 4. Flip the status (only after the user has agreed)
-
-Edit the ticket file:
-
-- `- **Status:** open` → `- **Status:** in-progress`
-- Don't touch `**Reported:**` — that's the historical record of first observation.
-
-If the user agreed to a paired pickup (e.g., tickets that share a fix surface), flip both files' status in this step.
-
-## 5. Create the branch
+## 4. Create the branch (only after the user has agreed)
 
 Convention: `{domain}/{kebab-case-description}`. See conventions.md § *Branch naming convention* for the domain list.
 
@@ -62,19 +53,28 @@ git status --porcelain
 
 If the working tree isn't clean, stop and ask the user what to do with their changes (commit on the current branch first? stash? these are theirs to decide). Don't `git stash` or `git checkout -- .` without explicit permission — those can destroy in-progress work.
 
-Once clean:
+Once clean, branch from whichever default branch the repo uses. Detect it if unsure:
 
 ```bash
-git checkout -b <branch>
+git symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null || git remote show origin | sed -n 's/.*HEAD branch: //p'
 ```
 
-Branch from whichever default branch the repo uses (`main` or `master` — check with `git symbolic-ref refs/remotes/origin/HEAD` if unsure).
+If already on the default branch, run `git checkout -b <branch>`. If on some other branch, ask the user whether to branch from the default (`git checkout -b <branch> <default>`) or from HEAD (plain `git checkout -b <branch>`).
+
+## 5. Flip the status
+
+On the new branch, edit the ticket file:
+
+- `- **Status:** open` → `- **Status:** in-progress`
+- Don't touch `**Reported:**` — that's the historical record of first observation.
+
+If the user agreed to a paired pickup (e.g., tickets that share a fix surface), flip both files' status in this step.
 
 ## 6. Move the INDEX line
 
-Open `docs/issues/INDEX.md`. Move the ticket's line from whatever "Open" or "Awaiting input" section it currently lives in into **In progress**. Keep the link target, title, branch annotation, and any pairing note (`— paired with NNNN`).
+Open `docs/issues/INDEX.md`. Move the ticket's line from whatever "Open" or "Awaiting input" section it currently lives in into **In progress**. Keep the link target, title, and any pairing note (`— paired with NNNN`). Set or update the line's branch annotation to the branch you created in step 4 (line format per conventions.md § *INDEX.md structure*).
 
-If the ticket is paired and you flipped both in step 4, move both lines.
+If the ticket is paired and you flipped both in step 5, move both lines.
 
 ## 7. Hand off to companion skills if any exist
 

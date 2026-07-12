@@ -66,6 +66,11 @@
       "description": "Rewrite any text to maximally overuse every known AI-writing tell — em-dashes, rule of three, \"not X but Y\", and more — /slop"
     },
     {
+      "name": "gh-pages",
+      "source": "./plugins/gh-pages",
+      "description": "Build or publish a static site on GitHub Pages — saves the site to docs/ and enables Pages from the docs/ folder on the default branch — /gh-pages"
+    },
+    {
       "name": "maintenance",
       "source": "./plugins/maintenance",
       "description": "Maintenance skills for the mikersays-plugins marketplace — /sync-docs /install-marketplace /uninstall-marketplace"

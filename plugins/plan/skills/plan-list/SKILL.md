@@ -11,8 +11,10 @@ Show items from `docs/plan/`, filtered by query, grouped by status, sorted by pr
 
 ## Required reading
 
-- `references/schema.md` for field reference.
-- `references/operations.md` § *Locate the plan directory*, § *Parse the frontmatter*, § *Compute "today"*.
+- `${CLAUDE_PLUGIN_ROOT}/references/schema.md` for field reference.
+- `${CLAUDE_PLUGIN_ROOT}/references/operations.md` § *Locate the plan directory*, § *Parse the frontmatter*, § *Compute "today"*.
+
+If `${CLAUDE_PLUGIN_ROOT}` is unset, resolve relative to this SKILL.md's directory: `../../references/schema.md` and `../../references/operations.md`.
 
 ## 1. Parse filters from `$ARGUMENTS`
 
@@ -23,10 +25,12 @@ Each token is a `key:value` pair. Values may be comma-separated (treated as OR w
 | `status:` | `open`, `in-progress`, `blocked`, `done`, `all` |
 | `type:` | `bug`, `feature`, `chore`, `todo` |
 | `priority:` | `high`, `med`, `low` |
-| `due:` | `overdue` (`< today`), `today` (`== today`), `this-week` (≤ today+7), `any` (has a due), `none` (no due) |
+| `due:` | `overdue` (`< today`), `today` (`== today`), `this-week` (today ≤ due ≤ today+7 — overdue items match `overdue`, not `this-week`), `any` (has a due), `none` (no due) |
 | `tag:` | a tag name (substring match against the `tags:` line) |
 
 **Default** when no filters are supplied: `status:open,in-progress,blocked` — i.e. everything except done.
+
+If a token has an unknown key or a value not listed above, do not guess — report the invalid token, echo the table of valid filters, and stop.
 
 ## 2. Locate and scan
 
@@ -107,7 +111,7 @@ When the default filter was applied (no `$ARGUMENTS`), add:
 
 ## 5. Overdue highlight
 
-If any item in the rendered output has `due < today`, prepend a one-line warning above the first table:
+If any non-done item in the rendered output has `due < today`, prepend a one-line warning above the first table (a completed item with a past due date is not overdue):
 
 > ⚠ X items are overdue.
 

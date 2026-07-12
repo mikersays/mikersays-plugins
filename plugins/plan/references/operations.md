@@ -44,7 +44,7 @@ The `10#$next_id` forces base-10 (bash treats leading-zero strings as octal othe
 
 ## Slugify a title
 
-Lowercase, replace non-alphanumeric with `-`, collapse runs of `-`, trim, cap at 40 chars at a word boundary:
+Lowercase, replace non-alphanumeric with `-`, collapse runs of `-`, trim, cap at 40 chars (trimming any trailing hyphen):
 
 ```bash
 slug=$(printf '%s' "$title" \

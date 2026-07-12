@@ -56,6 +56,7 @@ The headless/interactive methods clone the repo to `~/.codex/plugins/mikersays/m
 | [issues](plugins/issues/) | Per-issue bug/feature/incident tracker in `docs/issues/` with symptom/repro/root cause/fix/verification, branch-on-start, and an alignment-before-implement rule | `/issue-init` `/issue-new` `/issue-start` `/issue-close` |
 | [handoff](plugins/handoff/) | Audit session context and persist what matters for the next agent | `/handoff` |
 | [slop](plugins/slop/) | Rewrite any text to maximally overuse every known AI-writing tell | `/slop [file \| text \| topic]` |
+| [gh-pages](plugins/gh-pages/) | Build or publish a static site on GitHub Pages — saves the site to `docs/` and enables Pages from the `docs/` folder on the default branch | `/gh-pages [site description]` |
 | [maintenance](plugins/maintenance/) | Sync docs, run installer, run uninstaller | `/sync-docs` `/install-marketplace` `/uninstall-marketplace` |
 
 ## Contributing

@@ -163,7 +163,7 @@ Hand-maintained board. Edit when a status flips — move the line between sectio
 
 At-a-glance status across all tickets in this folder. Hand-maintained: when you flip a ticket's `**Status:**`, move its line to the matching section here. Convention and template live in [`README.md`](./README.md).
 
-Each line: `[NNNN](./NNNN-slug.md) — title — \`branch/name\` — notes`.
+Each line: ``[NNNN](./NNNN-slug.md) — title — `branch/name` — notes``.
 
 ## In progress
 _(none)_

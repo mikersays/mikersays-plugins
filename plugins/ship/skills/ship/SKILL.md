@@ -12,11 +12,13 @@ Stage all changes, commit, and push to the remote in one shot. If `$ARGUMENTS` i
 
 ## Run
 
-Invoke the bundled script, forwarding `$ARGUMENTS` as the commit message. The script lives inside the installed plugin tree under `~/.claude/plugins`, so search there (not the current working directory):
+Invoke the bundled script, forwarding `$ARGUMENTS` as the commit message. The script lives inside the installed plugin tree — under `~/.claude/plugins` (Claude Code) or `~/.codex/plugins` (Codex CLI) — so search both (not the current working directory):
 
 ```bash
-bash "$(find ~/.claude/plugins -path '*/ship/scripts/ship.sh' -print -quit 2>/dev/null)" $ARGUMENTS
+bash "$(find ~/.claude/plugins ~/.codex/plugins -path '*/ship/scripts/ship.sh' -print -quit 2>/dev/null)" "$ARGUMENTS"
 ```
+
+If `$ARGUMENTS` is empty, drop the final `"$ARGUMENTS"` argument and run the script with none, so it generates the timestamped message.
 
 If `find` returns nothing (plugin not installed in the expected location), report the error and stop — do not retry.
 
@@ -30,5 +32,5 @@ These rules exist because shipping is fast and irreversible — the safeguards k
 
 - No force pushes. They rewrite remote history and can erase teammates' work.
 - No `--no-verify`. Pre-commit hooks exist for a reason; bypassing them ships broken code.
-- On failure, report the error verbatim and stop. Retrying blindly hides the real problem (auth, hook failure, conflict).
-- If a pre-commit hook fails, fix the underlying issue, re-stage, and make a **new** commit. Don't amend — the failed commit was never created, so amending would rewrite the *previous* commit and risk losing earlier work.
+- On push, auth, conflict, or any non-hook failure: report the error verbatim and stop. Retrying blindly hides the real problem.
+- Exception — pre-commit hook failure: fix the underlying issue, then re-run the script (it re-stages and creates a fresh commit). Don't amend — the failed commit was never created, so amending would rewrite the *previous* commit and risk losing earlier work.

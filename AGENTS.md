@@ -75,4 +75,6 @@ Claude Code also recognizes these optional fields (ignored by Codex):
 - **handoff** (`plugins/handoff/`) — `/handoff` — Audit session context and persist what matters for the next agent
 - **monograph** (`plugins/monograph/`) — `/monograph [topic]` — Build a multi-page PhD-level GitHub Pages site
 - **bootcamp** (`plugins/bootcamp/`) — `/bootcamp [topic]` — Swarm of expert subagents builds an interactive zero-to-hero course site (modules, exercises, quizzes, capstone, progress tracking) into `docs/` and deploys it on GitHub Pages
+- **slop** (`plugins/slop/`) — `/slop [file | text | topic]` — Rewrite any text to maximally overuse every known AI-writing tell
+- **gh-pages** (`plugins/gh-pages/`) — `/gh-pages [site description]` — Build or publish a static site on GitHub Pages: saves the site to `docs/` and enables Pages from the `docs/` folder on the default branch
 - **maintenance** (`plugins/maintenance/`) — `/sync-docs`, `/install-marketplace`, `/uninstall-marketplace` — Marketplace maintenance skills; not installed by end users

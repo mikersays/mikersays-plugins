@@ -9,7 +9,7 @@ A lightweight, markdown-based bug/issue/chore/todo tracker that lives inside you
 | `/plan-init` | Create the `docs/plan/` folder and seed `README.md`. Optional — `/plan-add` auto-inits. |
 | `/plan-add <title>` | Create a new item. Inline modifiers: `type:bug`, `priority:high`, `due:friday`, `tag:auth`. |
 | `/plan-list [filters]` | List items, filtered. Defaults to non-done. Filters: `status:`, `type:`, `priority:`, `due:`, `tag:`. |
-| `/plan-update <id-or-slug>` | Change a field or append a dated note. Modifiers same as `/plan-add` plus `note:"text"`. |
+| `/plan-update <id-or-slug>` | Change a field or append a dated note. Modifiers same as `/plan-add` plus `status:`, `title:"new"`, `untag:`, and `note:"text"`. |
 | `/plan-close <id-or-slug>` | Mark done and stamp the closed date. Optional `reason:"text"`. |
 
 ## Item shape

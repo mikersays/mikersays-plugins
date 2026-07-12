@@ -11,7 +11,9 @@ Flip an item's `status` to `done`, stamp the `closed:` date, and append a closin
 
 ## Required reading
 
-- `references/operations.md` § *Locate the plan directory*, § *Resolve a target*, § *Append a dated note*, § *Bumping `updated:`*, § *Regenerate docs/plan/README.md*.
+- `${CLAUDE_PLUGIN_ROOT}/references/operations.md` § *Locate the plan directory*, § *Resolve a target*, § *Parse the frontmatter*, § *Compute "today"*, § *Append a dated note*, § *Bumping `updated:`*, § *Regenerate docs/plan/README.md*.
+
+If `${CLAUDE_PLUGIN_ROOT}` is unset, resolve relative to this SKILL.md's directory: `../../references/operations.md`.
 
 ## 1. Parse `$ARGUMENTS`
 

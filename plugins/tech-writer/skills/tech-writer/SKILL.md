@@ -1,8 +1,8 @@
 ---
 name: tech-writer
-description: Review and rewrite documentation in place using Google's Technical Writing guidelines
+description: Review, proofread, and rewrite documentation in place using Google's Technical Writing guidelines. Use when asked to polish, edit, clean up, or improve the clarity of a README, doc, or markdown file.
 argument-hint: "[file path]"
-allowed-tools: Read, Write, Edit, Glob, Grep, Bash
+allowed-tools: Read, Write, Edit, Glob, Grep
 ---
 
 # Tech Writer
@@ -11,7 +11,7 @@ Review and rewrite documentation against the conventions from Google's Technical
 
 ## Process
 
-1. **Pick the target file.** Use `$ARGUMENTS` if provided. Otherwise use the file currently in context. If neither exists, ask.
+1. **Pick the target file.** Use `$ARGUMENTS` if provided; if that path does not exist on disk, run Glob for similar filenames and ask the user to confirm before editing anything. Otherwise use the file currently in context. If neither exists, ask.
 2. **Read the whole file** before editing — context matters for terminology and pronouns.
 3. **Edit in place.** Preserve the author's intent, voice, and technical accuracy. Restructure and reword; do not add new content or delete information.
 4. **Report changes** grouped by rule (e.g. "Active voice: 4 sentences. Filler: removed 7 phrases.").

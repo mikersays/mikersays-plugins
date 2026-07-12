@@ -1,6 +1,6 @@
 ---
 name: plan-add
-description: Create a new planning item (bug, feature, chore, or todo) as a markdown file inside docs/plan/. Use this whenever the user wants to track a new bug, feature, todo, follow-up, issue, or piece of deferred work in their repo — including phrases like "log this", "track this", "remember to", "I need to fix", "open an issue for", or any "we should do X later" request. Auto-initializes docs/plan/ if it doesn't exist yet.
+description: Create a new planning item (bug, feature, chore, or todo) as a markdown file inside docs/plan/. Use this whenever the user wants to track a new bug, feature, todo, follow-up, issue, or piece of deferred work in their repo — including phrases like "log this", "track this", "remember to", "I need to fix", "add this to the plan", or any "we should do X later" request. Auto-initializes docs/plan/ if it doesn't exist yet.
 argument-hint: "[title — optionally with type:bug priority:high due:friday tag:auth]"
 allowed-tools: Bash, Read, Write, Glob
 ---
@@ -11,8 +11,10 @@ Create a new markdown file in `docs/plan/` representing a single piece of planne
 
 ## Required reading
 
-- `references/schema.md` — canonical frontmatter fields and allowed values.
-- `references/operations.md` — read these sections when you reach the corresponding step: *Locate the plan directory*, *Find the next ID*, *Slugify a title*, *Normalize a date*, *Regenerate docs/plan/README.md*.
+- `${CLAUDE_PLUGIN_ROOT}/references/schema.md` — canonical frontmatter fields and allowed values.
+- `${CLAUDE_PLUGIN_ROOT}/references/operations.md` — read these sections when you reach the corresponding step: *Locate the plan directory*, *Find the next ID*, *Slugify a title*, *Normalize a date*, *Regenerate docs/plan/README.md*.
+
+If `${CLAUDE_PLUGIN_ROOT}` is unset, resolve relative to this SKILL.md's directory: `../../references/schema.md` and `../../references/operations.md`.
 
 ## 1. Parse `$ARGUMENTS`
 
@@ -44,7 +46,7 @@ Mention inferred values in the final report so the user can override with `/plan
 Resolve `$PLAN_DIR` (operations.md § Locate the plan directory). If the directory doesn't exist:
 
 - Create it (`mkdir -p`).
-- Write the seed `README.md` — same content as `/plan-init` step 4.
+- Write the seed `README.md` — copy the content verbatim from step 4 of `${CLAUDE_PLUGIN_ROOT}/skills/plan-init/SKILL.md` (relative to this SKILL.md's directory: `../plan-init/SKILL.md`).
 - Mention "(initialized docs/plan/)" in your report.
 
 Don't make the user run `/plan-init` first. One command is friendlier.

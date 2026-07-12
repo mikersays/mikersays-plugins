@@ -61,6 +61,7 @@ The skill pins down who "zero" is and what "hero" means before building, so the 
 ## Requirements
 
 - **`gh` CLI**, authenticated — to create the repo and enable GitHub Pages.
+- **`frontend-design` skill** — the design system is built through it. If it isn't installed, the skill designs the system itself to the same spec, but install it for best results.
 - **Playwright MCP** — the QA/review pass drives the real site in a browser to verify interactivity and mobile layout. If it isn't installed, the skill walks you through adding it before QA:
   ```bash
   # Claude Code

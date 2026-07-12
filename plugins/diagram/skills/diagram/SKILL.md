@@ -2,7 +2,7 @@
 name: diagram
 description: Generate an interactive SVG diagram (architecture, sequence, flowchart, ER) from a description
 argument-hint: "[description of what to diagram]"
-allowed-tools: Write, Bash
+allowed-tools: Read, Write, Bash
 ---
 
 # Diagram
@@ -26,7 +26,7 @@ Generate a single self-contained HTML file with an interactive (pan, zoom, hover
 
 4. **Lay out the nodes.** See `references/layouts.md` for the spacing, shape, and colour conventions per diagram type. Read only the section for the type you detected.
 
-5. **Compute the viewBox.** Take the bounding box of all nodes plus 60px padding on every side. Default size is `0 0 1200 800`; widen it (e.g. `0 0 1600 1000`) for diagrams that need more room. Update both the `<svg viewBox="...">` attribute and the `vb` / `INIT` constants in the script so pan/zoom reset correctly.
+5. **Compute the viewBox.** Set it to the bounding box of all nodes plus 60px padding on every side — typically around `0 0 1200 800`, larger (e.g. `0 0 1600 1000`) for diagrams that need more room. Update both the `<svg viewBox="...">` attribute and the `vb` / `INIT` constants in the script so pan/zoom reset correctly.
 
 6. **Build the HTML** by copying `references/template.html` verbatim, then filling in the title, subtitle (`TYPE · N nodes`), viewBox, and the `<!-- DIAGRAM CONTENT -->` block with your `.node` and `.edge` elements. The template already contains the arrowhead `<marker id="arrow">`, the colour palette, the pan/zoom/tooltip script, and the dark theme — do not duplicate or rewrite those.
 

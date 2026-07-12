@@ -1,6 +1,6 @@
 ---
 name: deck
-description: Generate a self-contained HTML slide deck from a topic — single file, dark theme, keyboard nav
+description: Generate a self-contained HTML slide deck (presentation) from a topic — single file, dark theme, keyboard nav
 argument-hint: "[topic]"
 allowed-tools: Write, Read, Bash
 ---
@@ -13,7 +13,7 @@ Produce a single `.html` file the user can double-click to present: scroll-snap 
 
 1. **Get the topic.** Use `$ARGUMENTS` if provided. If empty, ask.
 2. **Plan 8–15 slides.** Title slide, content slides (one idea each), closing slide. If the topic is too broad, narrow it and tell the user the angle you picked.
-3. **Write the file** with the Write tool to `<topic-slug>.html` in the cwd (lowercase, hyphens — e.g. `intro-to-kubernetes.html`).
+3. **Write the file** with the Write tool to `<topic-slug>.html` in the cwd (lowercase, hyphens — e.g. `intro-to-kubernetes.html`). If that file already exists and is not a deck this skill previously generated, don't overwrite it — write to `<topic-slug>-deck.html` (or another distinct name) instead.
 4. **Open it.** Try `open` (macOS) or `xdg-open` (Linux). If that fails, print the absolute path so the user can open it themselves.
 5. **Report** the path and slide count.
 
@@ -157,8 +157,12 @@ The HTML file has three parts: a `<style>` block (use the template below verbati
 <!-- SLIDES GO HERE -->
 
 <script>
+const slides = document.querySelectorAll('.slide');
+slides.forEach((el, i) => {
+  const n = el.querySelector('.slide-number');
+  if (n) n.textContent = (i + 1) + ' / ' + slides.length;
+});
 document.addEventListener('keydown', (e) => {
-  const slides = document.querySelectorAll('.slide');
   const current = Math.round(window.scrollY / window.innerHeight);
   if ((e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === ' ') && current < slides.length - 1) {
     e.preventDefault();
@@ -181,7 +185,7 @@ Drop these into the `<!-- SLIDES GO HERE -->` slot. The class controls the layou
 <div class="slide title">
   <h1>Intro to Kubernetes</h1>
   <p>Container orchestration in 12 slides</p>
-  <div class="slide-number">1 / 12</div>
+  <div class="slide-number"></div>
 </div>
 
 <div class="slide">
@@ -191,13 +195,13 @@ Drop these into the `<!-- SLIDES GO HERE -->` slot. The class controls the layou
     <li>You need scheduling, healing, networking, and rollout in one system</li>
     <li>Kubernetes is the de-facto standard — every cloud speaks it</li>
   </ul>
-  <div class="slide-number">2 / 12</div>
+  <div class="slide-number"></div>
 </div>
 
 <div class="slide closing">
   <h2>Start small. Grow into it.</h2>
   <p>Run <code>minikube start</code> and deploy a single pod before reaching for Helm.</p>
-  <div class="slide-number">12 / 12</div>
+  <div class="slide-number"></div>
 </div>
 ```
 
@@ -206,6 +210,6 @@ Drop these into the `<!-- SLIDES GO HERE -->` slot. The class controls the layou
 - One idea per slide. If a slide has more than ~5 bullets or covers two distinct points, split it — dense slides read as walls of text at presentation size.
 - Vary the shape. A deck of identical bullet lists is boring; mix in short paragraphs, a code block, a single emphasized sentence. The CSS already styles `<pre><code>`, `<strong>`, and `<em>` for this.
 - Keep code blocks under ~12 lines so they fit the viewport without scrolling.
-- Number every slide via `<div class="slide-number">N / TOTAL</div>` so the audience can orient themselves.
+- Give every slide an empty `<div class="slide-number"></div>` — the script fills in N / TOTAL automatically so the audience can orient themselves.
 - Every slide needs a heading (`<h1>` on the title, `<h2>` elsewhere) — that's what makes it feel like a slide rather than a paragraph.
 - No `<img>`, no remote fonts, no `<link>`/`<script src>` to anything off-disk. The file should render identically on a plane with no wifi.

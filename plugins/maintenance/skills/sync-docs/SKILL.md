@@ -40,30 +40,30 @@ for dir in plugins/*/; do
 done
 ```
 
-Skip `maintenance` for the install/uninstall doc updates (steps 2–3) but include it for marketplace registries (steps 5–6).
+Include `maintenance` in the README table (step 2) and both marketplace registries (steps 6–7); exclude it from INSTALL.md, UNINSTALL.md, and docs/index.html (steps 3–5).
 
-### 2a. Update README.md
+### 2. Update README.md
 
 The repo `README.md` has a markdown table under "## Plugins" with one row per user-facing plugin (everything except `maintenance` — which is listed last as a separate convention). Each row is `[name](plugins/name/) | description | usage`. Add a row for new plugins; remove rows for deleted ones; never reorder existing rows (the order is meaningful — feature plugins first, maintenance last).
 
-### 2. Update INSTALL.md
+### 3. Update INSTALL.md
 
-Regenerate every section that names plugins:
+Add entries for new plugins and delete entries for removed ones in every region that names plugins — do not rewrite existing entries:
 
 - **"Available plugins"** — bullet list of `name — description`
-- **Marketplace JSON block (Step 2)** — a single marketplace object with `plugins[]` entries using `source.source`, `source.path`, `policy.installation`, `policy.authentication`, and `category`
-- **Symlink loop (Step 3)** — space-separated names in `for plugin in ...`
-- **`config.toml` block (Step 4b)** — one `[plugins."<name>@mikersays-marketplace"]` entry per plugin for the manual fallback installer
+- **Marketplace JSON block (its Step 2)** — a single marketplace object with `plugins[]` entries using `source.source`, `source.path`, `policy.installation`, `policy.authentication`, and `category`. New entries here use `"path": "./.codex/plugins/mikersays/mikersays-plugins/plugins/<name>"` — note the different prefix from the repo registries' `./plugins/<name>` — and default `"policy": { "installation": "AVAILABLE", "authentication": "ON_INSTALL" }`. Preserve existing entries' hand-tuned `policy`/`category` values here too.
+- **Symlink section (its Step 3)** — three plugin-naming regions: a prose sentence enumerating the single-skill plugins, a `for plugin in ...` loop with those same names, and a separate `for skill in ...` loop block per multi-skill plugin (currently `plan` and `issues`). A plugin whose `skills/` directory contains exactly one same-named skill goes into both the prose sentence and the `for plugin in` loop; a multi-skill plugin gets its own commented `for skill in ...` block, with skill names taken from `plugins/<name>/skills/*/`.
+- **`config.toml` block (its Step 4b)** — one `[plugins."<name>@mikersays-marketplace"]` entry per plugin for the manual fallback installer
 
-### 3. Update UNINSTALL.md
+### 4. Update UNINSTALL.md
 
-Mirror the install doc:
+Mirror the install doc. The skill lists here enumerate every skill symlink — one per skill for multi-skill plugins, one per plugin otherwise, with skill names taken from `plugins/<name>/skills/*/`:
 
-- **"What gets removed"** — comma-separated list of skill symlinks
-- **Unlink loop (Step 2)** — names in `for skill in ...`
-- **`config.toml` block (Step 4)** — one removal line per plugin
+- **"What gets removed"** — comma-separated list of those skill symlink names
+- **Unlink loop (its Step 2)** — the same skill names in `for skill in ...`
+- **`config.toml` block (its Step 5)** — removal entries per plugin, under both the `@mikersays-plugins` and `@mikersays-marketplace` suffixes
 
-### 4. Update docs/index.html
+### 5. Update docs/index.html
 
 Find `const PLUGINS = [` in the inline `<script>` and replace only the array contents:
 
@@ -76,7 +76,7 @@ const PLUGINS = [
 
 Leave surrounding JS untouched.
 
-### 5. Add new plugins to .codex-plugin/marketplace.json and .agents/plugins/marketplace.json
+### 6. Add new plugins to .codex-plugin/marketplace.json and .agents/plugins/marketplace.json
 
 Both Codex marketplace files use the same schema. For any plugin missing from either array, append:
 
@@ -91,11 +91,11 @@ Both Codex marketplace files use the same schema. For any plugin missing from ei
 
 Existing entries already have hand-tuned `policy` and `category` values (for example `INSTALLED_BY_DEFAULT`, `ON_USE`, `Developer Tools`, and `Writing`) — preserve them rather than normalizing to the defaults above. Keep both files in sync — they should have identical plugin entries. Current Codex authentication values are `ON_INSTALL` and `ON_USE`; do not use the old `ON_FIRST_USE` spelling.
 
-### 6. Add new plugins to .claude-plugin/marketplace.json
+### 7. Add new plugins to .claude-plugin/marketplace.json
 
 Append missing entries with `name`, `source` (string path), and `description`. Preserve existing entries.
 
-### 7. Verify and report
+### 8. Verify and report
 
 Read back each changed file, confirm the plugin set matches `plugins/*/`, and report a diff summary (added / removed / files touched). Stop there — leave committing to the user.
 
@@ -104,4 +104,5 @@ Read back each changed file, confirm the plugin set matches `plugins/*/`, and re
 - The `plugins/` directory is the source of truth. Add an entry when a directory appears; remove an entry only when its directory is gone. Don't reorder existing entries — order is meaningful in the rendered docs.
 - Touch only the plugin-list regions named above. Prose, headings, and other JS in `docs/index.html` stay byte-identical.
 - Never overwrite hand-tuned `policy` or `category` fields on existing codex entries.
+- Existing description text in `README.md`, `INSTALL.md`, and `docs/index.html` is hand-tuned — add entries for new plugins (seeding from the `plugin.json` description) and delete entries for removed plugins, but never rewrite the text of entries that already exist.
 - Don't commit. The user reviews the diff before shipping.

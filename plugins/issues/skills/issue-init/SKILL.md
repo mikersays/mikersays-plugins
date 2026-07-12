@@ -1,7 +1,6 @@
 ---
 name: issue-init
 description: Bootstrap a docs/issues/ folder in the current repo for tracking bugs, features, and incidents as one markdown file per issue. Use whenever the user wants to set up issue tracking inside a repo, asks for a "ticket folder" / "bug tracker folder" / "docs/issues directory", or before they file the first ticket. /issue-new auto-inits if missing, so /issue-init is primarily for explicit setup or for refreshing the seed README/INDEX. This is the bug-write-up cousin of /plan-init — pick this one when issues need a full diagnosis record (symptom, repro, root cause, fix, verification) and a branch-on-start workflow.
-argument-hint: ""
 allowed-tools: Bash, Read, Write
 ---
 
@@ -29,8 +28,8 @@ If `docs/issues/` already exists, scan for ticket files:
 ls "$ROOT/docs/issues"/[0-9][0-9][0-9][0-9]-*.md 2>/dev/null | head -1
 ```
 
-- Output → the system is already set up. Report current open/in-progress/done counts (parse the `**Status:**` line in each file) and stop. The user probably wanted `/issue-new` or to look at `INDEX.md`.
-- No output but the directory exists → continue; just refresh the README and INDEX skeletons.
+- Output → the system is already set up. Report current open/in-progress/fixed counts (plus blocked/wontfix if present — parse the `**Status:**` line in each file) and stop. The user probably wanted `/issue-new` or to look at `INDEX.md`.
+- No output but the directory exists → continue; just refresh the README and INDEX skeletons. If `README.md` or `INDEX.md` already exists with content that differs from the seeds below, show the user what would be replaced and confirm before overwriting — don't silently destroy customizations.
 
 ## 3. Create the directory
 
@@ -66,15 +65,15 @@ Examples:
 - **Reported:** YYYY-MM-DD
 - **Type:** bug | feature | question | discovery
 - **Severity:** low | medium | high | critical
-- **Area:** <e.g. frontend, server, db, infra>
-- **Source:** <where this came from — meeting, PR review, support ticket>
+- **Area:** <free-form, e.g. frontend, server, db, infra>
+- **Source:** <where this came from — meeting, PR review, support ticket, etc.>
 - **Fixed:** <set on close — YYYY-MM-DD (commit <short-sha>)>
 
 ## Symptom
 What the user sees / what's broken.
 
 ## Reproduction
-Steps, role, environment, sample data.
+Steps to reproduce, including any specific data, role, or environment.
 
 ## Root cause
 Why it happens — not what the fix is.
@@ -104,7 +103,7 @@ Write `$ROOT/docs/issues/INDEX.md` with this content verbatim:
 
 At-a-glance status across all tickets in this folder. Hand-maintained: when you flip a ticket's `**Status:**`, move its line to the matching section here. Convention and template live in [`README.md`](./README.md).
 
-Each line: `[NNNN](./NNNN-slug.md) — title — \`branch/name\` — notes`.
+Each line: ``[NNNN](./NNNN-slug.md) — title — `branch/name` — notes``.
 
 ## In progress
 

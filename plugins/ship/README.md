@@ -11,14 +11,16 @@ Git commit and push in one command.
 
 ## Installation
 
-Copy the `ship` directory into your Claude Code skills folder:
+Install through the marketplace so the skill and its script land together:
 
 ```bash
-# Global (all projects)
-cp -r ship ~/.claude/skills/
+# Claude Code (inside the CLI)
+/plugin marketplace add mikersays/mikersays-plugins
+/plugin install ship@mikersays-plugins
 
-# Project-level
-cp -r ship .claude/skills/
+# Codex CLI
+codex plugin marketplace add mikersays/mikersays-plugins
+codex plugin add ship@mikersays-plugins
 ```
 
 ## Standalone script

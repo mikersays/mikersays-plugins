@@ -1,0 +1,5 @@
+interface:
+  display_name: GitHub Pages
+  short_description: Build a site into docs/ and enable GitHub Pages from the default branch
+policy:
+  allow_implicit_invocation: true

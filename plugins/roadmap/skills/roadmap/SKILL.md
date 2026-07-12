@@ -37,11 +37,13 @@ Extract per task:
 | Field | Source |
 |---|---|
 | **name** | the quoted string |
-| **start** | explicit `from` / `Begins`, else inferred from section month or the day after the previous task |
-| **end** | `until`, `by`, or the upper bound of `from X–Y` |
+| **start** | explicit `from` / `Begins`; else the day after the previous task's end if that task is in the same section; else the first day of the section month |
+| **end** | `until`, `by`, or the upper bound of `from X–Y`. A `Begins`-only task has no explicit end: extend its bar to the chart end and mark the end as inferred |
 | **phase** | the section heading; assign sequential phase numbers |
 
 Compute **chart start** = first day of the earliest month, **chart end** = last day of the latest. When a date is inferred rather than stated, remember it for the report in step 7 — users want to verify guesses.
+
+If the file yields zero parseable tasks, do not generate HTML — show the user the expected format (the example above) and ask them to fix the file or point to another one.
 
 ## 3. Assign colours
 
@@ -147,13 +149,13 @@ Use `pct()` for every `left` and `width` so the chart scales with viewport width
 
 ## 6. Open the file
 
-Try to open in the default browser; fall back to printing the path.
+Try to open in the default browser; fall back to printing the path. Always pass the absolute path of the file you just wrote — the output sits next to the source markdown, which may not be the cwd.
 
 ```bash
 # macOS
-open roadmap.html
+open /abs/path/to/roadmap.html
 # Linux
-xdg-open roadmap.html
+xdg-open /abs/path/to/roadmap.html
 ```
 
 Detect platform via `uname` or `process.platform`. If the open command fails, just tell the user the absolute path.

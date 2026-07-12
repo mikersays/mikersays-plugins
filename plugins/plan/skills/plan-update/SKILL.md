@@ -11,8 +11,10 @@ Modify one or more frontmatter fields, and/or append a dated note to the body.
 
 ## Required reading
 
-- `references/schema.md` for allowed field values.
-- `references/operations.md` § *Locate the plan directory*, § *Resolve a target*, § *Normalize a date*, § *Append a dated note*, § *Bumping `updated:`*, § *Regenerate docs/plan/README.md*.
+- `${CLAUDE_PLUGIN_ROOT}/references/schema.md` for allowed field values.
+- `${CLAUDE_PLUGIN_ROOT}/references/operations.md` § *Locate the plan directory*, § *Resolve a target*, § *Normalize a date*, § *Append a dated note*, § *Bumping `updated:`*, § *Regenerate docs/plan/README.md*.
+
+If `${CLAUDE_PLUGIN_ROOT}` is unset, resolve relative to this SKILL.md's directory: `../../references/schema.md` and `../../references/operations.md`.
 
 ## 1. Parse `$ARGUMENTS`
 
@@ -73,7 +75,9 @@ Always bump `updated:` to today, even if only a note was appended.
 
 For `note:"..."`, append after existing body content per operations.md § *Append a dated note*.
 
-For `status:done` — also set `closed:` to today and append `## <today>\n\nClosed.` if no `note:` was provided. `/plan-close` is the cleaner entry point for closing (it prompts for a reason), but accepting `status:done` here keeps the update interface composable for bulk edits.
+For `status:done` — also set `closed:` to today and append `## <today>\n\nClosed.` if no `note:` was provided. `/plan-close` is the cleaner entry point for closing (it accepts a `reason:"..."`), but accepting `status:done` here keeps the update interface composable for bulk edits.
+
+For any status change away from `done` on an item that has a `closed:` line — delete the `closed:` line (schema: `closed` is present iff `status: done`) and append `## <today>\n\nReopened.` if no `note:` was provided.
 
 ## 5. Regenerate the index
 
@@ -89,6 +93,6 @@ due: → 2026-05-25
 + note appended
 ```
 
-Mention the item's ID and title at the top. Mention if a regeneration of `docs/plan/README.md` occurred.
+Mention the item's ID and title at the top. Confirm that `docs/plan/README.md` was regenerated.
 
 Do not commit.

@@ -1,6 +1,6 @@
 ---
 name: issue-close
-description: Mark a docs/issues/ ticket as fixed after the change has shipped. Trigger when the user says "close ticket NNNN", "mark NNNN fixed", "ship issue 0010", "the invoicing bug is done", or after a successful merge of an issue branch. Sets Status to fixed with the merge commit SHA, prompts for or fills the Verification section based on what was actually tested, and moves the line in docs/issues/INDEX.md from its Open section to Done. Also handles paired tickets shipped together (each keeps its own Verification but they share the commit SHA). This is the diagnosis-preserving cousin of /plan-close — pick this one when the closed ticket should remain a useful read for the next person hitting the same bug.
+description: Mark a docs/issues/ ticket as fixed after the change has shipped. Trigger when the user says "close ticket NNNN", "mark NNNN fixed", "ship issue 0010", "the invoicing bug is done", or after a successful merge of an issue branch. Stamps the merge commit SHA, requires a filled Verification section, and moves the INDEX.md line to Done. Diagnosis-preserving cousin of /plan-close.
 argument-hint: "[id-or-slug] [verified:\"what you actually tested\"]"
 allowed-tools: Bash, Read, Edit, Write, Glob, Grep
 ---
@@ -11,7 +11,7 @@ Flip a ticket's `**Status:**` to `fixed`, stamp the merge commit SHA, capture wh
 
 ## Required reading
 
-- `references/conventions.md` — read these sections when you reach the matching step: *Locate the issues directory*, *Resolve a target*, *Compute "today"*, *Updating the `**Status:**` line*, *INDEX.md structure*, *Pairing and cross-links*.
+- `../../references/conventions.md` (at the plugin root, relative to this skill directory) — read these sections when you reach the matching step: *Locate the issues directory*, *Resolve a target*, *Compute "today"*, *Updating the `**Status:**` line*, *INDEX.md structure*, *Pairing and cross-links*.
 
 ## 1. Parse `$ARGUMENTS`
 
@@ -38,24 +38,26 @@ If `verified:"..."` was passed as an argument, use that text directly and skip t
 
 ## 5. Get the commit SHA
 
-Try in this order, picking the first that produces a value:
+Pick by condition, not by whichever command prints something first:
 
 ```bash
-# Already on the issue branch and just merged → use HEAD
+# Use HEAD ONLY if you're on the ticket's issue branch or the HEAD
+# commit message references the ticket — otherwise HEAD is unrelated.
 git log -1 --format=%h
 
-# Merged via gh / GitHub UI → look up the merge commit on main
+# Otherwise (merged via gh / GitHub UI) → look up the merge commit on main
 default_branch=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's|.*/||')
+: "${default_branch:=main}"   # origin/HEAD may be unset on non-cloned remotes
 git log "$default_branch" --grep="<NNNN>" --oneline -1
 ```
 
-If neither gives a clear answer, ask the user for the commit SHA directly (they'll usually have it from `gh pr merge` output or the PR page).
+If neither condition yields a clear answer, ask the user for the commit SHA directly (they'll usually have it from `gh pr merge` output or the PR page). Never stamp a SHA you can't tie to the ticket — it goes into the permanent `**Fixed:**` record.
 
 ## 6. Apply the close
 
 Edit the ticket file:
 
-- `- **Status:** in-progress` → `- **Status:** fixed`
+- `- **Status:** <current>` → `- **Status:** fixed` — match whatever the current value is (usually `in-progress`, but `open` or `blocked` tickets can be closed directly); see conventions.md § *Updating the `**Status:**` line*
 - Fill the `**Fixed:**` line with `YYYY-MM-DD (commit <short-sha>)`
 - Fill (or extend) the `## Verification` section with what the user reported in step 4. Use a short bullet list when multiple things were tested:
 

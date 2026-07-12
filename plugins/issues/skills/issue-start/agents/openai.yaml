@@ -1,5 +1,5 @@
 interface:
   display_name: Issue Start
-  short_description: Start working on an issue with automatic branch creation
+  short_description: Begin work on a ticket — align on the fix plan with the user first, then create the branch and flip status to in-progress
 policy:
   allow_implicit_invocation: true

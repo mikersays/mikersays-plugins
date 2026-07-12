@@ -11,7 +11,7 @@ Create a new ticket file in `docs/issues/` and add it to the board. One ticket p
 
 ## Required reading
 
-- `references/conventions.md` — read these sections when you reach the matching step: *Locate the issues directory*, *Find the next ID*, *Slugify a title*, *Ticket file template*, *INDEX.md structure*.
+- `../../references/conventions.md` (at the plugin root, relative to this skill directory) — read these sections when you reach the matching step: *Locate the issues directory*, *Find the next ID*, *Slugify a title*, *Ticket file template*, *INDEX.md structure*.
 
 ## 1. Parse `$ARGUMENTS`
 
@@ -44,16 +44,26 @@ Mention inferred values in the final report so the user can correct them by edit
 Resolve `$ISSUES_DIR` (conventions.md § Locate the issues directory). If the directory doesn't exist:
 
 - Create it with `mkdir -p`.
-- Write the seed `README.md` and `INDEX.md` (same content as `/issue-init` step 4 and step 5).
+- Write the seed `README.md` and `INDEX.md` (copy the verbatim blocks from `../issue-init/SKILL.md` steps 4 and 5, relative to this skill directory).
 - Mention "(initialized docs/issues/)" in your report.
 
 Don't make the user run `/issue-init` first. One command is friendlier.
 
-## 4. Compute ID and slug
+## 4. Search for duplicates
+
+Before computing an ID or writing anything, grep `$ISSUES_DIR` for keywords from the title:
+
+```bash
+grep -li "<keyword>" "$ISSUES_DIR"/[0-9]*.md 2>/dev/null
+```
+
+If anything matches, mention it to the user and ask whether to file separately or update the existing ticket instead. Duplicates fragment context.
+
+## 5. Compute ID and slug
 
 Follow conventions.md § *Find the next ID* and § *Slugify a title*.
 
-## 5. Write the ticket
+## 6. Write the ticket
 
 Filename: `$ISSUES_DIR/<NNNN>-<slug>.md`. Verify the slot is still empty (collision check from conventions.md § Find the next ID); if not, bump and retry up to 5 times.
 
@@ -67,7 +77,7 @@ Fill the template from conventions.md § *Ticket file template*. For each sectio
 
 Pre-fill `**Reported:** <today>` (conventions.md § Compute "today"). Leave `**Fixed:**` blank — `/issue-close` sets it.
 
-## 6. Update INDEX.md
+## 7. Update INDEX.md
 
 Append a line to the **Open** section of `$ISSUES_DIR/INDEX.md`:
 
@@ -75,19 +85,11 @@ Append a line to the **Open** section of `$ISSUES_DIR/INDEX.md`:
 - [<NNNN>](./<NNNN>-<slug>.md) — <title>
 ```
 
+The `` — `branch/name` — notes `` fields from conventions.md § *INDEX.md structure* are omitted at file time; `/issue-start` appends the branch later.
+
 If the ticket clearly belongs to "Awaiting input" instead (it's a question or needs an external decision), put it there with a short note: `— blocked on <who/what>`.
 
 Don't try to auto-sort by severity. Append at the end of the relevant section; the user can reorder by hand if they care.
-
-## 7. Search for duplicates first
-
-Before completing, grep `$ISSUES_DIR` for keywords from the title:
-
-```bash
-grep -li "<keyword>" "$ISSUES_DIR"/[0-9]*.md 2>/dev/null
-```
-
-If anything matches, mention it to the user and ask whether to file separately or update the existing ticket instead. Duplicates fragment context.
 
 ## 8. Report
 

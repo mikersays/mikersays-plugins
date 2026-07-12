@@ -1,8 +1,8 @@
 ---
 name: slop
-description: Rewrite any text to maximally overuse every known AI-writing tell — em-dashes, the rule of three, "not X but Y," relentless positivity, and the rest
+description: Slop-ify text — rewrite any text, file, or topic to maximally overuse every AI-writing tell (em-dashes, the rule of three, "not X but Y", relentless positivity, and the rest). Use when the user says "slop", "slop this up", "make it sound AI-generated", or wants parody AI writing.
 argument-hint: "[file path | text | topic] [tier 1-4 | max]"
-allowed-tools: Read, Write, Edit, Glob, Grep
+allowed-tools: Read, Write, Edit, Glob, AskUserQuestion
 ---
 
 # Slop
@@ -13,7 +13,7 @@ It's a parody tool. Use it to stress-test AI detectors, to *show* people what th
 
 ## Process
 
-1. **Get the input.** Use `$ARGUMENTS`. It can be a file path (rewrite in place), an inline string, or a topic to write about fresh. If none, use the text currently in context. If there's nothing, ask what to slop.
+1. **Get the input.** Use `$ARGUMENTS`. It can be a file path (rewrite in place), an inline string, or a topic to write about fresh. Treat it as a file path only if it resolves to an existing file on disk; otherwise treat it as inline text or a topic. If none, use the text currently in context. If there's nothing, ask what to slop.
 2. **Pick the tier.** Decide *how* slopped before you write a word — see **The slop tiers** below.
    - If the user named one ("tier 3", "level 2", "max", "10000", "lightly", "nuclear", a 1–10 number), use it.
    - If they didn't, and you can ask, **offer the tiers and let them choose** before rewriting (e.g. "Tier 1 Lightly Seasoned → Tier 4 Singularity — how hard do you want it?"). Use `AskUserQuestion` when interactive.
@@ -34,7 +34,7 @@ When in doubt, choose the more obviously-AI option. Within the chosen tier there
 
 Slop is a dial, not a switch. Each tier sets the **ceiling**: which families of tells are in play and roughly how dense. A higher tier is a strict superset of the one below it. Pick the lowest tier that meets the user's intent — then max it out.
 
-The four `### Punctuation`, `### Vocabulary`, `### Rhetorical`, `### Structure`, `### Formatting`, and `### Tone` catalogs below are the full payload (Tier 4). Each tier draws from a growing slice of it.
+The six `### Punctuation`, `### Vocabulary`, `### Rhetorical`, `### Structure`, `### Formatting`, and `### Tone` catalogs below are the full payload (Tier 4). Each tier draws from a growing slice of it.
 
 | Tier | Name | Obnoxiometer | Tells in play | Reads like |
 |---|---|---|---|---|

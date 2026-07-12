@@ -1,7 +1,6 @@
 ---
 name: plan-init
-description: Bootstrap a docs/plan/ folder in the current repo for tracking bugs, issues, chores, and todos as markdown files. Use this whenever the user wants to start a lightweight planning system, set up local issue tracking inside a repo, or asks for a "plan folder" / "todo tracker" / "issues directory" — even before they've used any other /plan-* command. /plan-add will auto-init if missing, so this command is primarily for explicit setup.
-argument-hint: ""
+description: Bootstrap a docs/plan/ folder in the current repo for tracking bugs, issues, chores, and todos as markdown files. Use this whenever the user wants to start a lightweight planning system, set up local issue tracking inside a repo, or asks for a "plan folder" / "todo tracker" / "issues directory" — even before they've used any other /plan-* command. /plan-add also auto-inits if the folder is missing.
 allowed-tools: Bash, Read, Write
 ---
 
@@ -29,7 +28,13 @@ If `docs/plan/` already exists, scan for item files:
 ls "$ROOT/docs/plan"/[0-9]*.md 2>/dev/null | head -1
 ```
 
-- If items exist → the plan system is already set up. Report current counts (per status) and stop. The user probably wanted `/plan-list`.
+- If items exist → the plan system is already set up. Report current counts per status:
+
+  ```bash
+  grep -h '^status:' "$ROOT/docs/plan"/[0-9]*.md | sed 's/status:[[:space:]]*//' | sort | uniq -c
+  ```
+
+  Suggest `/plan-list` and stop — the user probably wanted that.
 - If the directory exists but is empty (or only has `README.md`) → continue to step 3 and just refresh the README.
 
 ## 3. Create the directory

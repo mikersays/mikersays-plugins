@@ -7,7 +7,7 @@ description: >-
   "preserve context", "prepare for the next agent", "what will the next agent know", or anything
   suggesting they want to capture session knowledge before starting fresh. Also trigger when the user
   asks about what persists between sessions, what gets lost, or how to prepare a handoff to another agent.
-allowed-tools: Bash, Read, Write, Edit
+allowed-tools: Bash, Read, Write, Edit, AskUserQuestion
 ---
 
 # Handoff
@@ -72,7 +72,7 @@ script:
 ```bash
 # project-instructions files — CLAUDE.md (Claude Code) and/or AGENTS.md (Codex)
 find . \( -name "CLAUDE.md" -o -name "AGENTS.md" \) -not -path "*/node_modules/*" -not -path "*/.git/*" 2>/dev/null
-ls ~/.claude/projects/*/memory/*.md 2>/dev/null   # Claude Code only: memory files + MEMORY.md index
+ls ~/.claude/projects/*/memory/MEMORY.md 2>/dev/null   # Claude Code only — open only the entry whose project path matches this repo's cwd
 git status --short && git stash list && git log --oneline -5 && git diff --stat
 ```
 
@@ -124,7 +124,7 @@ Memory file frontmatter, when you use it (Claude Code only):
 name: short-kebab-slug
 description: one-line summary
 metadata:
-  type: user|feedback|project|reference
+  type: user|feedback|reference
 ---
 
 Content here.

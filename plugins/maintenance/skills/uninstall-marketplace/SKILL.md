@@ -1,6 +1,8 @@
 ---
 name: uninstall-marketplace
 description: Remove the mikersays-plugins marketplace from this machine via the headless UNINSTALL.md flow, then verify
+argument-hint: "[--yes]"
+disable-model-invocation: true
 allowed-tools: Bash
 ---
 
@@ -36,7 +38,7 @@ done
 # config.toml plugin entries
 echo ""
 echo "config.toml plugin entries to remove:"
-grep -E '^\[plugins\."[^"]+@mikersays-marketplace"\]' ~/.codex/config.toml 2>/dev/null \
+grep -E '^\[(plugins\."[^"]+@mikersays-(marketplace|plugins)"|marketplaces\.mikersays-plugins)\]' ~/.codex/config.toml 2>/dev/null \
   | sed 's/^/  - /' || echo "  (none — config.toml absent or no entries)"
 ```
 
@@ -44,6 +46,7 @@ Also fixed:
 
 - Repo: `~/.codex/plugins/mikersays/mikersays-plugins`
 - `mikersays-marketplace` entry in `~/.agents/plugins/marketplace.json`
+- Native Codex marketplace install `mikersays-plugins` (removed via `codex plugin marketplace remove`, if present)
 - SessionStart git-pull hook in `~/.codex/hooks.json`
 
 Skip the confirmation prompt if `$ARGUMENTS` contains `--yes` or `--force`.
@@ -90,10 +93,10 @@ else:
 "
 ```
 ```bash
-grep -c 'mikersays-marketplace' ~/.codex/config.toml 2>/dev/null && echo "STILL PRESENT" || echo "removed"
+grep -Eq 'mikersays-(marketplace|plugins)' ~/.codex/config.toml 2>/dev/null && echo "STILL PRESENT" || echo "removed"
 ```
 ```bash
-grep -c 'mikersays' ~/.codex/hooks.json 2>/dev/null && echo "STILL PRESENT" || echo "removed"
+grep -q 'mikersays' ~/.codex/hooks.json 2>/dev/null && echo "STILL PRESENT" || echo "removed"
 ```
 
 ### 5. Report

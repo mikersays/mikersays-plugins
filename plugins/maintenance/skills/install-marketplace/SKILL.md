@@ -1,6 +1,7 @@
 ---
 name: install-marketplace
 description: Run the mikersays-plugins headless installer on this machine and verify the result
+disable-model-invocation: true
 allowed-tools: Bash
 ---
 
@@ -21,9 +22,20 @@ If either is missing, stop and tell the user to install it. The rest of the flow
 
 Pipe `INSTALL.md` directly into `codex exec`. The `--add-dir` flags scope write access to the two install directories so no broader sandbox escalation is required.
 
+If you are running inside a checkout of this repo (an `INSTALL.md` exists at the git toplevel), use the local file — that is the only way local installer edits actually get exercised:
+
 ```bash
-curl -sL https://raw.githubusercontent.com/mikersays/mikersays-plugins/master/INSTALL.md \
-  | codex exec --full-auto --add-dir ~/.codex --add-dir ~/.agents --skip-git-repo-check -
+codex exec --full-auto --add-dir ~/.codex --add-dir ~/.agents --skip-git-repo-check - \
+  < "$(git rev-parse --show-toplevel)/INSTALL.md"
+```
+
+Otherwise fetch from GitHub master. `-f` plus the guard prevents a 404 or network error from feeding an error page to the `--full-auto` agent as its prompt:
+
+```bash
+tmp=$(mktemp)
+curl -fsSL https://raw.githubusercontent.com/mikersays/mikersays-plugins/master/INSTALL.md > "$tmp" \
+  || { echo "INSTALL.md fetch failed — stopping"; exit 1; }
+codex exec --full-auto --add-dir ~/.codex --add-dir ~/.agents --skip-git-repo-check - < "$tmp"
 ```
 
 Show the full output — the user wants to see what the installer did.
@@ -37,8 +49,11 @@ ls ~/.codex/plugins/mikersays/mikersays-plugins/.agents/plugins/marketplace.json
 ```
 ```bash
 python3 -c "
-import json
-data = json.load(open('$HOME/.agents/plugins/marketplace.json'))
+import json, os, sys
+p = os.path.expanduser('~/.agents/plugins/marketplace.json')
+if not os.path.exists(p):
+    print('MISSING'); sys.exit()
+data = json.load(open(p))
 entries = data if isinstance(data, list) else [data]
 found = any(e.get('name') == 'mikersays-marketplace' for e in entries)
 print('FOUND' if found else 'MISSING')
@@ -49,8 +64,9 @@ grep -c 'mikersays-marketplace' ~/.codex/config.toml && echo "config entries pre
 ```
 ```bash
 # Discover expected skills from the freshly cloned repo, then check each symlink.
+# The maintenance plugin is excluded: INSTALL.md intentionally never symlinks its skills.
 REPO=~/.codex/plugins/mikersays/mikersays-plugins
-expected=$(find "$REPO/plugins" -mindepth 3 -maxdepth 3 -type d -path '*/skills/*' -exec basename {} \; | sort)
+expected=$(find "$REPO/plugins" -mindepth 3 -maxdepth 3 -type d -path '*/skills/*' -not -path '*/plugins/maintenance/*' -exec basename {} \; | sort)
 missing=0
 for skill in $expected; do
   if [ -L "$HOME/.agents/skills/$skill" ] || [ -e "$HOME/.agents/skills/$skill" ]; then

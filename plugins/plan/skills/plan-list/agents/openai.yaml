@@ -1,5 +1,5 @@
 interface:
   display_name: Plan List
-  short_description: List all items in the plan tracker
+  short_description: List and filter items in the plan tracker
 policy:
   allow_implicit_invocation: true

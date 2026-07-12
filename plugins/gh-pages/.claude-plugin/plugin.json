@@ -1,0 +1,8 @@
+{
+  "name": "gh-pages",
+  "description": "Build or publish a static site on GitHub Pages — saves the site to docs/ and enables Pages from the docs/ folder on the default branch",
+  "version": "1.0.0",
+  "author": {
+    "name": "mikersays"
+  }
+}

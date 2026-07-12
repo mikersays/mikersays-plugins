@@ -36,7 +36,7 @@ Anything else: links, repro steps, design sketches.
 | `tags` | no | YAML flat list, e.g. `[a, b]` | Lowercase, hyphenated. |
 | `created` | yes | ISO date | Set once by `/plan-add`. Never edited. |
 | `updated` | yes | ISO date | Bumped on every write. |
-| `closed` | no | ISO date | Set by `/plan-close`. Present iff `status: done`. |
+| `closed` | no | ISO date | Written empty as a placeholder by `/plan-add`; value set by `/plan-close`. Value present iff `status: done`. |
 
 ## Semantics
 

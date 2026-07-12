@@ -31,7 +31,7 @@ Read the section for the diagram type you detected. Each section is self-contain
 
 ## Entity-Relationship
 
-- Each entity = a stack of rows. Header row 160x40 with the entity name in bold and a coloured palette fill. Attribute rows 160x24 below, alternating `#0f1117` / `#151c29` fill, left-aligned text.
+- Each entity = a stack of rows. Header row 160x40 with the entity name in bold and a coloured palette fill. Attribute rows 160x24 below, alternating `style="fill:#0f1117"` / `style="fill:#151c29"` (inline `style`, not a `fill` attribute — the template's palette CSS overrides `fill` attributes on rects inside a `node-<colour>` group), left-aligned text.
 - Mark primary keys with a key icon prefix in the attribute label.
 - Relationship lines: straight or elbow paths, with cardinality labels (1, *, 1..*, etc.) at each end.
 - Space entities at least 250px apart so attribute text stays readable when relationship lines pass nearby.
