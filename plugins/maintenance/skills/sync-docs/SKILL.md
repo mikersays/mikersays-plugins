@@ -13,7 +13,7 @@ Plugin metadata is duplicated across seven files. When you add, remove, or renam
 | File | What references plugins |
 |---|---|
 | `README.md` | Plugins table (one row per user-facing plugin) |
-| `INSTALL.md` | "Available plugins" list, marketplace JSON block, symlink loop, `config.toml` block |
+| `INSTALL.md` | "Available plugins" list and native Codex install examples |
 | `UNINSTALL.md` | "What gets removed" list, unlink loop, `config.toml` block |
 | `docs/index.html` | `const PLUGINS = [...]` array inside `<script>` |
 | `.claude-plugin/marketplace.json` | `plugins[]` with `name`, `source`, `description` |
@@ -51,9 +51,7 @@ The repo `README.md` has a markdown table under "## Plugins" with one row per us
 Add entries for new plugins and delete entries for removed ones in every region that names plugins — do not rewrite existing entries:
 
 - **"Available plugins"** — bullet list of `name — description`
-- **Marketplace JSON block (its Step 2)** — a single marketplace object with `plugins[]` entries using `source.source`, `source.path`, `policy.installation`, `policy.authentication`, and `category`. New entries here use `"path": "./.codex/plugins/mikersays/mikersays-plugins/plugins/<name>"` — note the different prefix from the repo registries' `./plugins/<name>` — and default `"policy": { "installation": "AVAILABLE", "authentication": "ON_INSTALL" }`. Preserve existing entries' hand-tuned `policy`/`category` values here too.
-- **Symlink section (its Step 3)** — three plugin-naming regions: a prose sentence enumerating the single-skill plugins, a `for plugin in ...` loop with those same names, and a separate `for skill in ...` loop block per multi-skill plugin (currently `plan` and `issues`). A plugin whose `skills/` directory contains exactly one same-named skill goes into both the prose sentence and the `for plugin in` loop; a multi-skill plugin gets its own commented `for skill in ...` block, with skill names taken from `plugins/<name>/skills/*/`.
-- **`config.toml` block (its Step 4b)** — one `[plugins."<name>@mikersays-marketplace"]` entry per plugin for the manual fallback installer
+- **Install examples** — use `codex plugin marketplace add mikersays/mikersays-plugins`, then one or more `codex plugin add <name>@mikersays-plugins` commands. Do not add manual fallback instructions that write `~/.agents/plugins/marketplace.json`, symlink `~/.agents/skills`, install hooks, or use `@mikersays-marketplace`.
 
 ### 4. Update UNINSTALL.md
 

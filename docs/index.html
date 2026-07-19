@@ -396,9 +396,7 @@ codex plugin add ship@mikersays-plugins</code></pre>
 
         <h3 style="margin-top:28px;margin-bottom:10px;">Headless — one-liner</h3>
         <p class="section-sub" style="margin-bottom:12px;">
-          Pipe directly into <code>codex exec</code>. No interaction required. Safe to re-run.
-          Uses <code>--add-dir</code> to grant write access to exactly <code>~/.codex</code>
-          and <code>~/.agents</code> — no broader sandbox escalation.
+          Ask <code>codex exec</code> to run the native plugin commands. Grants write access only to <code>~/.codex</code>.
         </p>
 
         <div class="install-block">
@@ -428,7 +426,7 @@ codex plugin add ship@mikersays-plugins</code></pre>
             <div class="step-num"></div>
             <div class="step-body">
               <div class="step-title">Paste this prompt</div>
-              <div class="step-desc">The agent clones the repo, registers your chosen plugins, and installs the auto-update hook.</div>
+              <div class="step-desc">The agent runs the native marketplace and plugin install commands for your selection.</div>
               <div class="install-block">
                 <div class="block-header">
                   <span class="block-label">prompt</span>
@@ -443,11 +441,10 @@ codex plugin add ship@mikersays-plugins</code></pre>
         <div style="margin-top:32px;">
           <h3>What gets installed</h3>
           <div class="what-list">
-            <div class="what-item">Repo cloned to <code>~/.codex/plugins/mikersays/mikersays-plugins</code></div>
-            <div class="what-item" id="what-plugins">Selected plugins registered in <code>~/.agents/plugins/marketplace.json</code></div>
-            <div class="what-item">Skills symlinked into <code>~/.agents/skills/</code> — appear in <code>/skills</code></div>
+            <div class="what-item">Marketplace source added with <code>codex plugin marketplace add</code></div>
+            <div class="what-item" id="what-plugins">Selected plugins installed with <code>codex plugin add</code></div>
             <div class="what-item">Plugin entries added to <code>~/.codex/config.toml</code></div>
-            <div class="what-item"><code>SessionStart</code> hook added to <code>~/.codex/hooks.json</code> — auto-pulls on every startup</div>
+            <div class="what-item">Plugin source and cache managed by Codex CLI</div>
           </div>
         </div>
 
@@ -530,10 +527,6 @@ codex plugin add ship@mikersays-plugins</code></pre>
     { id: 'gh-pages',    desc: 'Build or publish a static site on GitHub Pages — saves the site to docs/ and enables Pages from the docs/ folder on the default branch' },
   ];
 
-  const REPO = 'https://github.com/mikersays/mikersays-plugins.git';
-  const RAW  = 'https://raw.githubusercontent.com/mikersays/mikersays-plugins/master/INSTALL.md';
-  const BASE = '../../.codex/plugins/mikersays/mikersays-plugins/plugins';
-
   let selected = new Set(PLUGINS.map(p => p.id));
 
   // ── Render plugin cards ──────────────────────────────────────────
@@ -572,6 +565,10 @@ codex plugin add ship@mikersays-plugins</code></pre>
     const ids  = sel.map(p => p.id);
     const all  = ids.length === PLUGINS.length;
     const none = ids.length === 0;
+    const nativeCommands = ids => ['codex plugin marketplace add mikersays/mikersays-plugins']
+      .concat(ids.map(id => `codex plugin add ${id}@mikersays-plugins`));
+    const sessionCommands = ids => ['/plugin marketplace add mikersays/mikersays-plugins']
+      .concat(ids.map(id => `/plugin add ${id}@mikersays-plugins`));
 
     // ── Codex native commands ──
     const nativeEl = document.getElementById('cmd-native');
@@ -579,16 +576,12 @@ codex plugin add ship@mikersays-plugins</code></pre>
     if (nativeEl) {
       nativeEl.textContent = none
         ? 'Select at least one plugin above.'
-        : ['codex plugin marketplace add mikersays/mikersays-plugins']
-            .concat(ids.map(id => `codex plugin add ${id}@mikersays-plugins`))
-            .join('\n');
+        : nativeCommands(ids).join('\n');
     }
     if (nativeSessionEl) {
       nativeSessionEl.textContent = none
         ? 'Select at least one plugin above.'
-        : ['/plugin marketplace add mikersays/mikersays-plugins']
-            .concat(ids.map(id => `/plugin add ${id}@mikersays-plugins`))
-            .join('\n');
+        : sessionCommands(ids).join('\n');
     }
 
     // ── Codex headless ──
@@ -596,26 +589,12 @@ codex plugin add ship@mikersays-plugins</code></pre>
     const preHeadless = document.getElementById('pre-headless');
     if (none) {
       preHeadless.innerHTML = '<div class="empty-state">Select at least one plugin above.</div>';
-    } else if (all) {
-      preHeadless.innerHTML = '';
-      preHeadless.appendChild(Object.assign(document.createElement('code'), {
-        id: 'cmd-headless',
-        textContent:
-`curl -sL ${RAW} \\
-  | codex exec --full-auto --add-dir ~/.codex --add-dir ~/.agents --skip-git-repo-check -`
-      }));
     } else {
-      const pluginList = ids.join(', ');
-      const prompt =
-`Clone ${REPO} to ~/.codex/plugins/mikersays/mikersays-plugins (or git pull if it already exists). ` +
-`Create ~/.agents/plugins/marketplace.json as a single marketplace object named "mikersays-marketplace" containing ONLY these plugins: ${pluginList}. ` +
-`For each plugin, use source { "source": "local", "path": "./.codex/plugins/mikersays/mikersays-plugins/plugins/<id>" }, policy { "installation": "AVAILABLE", "authentication": "ON_INSTALL" }, and category "Productivity" unless the repo marketplace gives a more specific value. ` +
-`Install the SessionStart git-pull hook in ~/.codex/hooks.json. ` +
-`Verify all steps and report the final result.`;
+      const prompt = `Install these Codex plugins using native plugin commands only:\n\n${nativeCommands(ids).join('\n')}\n\nVerify the installed plugins and report the final result.`;
       preHeadless.innerHTML = '';
       preHeadless.appendChild(Object.assign(document.createElement('code'), {
         id: 'cmd-headless',
-        textContent: `codex exec --full-auto "${prompt}"`
+        textContent: `codex exec --full-auto --add-dir ~/.codex --skip-git-repo-check '${prompt}'`
       }));
     }
 
@@ -623,35 +602,17 @@ codex plugin add ship@mikersays-plugins</code></pre>
     const prePrompt = document.getElementById('pre-prompt');
     if (none) {
       prePrompt.innerHTML = '<div class="empty-state">Select at least one plugin above.</div>';
-    } else if (all) {
-      prePrompt.innerHTML = '';
-      const span = document.createElement('span');
-      span.className = 'kw';
-      span.id = 'cmd-prompt';
-      span.textContent =
-`Read ${RAW} and follow the instructions exactly to install the
-mikersays-plugins marketplace on this machine. Create or update the
-local marketplace file and hooks config, verify the install, and tell
-me the final result.`;
-      const code = document.createElement('code');
-      code.appendChild(span);
-      prePrompt.appendChild(code);
     } else {
       prePrompt.innerHTML = '';
       const span = document.createElement('span');
       span.className = 'kw';
       span.id = 'cmd-prompt';
       span.textContent =
-`Clone https://github.com/mikersays/mikersays-plugins.git to
-~/.codex/plugins/mikersays/mikersays-plugins (or git pull if it
-already exists). Create ~/.agents/plugins/marketplace.json as a
-single marketplace object named "mikersays-marketplace" containing
-ONLY these plugins: ${ids.join(', ')}. For each plugin, use source
-{ "source": "local", "path": "./.codex/plugins/mikersays/mikersays-plugins/plugins/<id>" },
-policy { "installation": "AVAILABLE", "authentication": "ON_INSTALL" },
-and category "Productivity" unless the repo marketplace gives a more
-specific value. Install the SessionStart git-pull hook in ~/.codex/hooks.json.
-Verify all steps and report the final result.`;
+`Install these Codex plugins using native plugin commands only:
+
+${nativeCommands(ids).join('\n')}
+
+Verify the installed plugins and report the final result.`;
       const code = document.createElement('code');
       code.appendChild(span);
       prePrompt.appendChild(code);
@@ -674,7 +635,7 @@ Verify all steps and report the final result.`;
     if (none) {
       whatPlugins.textContent = 'No plugins selected.';
     } else if (all) {
-      whatPlugins.innerHTML = `All ${PLUGINS.length} plugins available through the marketplace`;
+      whatPlugins.innerHTML = `All ${PLUGINS.length} plugins selected for install`;
     } else {
       whatPlugins.innerHTML = `${ids.length} plugin${ids.length > 1 ? 's' : ''} selected: <strong>${ids.join(', ')}</strong>`;
     }

@@ -28,17 +28,17 @@ Repeat `codex plugin add <plugin>@mikersays-plugins` for each plugin you want.
 **Headless (one-liner):**
 
 ```bash
-curl -sL https://raw.githubusercontent.com/mikersays/mikersays-plugins/master/INSTALL.md \
-  | codex exec --full-auto --add-dir ~/.codex --add-dir ~/.agents --skip-git-repo-check -
+codex exec --full-auto --add-dir ~/.codex --skip-git-repo-check \
+  "Run: codex plugin marketplace add mikersays/mikersays-plugins && codex plugin add ship@mikersays-plugins. Verify the plugin install and report the result."
 ```
 
 **Interactive** — paste this prompt into a Codex session:
 
 ```
-Read https://raw.githubusercontent.com/mikersays/mikersays-plugins/master/INSTALL.md and follow the instructions exactly to install the mikersays-plugins marketplace on this machine. Create or update the local marketplace file and hooks config, verify the install, and tell me the final result.
+Read https://raw.githubusercontent.com/mikersays/mikersays-plugins/master/INSTALL.md and use Codex's native plugin commands to add the mikersays/mikersays-plugins marketplace. Then install the requested plugins with codex plugin add <plugin>@mikersays-plugins and report the final result.
 ```
 
-The headless/interactive methods clone the repo to `~/.codex/plugins/mikersays/mikersays-plugins`, symlink skills into `~/.agents/skills/`, register all plugins in `~/.agents/plugins/marketplace.json`, and install a `SessionStart` hook that auto-updates the marketplace on every Codex startup.
+Codex records the marketplace and installed plugins in `~/.codex/config.toml`, then manages plugin snapshots and cache files under `~/.codex`.
 
 ## Plugins
 
