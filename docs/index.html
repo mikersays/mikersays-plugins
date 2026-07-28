@@ -489,6 +489,9 @@ codex plugin add ship@mikersays-plugins</code></pre>
 <span class="c"># Review a doc</span>
 /tech-writer docs/api.md
 
+<span class="c"># Rewrite a runbook in Simplified Technical English</span>
+/ste docs/runbooks/failover.md
+
 <span class="c"># Build a slide deck</span>
 /deck microservices architecture</code></pre>
         </div>
@@ -504,7 +507,6 @@ codex plugin add ship@mikersays-plugins</code></pre>
     <p>
       Built by <a href="https://github.com/mikersays" target="_blank">mikersays</a> ·
       <a href="https://github.com/mikersays/mikersays-plugins" target="_blank">GitHub</a> ·
-      MIT License ·
       <a class="uninstall-link" href="https://github.com/mikersays/mikersays-plugins/blob/master/UNINSTALL.md" target="_blank">Uninstall</a>
     </p>
   </div>
@@ -514,7 +516,7 @@ codex plugin add ship@mikersays-plugins</code></pre>
   const PLUGINS = [
     { id: 'ship',        desc: 'Stage, commit, and push all changes in one step, with auto-generated message if none given' },
     { id: 'pr',          desc: 'Create a GitHub PR for the current branch with auto-generated title, summary, and test plan' },
-    { id: 'tech-writer', desc: 'Review and rewrite documentation in place using Google\'s Technical Writing guidelines' },
+    { id: 'tech-writer', desc: 'Review and rewrite documentation in place using Google\'s Technical Writing guidelines &mdash; plus /ste, a strict Simplified Technical English (ASD-STE100) mode for procedures, runbooks, and docs headed for translation' },
     { id: 'deck',        desc: 'Generate a self-contained HTML slide deck from a topic — single file, dark theme, keyboard nav' },
     { id: 'roadmap',     desc: 'Generate a self-contained interactive HTML Gantt chart from a markdown roadmap file' },
     { id: 'diagram',     desc: 'Generate an interactive SVG diagram (architecture, sequence, flowchart, ER) from a description' },

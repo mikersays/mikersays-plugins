@@ -87,7 +87,7 @@ policy:
 ## Existing Plugins
 
 - **ship** (`plugins/ship/`) — `/ship [message]` — Git commit and push in one command
-- **tech-writer** (`plugins/tech-writer/`) — `/tech-writer [file path]` — Review and rewrite docs using Google's Technical Writing guidelines
+- **tech-writer** (`plugins/tech-writer/`) — `/tech-writer [file path]`, `/ste [file path]` — Review and rewrite docs using Google's Technical Writing guidelines (extended with clarity rules adapted from ASD-STE100), or convert them to strict Simplified Technical English with `/ste`
 - **deck** (`plugins/deck/`) — `/deck [topic]` — Generate a self-contained HTML slide deck
 - **roadmap** (`plugins/roadmap/`) — `/roadmap [file]` — Generate a visual HTML Gantt-chart roadmap from a markdown file
 - **diagram** (`plugins/diagram/`) — `/diagram [description]` — Generate interactive SVG diagrams from a description
