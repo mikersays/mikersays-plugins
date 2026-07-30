@@ -7,11 +7,9 @@ allowed-tools: Write, Read, Edit, Bash, Agent, Skill, AskUserQuestion, Glob, Gre
 
 # Bootcamp — Build an interactive zero-to-hero course site
 
-This skill orchestrates a **swarm of expert subagents** to build a comprehensive, interactive learning site that takes a complete beginner to genuine competence on one topic. It is built for **greenfield repos**: it scaffolds the project, builds the whole course into `docs/`, and deploys it on GitHub Pages serving from the `docs/` folder.
+This skill is built for **greenfield repos**: it scaffolds the project, builds the whole course into `docs/`, and deploys it on GitHub Pages serving from the `docs/` folder.
 
-The output is a **course**, not an essay. Where a reference site is written to be *read*, a bootcamp is built to be *worked through* — progressive modules, learning objectives, worked examples, hands-on exercises with revealable solutions, self-check quizzes, a capstone project, and a progress tracker that remembers where the learner left off.
-
-You are the **orchestrator / dean**. You shape the curriculum, stand up the design, delegate the heavy lifting to specialist agents in parallel, hold the quality bar, and ship. Read this whole file first, then adapt — the phases below are a mental model and a sensible default scale, not a rigid script. Scale the swarm to the topic.
+You are the **orchestrator / dean**. You shape the curriculum, stand up the design, delegate the heavy lifting to specialist agents in parallel, hold the quality bar, and ship. The phases below are a default scale, not a rigid script — scale the swarm to the topic.
 
 ---
 
@@ -55,7 +53,8 @@ docs/
     └── images/ | diagrams/ # illustrations, diagrams, screenshots as the topic needs
 _course/
 ├── curriculum.md           # the authoritative syllabus: module list, objectives, ordering
-├── design_brief.md         # the committed aesthetic + interaction spec (from the UX agent)
+├── design_brief.md         # the committed aesthetic + interaction spec (from you, via
+│                           #   the frontend-design skill)
 ├── modules/<slug>.md       # one content dossier per module (from the content agents)
 └── screenshots/            # verification artifacts
 ```
@@ -73,13 +72,45 @@ Delegate via the `Agent` tool. Use `subagent_type: general-purpose` for content/
 | **Curriculum architect** | 1 (subagent) | Designs the zero→hero learning path: module list, ordered prerequisites, per-module learning objectives, what's in/out of scope. Writes `_course/curriculum.md`. |
 | **Design system** | you + `frontend-design` skill | Built by **you, the orchestrator**, via the `frontend-design` skill — not delegated (see Phase 2). Produces `docs/assets/css/main.css`, `docs/assets/js/main.js`, and `_course/design_brief.md`. |
 | **Content experts** | 1 per module (subagents) | Subject-matter teachers. Each produces a deep teaching dossier for one module: explanations, worked examples (with correct, runnable code/steps), exercises + solutions, common misconceptions, a checkpoint quiz. Writes `_course/modules/<slug>.md`. |
-| **Module builders** | 1 per module (subagents) | Front-end engineers. Each turns one content dossier into a polished `docs/NN-<module>.html` page using the shared design system. |
+| **Module builders** | 1 per module (subagents) | Front-end engineers. Each turns one content dossier into a polished `docs/NN-<module>.html` page using the shared design system, under the mobile contract below. |
 | **Capstone author** | 1 (subagent) | Designs the integrative project: spec, milestones, grading rubric, reference solution. |
-| **QA / proctor** | 1–N (subagents) | Verifies: technical accuracy of every code sample/claim, working links/nav, progress + quiz JS, responsive layout via Playwright screenshots. |
+| **QA / proctor** | 1–N (subagents) | Verifies: technical accuracy of every code sample/claim, working links/nav, progress + quiz JS, and layout + touch interaction on real mobile viewports via Playwright. |
 
 Run the **curriculum architect first** (everything depends on the module list). Then spawn the **content experts** concurrently and, while they work, build the **design system** yourself via the `frontend-design` skill. Then run the **module builders** concurrently (each needs its dossier + the design system). The capstone and reference pages can build alongside the later modules. QA last.
 
-Scale: a tight build is ~5 modules and a single QA pass; a comprehensive build is 8–10 modules with per-module QA. When the topic is genuinely huge, prefer **more modules over longer modules** — small, well-sequenced steps are better pedagogy.
+Scale: a tight build is ~5 modules and a single QA pass; a comprehensive build is 8–10 modules with per-module QA. When the topic is genuinely huge, prefer **more modules over longer modules**.
+
+---
+
+## The mobile contract (non-negotiable, applies to every agent)
+
+Most learners work through a course on a phone. Mobile is a **build constraint for every agent in the swarm**, not a polish pass at the end — and a broken phone layout blocks ship exactly like a wrong code sample does.
+
+**You must propagate these rules three ways:** paste them into every subagent brief that writes CSS, HTML, or JS; restate them as an explicit section of `_course/design_brief.md` so the builder contract carries them; and verify them by observation in Phase 5.
+
+**Every page** (your `index.html`, every module builder's page, capstone, reference):
+
+- Every `<head>` starts with `<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">`. A page without it is broken on mobile no matter how good the CSS is.
+- One column at phone width. Multi-column layouts only above a `min-width` breakpoint — no fixed pixel widths, no markup that assumes a desktop window.
+- Long code blocks and wide tables scroll inside their own container (`overflow-x: auto`); they never stretch the page.
+- Wide media (diagrams, screenshots, iframes, canvases) capped with `max-width: 100%`.
+
+**CSS (`main.css`):**
+
+- Mobile-first: start from a single-column ~390px layout and enhance up with `min-width` media queries.
+- Fluid type via `clamp()` and relative units; body text readable without pinch-zoom.
+- Tap targets ≥44×44px, with enough spacing that neighbors aren't mis-hit.
+- Honor notch / Dynamic-Island safe areas with `env(safe-area-inset-*)` padding on sticky bars and the footer.
+- **Nav-drawer gotcha:** for off-canvas navigation use `html { overflow-x: clip }` — do NOT use `overflow-x: hidden` on `body`, which turns `body` into a scroll container and silently breaks `position: sticky` on every TOC rail and sticky header.
+
+**Interaction (`main.js` and every component):**
+
+- Drive components on `click`/`pointer` events, never on hover. Any hover-revealed UI (glossary tooltips, footnote popovers) is tap-to-toggle on touch.
+- Drag-to-order quizzes ship a tap-friendly fallback.
+- The **signature interactive element must be fully operable on a phone**. If it genuinely needs width, ship a graceful mobile alternative — never a widget that only half-works below 400px.
+- **Scroll-lock gotcha:** when locking scroll for an open drawer, set `document.documentElement.style.overflowY = 'clip'` / `''` — NOT `document.body.style.overflow`, which creates a scroll container with the same sticky-breaking effect as above.
+
+**Content (content experts):** write phone-legible examples — prefer short code lines (~60 chars) over ones that need horizontal scrolling to read, keep tables to a few columns, and avoid wide ASCII-art diagrams that only parse at desktop width.
 
 ---
 
@@ -103,17 +134,17 @@ Spawn the **curriculum architect**. Brief it with the topic, the learner's start
 - An explicit **dependency/ordering rationale** so later agents respect the sequence.
 - The capstone concept and what mastery looks like.
 
-Review the returned curriculum yourself and adjust ordering/scope before fan-out — this is the spine; getting it right is cheap now and expensive later. List the modules for the user so they can see the shape before the build fans out.
+Review the returned curriculum yourself and adjust ordering/scope before fan-out. List the modules for the user so they can see the shape before the build fans out.
 
 ### Phase 2 — Content (subagents) + design system (you), in parallel
 
 Spawn **in one message** one content expert per module (subagents). While they work, you build the design system yourself.
 
-**Design system — you invoke the `frontend-design` skill.** The Skill tool is in your allowed-tools; use it to drive `frontend-design` (it is the source of polish, so lean on it) and produce the course's look and feel. Do this at the orchestrator level — do **not** ask a subagent to call the Skill, since a general-purpose subagent can't be relied on to have the skill in its context. Feed it the topic, the audience, and the interaction requirements from Phase 4. Capture its output as:
-- `docs/assets/css/main.css` — a complete, distinctive design system (tokens, typography, color, layout primitives for the course-specific components listed under "Interaction & components"). Build it **mobile-first**: a great majority of learners will work through this on a phone. Start from a single-column ~390px layout and enhance up with `min-width` media queries; use fluid type (`clamp()`) and relative units so nothing relies on a fixed desktop width. Begin the page with `<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">`. Honor notch/Dynamic-Island safe areas with `env(safe-area-inset-*)` padding on sticky bars and the footer. Tap targets ≥44×44px with comfortable spacing; never require hover to reach functionality; no fixed widths or `overflow-x` that cause sideways scroll. Long code blocks and wide tables scroll internally (`overflow-x:auto`) rather than stretching the page. **Critical nav-drawer gotcha:** for off-canvas navigation use `html { overflow-x: clip }` — do NOT use `overflow-x: hidden` on `body`, which turns `body` into a scroll container and silently breaks `position: sticky` on every TOC rail and sticky header.
-- `docs/assets/js/main.js` — implements the full Phase 4 interaction layer (core + signature + enhancers). It auto-initializes from the DOM so module builders only emit the right markup. **Nav-drawer scroll-lock gotcha:** when locking scroll for an open drawer, set `document.documentElement.style.overflowY = 'clip'` / `''` — NOT `document.body.style.overflow`. Setting it on `body` creates a scroll container with the same sticky-breaking effect as above.
-- `_course/design_brief.md` — ~200 words capturing the aesthetic + the exact CSS classes/markup contract module builders must follow, so every page is visually and behaviorally consistent.
-Aim for an aesthetic that fits the subject and the energy of a bootcamp; **avoid generic AI-template look** (no Inter-on-white, no purple gradient hero). Distinct, confident, legible for long study sessions. (If you prefer, spawn a UX subagent to draft the `design_brief.md` rationale first, but the `frontend-design` Skill call and the final CSS/JS stay with you.) If the `frontend-design` skill is not installed, design the system yourself to the same constraints above and still produce all three artifacts, including the `design_brief.md` contract.
+**Design system — you invoke the `frontend-design` skill.** Use the Skill tool to drive `frontend-design` and produce the course's look and feel. Do this at the orchestrator level — do **not** ask a subagent to call the Skill, since a general-purpose subagent can't be relied on to have the skill in its context. Feed it the topic, the audience, and the interaction requirements from Phase 4. Capture its output as:
+- `docs/assets/css/main.css` — a complete, distinctive design system (tokens, typography, color, layout primitives for the course-specific components listed under "Interaction & components"), built **mobile-first to the mobile contract above**. Tell the `frontend-design` skill that a phone is the primary target, not a secondary one: the design has to look intentional at ~390px first and scale up.
+- `docs/assets/js/main.js` — implements the full Phase 4 interaction layer (core + signature + enhancers), touch-operable per the mobile contract. It auto-initializes from the DOM so module builders only emit the right markup.
+- `_course/design_brief.md` — ~200 words capturing the aesthetic + the exact CSS classes/markup contract module builders must follow, so every page is visually and behaviorally consistent. It must include a **Mobile** section restating the contract in terms of *this* design system: the breakpoints, which components collapse or reflow at phone width, how the nav behaves on a small screen, and the required `<head>` viewport tag.
+Aim for an aesthetic that fits the subject and the energy of a bootcamp; **avoid generic AI-template look** (no Inter-on-white, no purple gradient hero). Distinct, confident, legible for long study sessions. If the `frontend-design` skill is not installed, design the system yourself to the same constraints above and still produce all three artifacts, including the `design_brief.md` contract.
 
 **Content experts** (one per module). Brief each with: the topic, the **full curriculum** (so they stay in their lane and reference neighbors correctly), their module's objectives, and the output path `_course/modules/<slug>.md`. Each dossier must contain:
 - A plain-language intro that assumes only the stated prerequisites — **never** assume knowledge from a later module.
@@ -123,23 +154,25 @@ Aim for an aesthetic that fits the subject and the energy of a bootcamp; **avoid
 - **Common mistakes / misconceptions** for the module.
 - A **checkpoint quiz** (3–6 questions with answers) that gates "you've got this."
 - A "you can now…" recap mapping back to the objectives.
+- Phone-legible formatting per the mobile contract: short code lines, narrow tables, no wide ASCII diagrams.
 Use `WebSearch`/`WebFetch` to get facts, APIs, versions, and best practices right. Accuracy is non-negotiable — a course that teaches wrong things is worse than none.
 
 ### Phase 3 — Home page + module builds
 
 Once the design system and dossiers are in:
 
-1. **You build `docs/index.html`** — the course home. It establishes the design language for builders to mirror, and includes: the promise/outcome ("go from zero to hero in X"), who it's for + prerequisites, the **full curriculum map** (ordered, linked, showing the ramp), estimated effort, a global **progress bar** (driven by localStorage), and a clear "Start here" CTA into `00-orientation.html`.
-2. **Spawn the module builders in parallel** (one message). Each builder must:
-   - Read `docs/index.html` (reference), `docs/assets/css/main.css`, `_course/design_brief.md` (the markup/class contract), and its own `_course/modules/<slug>.md`.
+1. **You build `docs/index.html`** — the course home. It establishes the design language for builders to mirror, and includes: the promise/outcome ("go from zero to hero in X"), who it's for + prerequisites, the **full curriculum map** (ordered, linked, showing the ramp), estimated effort, a global **progress bar** (driven by localStorage), and a clear "Start here" CTA into `00-orientation.html`. Build it to the mobile contract — it is the reference page every builder copies, so a desktop-only home page propagates into the whole course.
+2. **Spawn the module builders in parallel** (one message). **Paste the mobile contract into every builder brief** — a subagent that hasn't read this file only knows what you tell it. Each builder must:
+   - Read `docs/index.html` (reference), `docs/assets/css/main.css`, `_course/design_brief.md` (the markup/class contract, including its Mobile section), and its own `_course/modules/<slug>.md`.
    - Emit `docs/NN-<module>.html` that renders its dossier in the dossier's order (header → lessons → worked examples → exercises → common mistakes → checkpoint quiz → recap), with revealable solutions (`<details>` or JS toggle per the design contract) and prev/next module nav.
+   - Include the `<head>` viewport tag, use only the design system's responsive primitives, and add **no page-local CSS with fixed widths** — if a page needs a layout the design system doesn't have, report it back rather than hand-rolling a desktop-only one.
    - Wire each page into the **progress tracker** (mark-complete control; checkpoint completion updates the global bar) per the JS contract.
    - Use **real, correct content** from the dossier — zero placeholder text, zero "TODO", every code block runnable.
-3. Build `capstone.html` and `reference.html` (via the capstone author + a content/build pass), matching the design system.
+3. Build `capstone.html` and `reference.html` (via the capstone author + a content/build pass), matching the design system and the same mobile contract — these pages carry wide content (rubric tables, cheat-sheet grids, glossary) that most easily breaks on a phone, so give their tables and grids an explicit phone-width reflow or internal scroll.
 
 ### Phase 4 — Interaction & components (the bar for "interactive")
 
-A bootcamp is something you *do*, not something you read — interactivity is the point, not a garnish. The JS (which you build via the `frontend-design` skill in Phase 2, consumed by every module builder) must turn each page into a workspace. Build all of the **core** layer, commit to one **signature** element, then add the **enhancers** that genuinely fit the topic. Don't bolt on widgets for their own sake — every interaction should serve learning (recall, practice, feedback, or motivation). Keep it dependency-light: vanilla JS, and at most a single well-chosen CDN where a sandbox truly needs it; the site must work offline-first and degrade gracefully without JS.
+The JS (which you build via the `frontend-design` skill in Phase 2, consumed by every module builder) must turn each page into a workspace. Build all of the **core** layer, commit to one **signature** element, then add the **enhancers** that genuinely fit the topic. Don't bolt on widgets for their own sake — every interaction should serve learning (recall, practice, feedback, or motivation). Keep it dependency-light: vanilla JS, and at most a single well-chosen CDN where a sandbox truly needs it; the site must work offline-first and degrade gracefully without JS.
 
 **Core — always build these:**
 
@@ -151,7 +184,7 @@ A bootcamp is something you *do*, not something you read — interactivity is th
 
 **Signature interactive element — pick one, make it excellent:**
 
-The one memorable, recurring interaction that defines the course. It should fit the subject: a live code playground/REPL for a programming language, a circuit/physics simulator, an interactive proof or graph explorer for math, a chord/scale player for music theory, a query runner for SQL, a network/packet visualizer for systems. This is where to spend extra effort — it's what people remember and screenshot.
+The one memorable, recurring interaction that defines the course. It should fit the subject: a live code playground/REPL for a programming language, a circuit/physics simulator, an interactive proof or graph explorer for math, a chord/scale player for music theory, a query runner for SQL, a network/packet visualizer for systems.
 
 **Enhancers — add the ones that fit (aim for several, not all):**
 
@@ -167,7 +200,7 @@ The one memorable, recurring interaction that defines the course. It should fit 
 
 **Builder contract.** `_course/design_brief.md` must specify the exact markup and class names for each interactive component (the `localStorage` keys, the quiz data attributes, the hint/solution structure, the run-button hook) so every module builder wires the same behavior identically. The JS auto-initializes from the DOM (no per-page bespoke scripting) and is **idempotent and accessible** — keyboard-operable, ARIA-labeled, and safe to re-run.
 
-**Touch parity.** Every interaction must work on a touchscreen, not just a mouse: drive components on `click`/`pointer` events (not `hover`), make hover-revealed UI (glossary tooltips, footnote popovers) tap-to-toggle on touch devices, and give drag-to-order quizzes a tap-friendly fallback (control sizing is covered by the Phase 2 mobile-first rules). The signature interactive element must be fully operable on a phone — if it can't be (e.g. a layout that genuinely needs width), provide a graceful mobile alternative rather than a broken widget.
+**Touch parity.** Every interaction in this phase — core, signature, and each enhancer — is built to the **interaction rules of the mobile contract** and is only "done" when it works by tap on a phone. Design each one at phone width first: a quiz whose options are readable and tappable at 393px, a hint ladder whose buttons don't crowd, a notes box that doesn't fight the on-screen keyboard, a theme toggle and search that are reachable from a collapsed nav.
 
 ### Phase 5 — QA / proctor pass
 
@@ -194,7 +227,13 @@ Once Playwright MCP is confirmed, spawn QA (one agent, or one per module for big
 1. **Technical accuracy** — re-check every code sample / factual claim against the dossier and reality. Flag anything wrong; fix before shipping. This is the most important check.
 2. **Navigation & links** — every prev/next link, the curriculum map, and cross-references resolve.
 3. **Interactivity** — start a local server and drive it with Playwright: progress persists across reloads and the bar reflects it, quizzes score and explain, hints ladder up and solutions reveal, runnable/"try it" demos execute, copy buttons work, the signature element works, and every enhancer shipped (flashcards, tooltips, notes, theme toggle, certificate…) actually functions. Also confirm the page is usable with JS disabled (graceful degradation).
-4. **Responsive layout (mobile is a first-class target)** — verify mobile explicitly, not just desktop. With `browser_resize`, screenshot at desktop (1440×900) and at a current iPhone-class viewport (**393×852**, covering iPhone 15/16/17 Pro; also spot-check a small phone at 360×780). Read every screenshot and confirm the Phase 2 mobile rules hold as observed: no sideways scroll, body text readable without pinch-zoom, tap targets not crowded, sticky bars and footer clear of the safe area, code blocks scrolling internally instead of stretching the page. Drive at least one quiz and one hint/solution reveal at the mobile size to confirm touch interaction works, and confirm the signature element is usable by tap. No broken layout, no empty-on-first-paint sections, images loaded. **Horizontal-scroll check:** `scrollWidth > clientWidth` on `html` is a **false positive** when an off-canvas nav drawer sits off-screen under `overflow-x: clip` — the drawer inflates `scrollWidth` even though the user can't scroll. Verify actual scrollability instead: `const before = html.scrollLeft; html.scrollLeft = 200; const canScroll = html.scrollLeft > 0; html.scrollLeft = before;` — flag only if `canScroll` is true.
+4. **Mobile (a ship blocker, checked on every page)** — verify mobile explicitly, not just desktop, and treat a mobile defect exactly like a wrong code sample: fix it, then re-verify at mobile size before shipping.
+   - With `browser_resize`, screenshot **every page** at a current iPhone-class viewport (**393×852**, covering iPhone 15/16/17 Pro) as well as desktop (1440×900); spot-check a small phone at 360×780. Sampling one module is not enough — layout breaks page by page.
+   - Read every mobile screenshot and confirm the mobile contract holds *as observed*: no sideways scroll, body text readable without pinch-zoom, tap targets not crowded, sticky bars and footer clear of the safe area, code blocks and tables scrolling internally instead of stretching the page, nothing clipped off the right edge, images loaded, no empty-on-first-paint sections.
+   - Confirm every page has the `<head>` viewport tag: `browser_evaluate` → `!!document.querySelector('meta[name=viewport]')`.
+   - **Drive the interactions at 393×852**, don't just look at them: open and close the nav drawer (and confirm sticky headers/TOC still stick afterward), answer a quiz, ladder through a hint to a solution, run a "try it" demo, tap a glossary tooltip, and operate the **signature element** by tap. Anything that needs hover to work is a defect.
+   - **Horizontal-scroll check:** `scrollWidth > clientWidth` on `html` is a **false positive** when an off-canvas nav drawer sits off-screen under `overflow-x: clip` — the drawer inflates `scrollWidth` even though the user can't scroll. Verify actual scrollability instead: `const before = html.scrollLeft; html.scrollLeft = 200; const canScroll = html.scrollLeft > 0; html.scrollLeft = before;` — flag only if `canScroll` is true.
+   - Fix mobile defects in the **shared CSS/JS** where the cause is systemic, so the fix lands on every page at once; only patch a single page when the problem is genuinely local to it. After any such fix, re-screenshot the affected pages at mobile size — a shared-CSS change can regress pages you already passed.
 
 ```bash
 cd docs && python3 -m http.server 4173 > /tmp/bootcamp-server.log 2>&1 &
@@ -255,10 +294,10 @@ The course must:
 
 - **Actually teach zero→hero.** A motivated beginner who works through it end to end reaches the stated destination. Test the ramp: no module assumes anything not taught earlier.
 - **Be correct.** Every code sample runs; every claim is right. Verified, not asserted.
-- **Be interactive.** The full core layer works — progress persists, quizzes score and explain, hints ladder up before solutions reveal, demos run, code copies — plus a real signature element and the enhancers that fit. Interactivity carries the learning, it isn't decoration.
+- **Be interactive.** The full Phase 4 core layer works, plus a real signature element and the enhancers that fit.
 - **Be hands-on.** Every module has exercises with solutions. Practice, not just prose.
 - **Look distinctive and stay readable** for long sessions — designed via the `frontend-design` skill, not a generic template.
-- **Work on a phone.** Mobile-first per the Phase 2 rules, every interaction operable by touch, and verified on the Phase 5 mobile viewports — not assumed.
+- **Work on a phone.** Every page and interaction meets the mobile contract, observed on the Phase 5 viewports. If mobile couldn't be verified (no Playwright MCP), say so explicitly instead of claiming it works.
 - **Have zero placeholders.** No "TODO", no "coming soon", no lorem ipsum.
 - **Be deployed.** Live on GitHub Pages from `docs/`, URL reported.
 
