@@ -6,8 +6,6 @@ allowed-tools: Bash, Read, Edit, Glob
 
 # sync-docs — Sync Marketplace Documentation
 
-Plugin metadata is duplicated across seven files. When you add, remove, or rename a plugin, this skill propagates the change so the docs and registries match the `plugins/` directory.
-
 ## Targets
 
 | File | What references plugins |
@@ -20,9 +18,7 @@ Plugin metadata is duplicated across seven files. When you add, remove, or renam
 | `.codex-plugin/marketplace.json` | `plugins[]` with `name`, `source`, `policy`, `category` (legacy fallback) |
 | `.agents/plugins/marketplace.json` | `plugins[]` with `name`, `source`, `policy`, `category` (canonical Codex path) |
 
-The `maintenance` plugin is its own special case — it stays in the registries and in `README.md` but is omitted from end-user install/uninstall flows and the landing page, since users don't install the maintenance plugin itself.
-
-The two `maintenance` skills `install-marketplace` and `uninstall-marketplace` derive their plugin/skill lists at run time from the cloned repo, so they don't need to be touched by `sync-docs` — they stay correct automatically.
+The `install-marketplace` and `uninstall-marketplace` skills derive their lists at run time — leave them alone.
 
 After running, the user should run `python3 scripts/validate.py` (or rely on the pre-commit hook / CI) to confirm consistency.
 
@@ -44,7 +40,7 @@ Include `maintenance` in the README table (step 2) and both marketplace registri
 
 ### 2. Update README.md
 
-The repo `README.md` has a markdown table under "## Plugins" with one row per user-facing plugin (everything except `maintenance` — which is listed last as a separate convention). Each row is `[name](plugins/name/) | description | usage`. Add a row for new plugins; remove rows for deleted ones; never reorder existing rows (the order is meaningful — feature plugins first, maintenance last).
+The repo `README.md` has a markdown table under "## Plugins" with one row per user-facing plugin (everything except `maintenance` — which is listed last as a separate convention). Each row is `[name](plugins/name/) | description | usage`. Add a row for new plugins; remove rows for deleted ones; never reorder existing rows.
 
 ### 3. Update INSTALL.md
 
@@ -101,6 +97,4 @@ Read back each changed file, confirm the plugin set matches `plugins/*/`, and re
 
 - The `plugins/` directory is the source of truth. Add an entry when a directory appears; remove an entry only when its directory is gone. Don't reorder existing entries — order is meaningful in the rendered docs.
 - Touch only the plugin-list regions named above. Prose, headings, and other JS in `docs/index.html` stay byte-identical.
-- Never overwrite hand-tuned `policy` or `category` fields on existing codex entries.
 - Existing description text in `README.md`, `INSTALL.md`, and `docs/index.html` is hand-tuned — add entries for new plugins (seeding from the `plugin.json` description) and delete entries for removed plugins, but never rewrite the text of entries that already exist.
-- Don't commit. The user reviews the diff before shipping.
