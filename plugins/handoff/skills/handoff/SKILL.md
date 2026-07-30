@@ -12,10 +12,8 @@ allowed-tools: Bash, Read, Write, Edit, AskUserQuestion
 
 # Handoff
 
-You are running inside an active session. The user wants the next agent that opens this project to
-pick up where this one left off, instead of re-deriving everything from scratch. Your job is to find
-the gap between what this session knows and what the next session will actually see on disk, then
-help close it.
+Find the gap between what this session knows and what the next session will actually see on disk,
+then help close it.
 
 This is a judgment task, not a checklist. The sections below give you a mental model and a set of
 options — use them to reason about *this* session and *this* repo, not to march through fixed steps.
@@ -35,20 +33,17 @@ against what's on disk:
   instead.
 
 Throughout the rest of this skill, wherever it says "the project-instructions file," use `CLAUDE.md`
-in Claude Code and `AGENTS.md` in Codex. Some repos keep both (this marketplace does) — write to the
-one your harness loads, and only touch the other if the user asks. When in doubt, prefer the file that
-already exists in the repo root.
+in Claude Code and `AGENTS.md` in Codex. Some repos keep both — write to the one your harness loads,
+and only touch the other if the user asks. When in doubt, prefer the file that already exists in the
+repo root.
 
 ## What survives, and what doesn't
 
-A new agent session starts with a blank conversation. It sees only what's on disk and in config —
-never the conversation you and the user just had.
+A new agent session sees only what's on disk and in config — never this conversation.
 
 **Survives automatically** (anything written to the filesystem or git):
-the project-instructions file loaded at session start (`CLAUDE.md` in Claude Code, `AGENTS.md` in
-Codex), memory files recalled when relevant (Claude Code only), git state (commits, branches, stash,
-diffs), and any docs the project keeps. *Which* of these a repo actually uses varies — that's
-something to discover, not assume.
+the project-instructions file loaded at session start, memory files recalled when relevant (Claude
+Code only), git state (commits, branches, stash, diffs), and any docs the project keeps.
 
 **Lost when this session ends:**
 the conversation itself, and everything that lived only in it — the *why* behind decisions,
@@ -102,9 +97,8 @@ saving — each recommendation paired with *where* it should go and *what breaks
 this proportional: a couple of lines for a light session, a short table for a heavy one. The format
 is yours to choose; clarity matters more than any fixed template.
 
-Then let the user decide. For a handful of distinct items, `AskUserQuestion` makes selection easy,
-but it's a tool, not a requirement — a plain "want all of these, or a subset?" is often enough. If
-they say "your call," use judgment and save the highest-value items.
+Then let the user decide — `AskUserQuestion` for a handful of distinct items, or a plain "want all of
+these, or a subset?". If they say "your call," save the highest-value items.
 
 ### Write each save where it belongs
 
@@ -134,17 +128,12 @@ When the saves are done, give a short receipt — one line per item: what was sa
 
 ## Guardrails
 
-A few things to hold firm on, because they're easy to get wrong and costly when you do:
-
 - **Don't fabricate.** Only persist context that genuinely came from this session. An invented
   rationale is worse than a missing one — the next agent will trust it.
 - **Don't leak secrets.** Keep credentials, tokens, and personal data out of any file you write.
 - **This skill persists knowledge, not code changes.** Don't alter program logic, and don't push to
   a remote, unless the user explicitly asks.
-- **Context lives in the repo, not in the user's local memory directory.** Everything worth handing
-  off goes into files that travel with the repo — the project-instructions file, the repo's own
-  tracking docs, commit messages, or code comments — so the *next agent on any machine* sees it.
-  Do **not** route handoff context into `~/.claude/projects/*/memory/`; those files are local to one
-  user's machine, aren't shared or version-controlled, and won't reach a teammate (or the user on a
-  different machine) who opens the repo fresh. Memory files are for durable cross-project user
-  preferences, not for the state of *this* project's work.
+- **Context lives in the repo, not in `~/.claude/projects/*/memory/`.** Route handoff context to the
+  project-instructions file, the repo's tracking docs, commit messages, or code comments — memory
+  files are local to one machine, aren't version-controlled, and won't reach a teammate who opens the
+  repo fresh. They're for durable cross-project user preferences only.
