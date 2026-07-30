@@ -95,7 +95,15 @@ It stays dependency-light (vanilla JS, at most one CDN where a sandbox needs it)
 
 ## Mobile-first
 
-Most learners work through a course on their phone, so the build targets mobile as a first-class surface — not an afterthought. The design system is **mobile-first** (single-column ~390px baseline, fluid `clamp()` type, enhanced up with media queries), respects notch/Dynamic-Island **safe areas** (`env(safe-area-inset-*)`), uses fingertip-sized (≥44px) tap targets, and never relies on hover — every interaction works by touch. The QA pass verifies layout and touch interaction on a current iPhone-class viewport (393×852, covering iPhone 15/16/17 Pro) and a small phone, confirming no horizontal scroll and readable text without zoom.
+Most learners work through a course on their phone, so the skill carries an explicit **mobile contract** that every agent in the swarm builds under — the design system, each module builder, the content experts, and QA. It isn't a polish pass at the end: a broken phone layout blocks ship the same way a wrong code sample does.
+
+- **Design system:** mobile-first (single-column ~390px baseline, fluid `clamp()` type, enhanced up with `min-width` media queries), notch/Dynamic-Island **safe areas** (`env(safe-area-inset-*)`), fingertip-sized (≥44px) tap targets.
+- **Every page:** the `width=device-width, viewport-fit=cover` viewport tag, one column at phone width, no fixed pixel widths, and wide code blocks/tables scrolling inside their own container instead of stretching the page.
+- **Every interaction:** driven by tap, never hover — tooltips toggle on touch, drag-to-order quizzes have a tap fallback, and the signature interactive element is fully operable on a phone (or ships a graceful mobile alternative).
+- **Content:** short code lines, narrow tables, no wide ASCII diagrams that only parse at desktop width.
+- **QA:** screenshots **every page** at a current iPhone-class viewport (393×852, covering iPhone 15/16/17 Pro) plus a small phone, and actually *drives* the nav drawer, a quiz, a hint reveal, a demo, and the signature element by tap at that size — confirming no horizontal scroll and readable text without zoom. Systemic defects get fixed in the shared CSS/JS and re-verified.
+
+It also encodes the two mobile bugs that most often slip through unnoticed: `overflow-x: hidden` on `body` (which silently breaks every sticky header and TOC rail) and the false-positive horizontal-scroll check caused by an off-canvas nav drawer.
 
 ## Deployment
 
