@@ -41,7 +41,7 @@ Extract per task:
 | **end** | `until`, `by`, or the upper bound of `from X–Y`. A `Begins`-only task has no explicit end: extend its bar to the chart end and mark the end as inferred |
 | **phase** | the section heading; assign sequential phase numbers |
 
-Compute **chart start** = first day of the earliest month, **chart end** = last day of the latest. When a date is inferred rather than stated, remember it for the report in step 7 — users want to verify guesses.
+Compute **chart start** = first day of the earliest month, **chart end** = last day of the latest. When a date is inferred rather than stated, remember it for the report in step 7.
 
 If the file yields zero parseable tasks, do not generate HTML — show the user the expected format (the example above) and ask them to fix the file or point to another one.
 
@@ -67,7 +67,7 @@ Pick from this palette by task role; cycle if more than 10 tasks. Roles are guid
 Any task with an **explicit** end date is a milestone (inferred ends are not). Render:
 
 - A 14×14 diamond marker at the end date (`transform: rotate(45deg)`).
-- A pill label floating above the row. Use the amber highlight pill for phase boundaries and launches; plain dark pill otherwise — this keeps the eye drawn to the events that actually move the project forward.
+- A pill label floating above the row. Use the amber highlight pill for phase boundaries and launches; plain dark pill otherwise.
 
 ## 5. Generate `roadmap.html`
 
@@ -158,7 +158,7 @@ open /abs/path/to/roadmap.html
 xdg-open /abs/path/to/roadmap.html
 ```
 
-Detect platform via `uname` or `process.platform`. If the open command fails, just tell the user the absolute path.
+Detect platform via `uname`.
 
 ## 7. Report back
 

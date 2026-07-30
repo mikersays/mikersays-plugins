@@ -9,7 +9,7 @@ allowed-tools: Bash, Read, Write, Edit, Glob, Grep, AskUserQuestion
 
 This skill governs **any** request to create or publish a GitHub Pages site. It has two non-negotiable outcomes:
 
-1. **Every site file lives in `docs/` at the repo root.** Never `gh-pages` branch, never repo root, never a custom folder — GitHub Pages serves from `/docs` on the default branch.
+1. **Every site file lives in `docs/` at the repo root.** Never `gh-pages` branch, never repo root, never a custom folder.
 2. **On completion, Pages is actually enabled** via the GitHub API so the user gets a live URL — not instructions to click through Settings themselves.
 
 ## Step 1 — Establish the site content in `docs/`
@@ -71,7 +71,7 @@ gh api -X POST "repos/$REPO/pages" \
    ```bash
    gh repo edit "$REPO" --homepage "$URL"
    ```
-   Use the `html_url` captured in step 2 verbatim — do not hand-construct the URL. This makes the live site one click away for anyone who lands on the repo. If the user later toggles "Use your GitHub Pages website" in Settings → About, it supersedes this value with the same URL; never overwrite a *different* pre-existing homepage without asking.
+   Use the `html_url` captured in step 2 verbatim — do not hand-construct the URL. Never overwrite a *different* pre-existing homepage without asking.
 4. Report to the user: the live URL, the HTTP status observed, and that Pages serves from `docs/` on `$BRANCH` (so future edits to `docs/` auto-deploy on push).
 
 ## What this skill must NOT do
