@@ -39,8 +39,6 @@ If the user didn't specify them explicitly:
 - `priority` — `med`.
 - `due` — absent (omit the line).
 
-Mention inferred values in the final report so the user can override with `/plan-update`.
-
 ## 3. Locate target, auto-init if missing
 
 Resolve `$PLAN_DIR` (operations.md § Locate the plan directory). If the directory doesn't exist:

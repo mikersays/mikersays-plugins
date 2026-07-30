@@ -66,6 +66,6 @@ Tell the user:
 - `Closed <NNN> — <title>` (with the reason, if any)
 - Remaining counts: `A open · B in-progress · C blocked`
 
-Do not delete or move the file — closed items remain in `docs/plan/` so the history stays intact. If the user wants to archive old closed items, that's a manual move into `docs/plan/archive/` — the `/plan-*` commands glob `docs/plan/[0-9]*.md` directly so anything in `archive/` is automatically ignored.
+Do not delete or move the file — closed items stay in `docs/plan/` as the history record. To archive old closed items, move them manually into `docs/plan/archive/`; the `/plan-*` commands glob `docs/plan/[0-9]*.md` directly, so anything under `archive/` is ignored.
 
 Do not commit.

@@ -6,7 +6,7 @@ allowed-tools: Bash, Read, Write
 
 # plan-init — bootstrap docs/plan/
 
-Create the `docs/plan/` directory and seed `README.md`. After this runs, the user can create items with `/plan-add`.
+Create the `docs/plan/` directory and seed `README.md`.
 
 ## 1. Locate target
 
@@ -16,7 +16,7 @@ Find the repo root:
 ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
 ```
 
-If the user isn't in a git repo, stop and ask whether they want to `git init` first — planning history is worth almost nothing without version control. Don't proceed silently.
+If the user isn't in a git repo, stop and ask whether they want to `git init` first. Don't proceed silently.
 
 Target: `$ROOT/docs/plan/`.
 

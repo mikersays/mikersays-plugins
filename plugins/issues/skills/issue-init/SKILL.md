@@ -1,12 +1,12 @@
 ---
 name: issue-init
-description: Bootstrap a docs/issues/ folder in the current repo for tracking bugs, features, and incidents as one markdown file per issue. Use whenever the user wants to set up issue tracking inside a repo, asks for a "ticket folder" / "bug tracker folder" / "docs/issues directory", or before they file the first ticket. /issue-new auto-inits if missing, so /issue-init is primarily for explicit setup or for refreshing the seed README/INDEX. This is the bug-write-up cousin of /plan-init — pick this one when issues need a full diagnosis record (symptom, repro, root cause, fix, verification) and a branch-on-start workflow.
+description: Bootstrap a docs/issues/ folder in the current repo for tracking bugs, features, and incidents as one markdown file per issue. Use whenever the user wants to set up issue tracking inside a repo, asks for a "ticket folder" / "bug tracker folder" / "docs/issues directory", or before they file the first ticket. /issue-new auto-inits if missing, so /issue-init is primarily for explicit setup or for refreshing the seed README/INDEX. Cousin of /plan-init — pick this when issues need a full diagnosis record and a branch-on-start workflow.
 allowed-tools: Bash, Read, Write
 ---
 
 # issue-init — bootstrap docs/issues/
 
-Create the `docs/issues/` directory and seed `README.md` + `INDEX.md`. After this runs, the user can file tickets with `/issue-new`.
+Create the `docs/issues/` directory and seed `README.md` + `INDEX.md`.
 
 ## 1. Locate target
 
@@ -121,8 +121,6 @@ _(blocked on external decision or info)_
 
 _(closed tickets with commit SHA)_
 ````
-
-A flat "Open" section is the default. Once a project accumulates enough tickets that triage by priority would help, split `Open` into tiers (`Open — P0`, `Open — high`, `Open — medium`). Don't impose tiers up front.
 
 ## 6. Report
 
