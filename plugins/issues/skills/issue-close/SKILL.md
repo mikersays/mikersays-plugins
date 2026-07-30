@@ -32,7 +32,7 @@ If the resolved ticket has `**Status:** fixed`, print the existing `**Fixed:**` 
 Read the ticket's `## Verification` section. If it's empty (or `TBD`, or `Verification` is missing entirely):
 
 - Ask the user what they actually tested. Be specific: which steps, which roles or environments, expected vs. observed.
-- If the user can't name what they verified, **stop and don't close**. Closing without verification defeats the value of the ticket file — the next person hitting the same bug should trust that "fixed" means it was actually tested.
+- If the user can't name what they verified, **stop and don't close**.
 
 If `verified:"..."` was passed as an argument, use that text directly and skip the question.
 
@@ -51,7 +51,7 @@ default_branch=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's|
 git log "$default_branch" --grep="<NNNN>" --oneline -1
 ```
 
-If neither condition yields a clear answer, ask the user for the commit SHA directly (they'll usually have it from `gh pr merge` output or the PR page). Never stamp a SHA you can't tie to the ticket — it goes into the permanent `**Fixed:**` record.
+If neither condition yields a clear answer, ask the user for the commit SHA directly. Never stamp a SHA you can't tie to the ticket — it goes into the permanent `**Fixed:**` record.
 
 ## 6. Apply the close
 
@@ -69,7 +69,7 @@ Edit the ticket file:
   - Tested as <role/env>: <result>
   ```
 
-Don't rewrite the `## Symptom`, `## Reproduction`, or `## Root cause` sections — those are the historical diagnosis record. They stay as-is unless they were obviously wrong, in which case append a dated correction note rather than overwriting.
+Don't rewrite the `## Symptom`, `## Reproduction`, or `## Root cause` sections — those are the historical diagnosis record. If one was obviously wrong, append a dated correction note instead of overwriting.
 
 ## 7. Paired tickets
 
@@ -77,7 +77,7 @@ If the work shipped as a paired PR (mentioned in the ticket with `[[NNNN-slug]]`
 
 - Close both ticket files in the same turn.
 - Both get the same commit SHA and the same `**Fixed:**` date.
-- Each keeps its own `## Verification` — the two tickets typically test different observable behaviors even when shipped together. Ask separately for each ticket's verification text if it isn't already obvious.
+- Each keeps its own `## Verification`. Ask separately for each ticket's verification text if it isn't already obvious.
 
 ## 8. Update INDEX.md
 

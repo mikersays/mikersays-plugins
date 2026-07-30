@@ -1,6 +1,6 @@
 ---
 name: issue-start
-description: Begin work on an existing ticket in docs/issues/. Trigger when the user says "start ticket NNNN", "pick up issue 0016", "let's tackle the invoicing bug", "work on the Save Template thing", or otherwise indicates they're starting on something already filed. This skill enforces the project's alignment-before-implementing rule — before any code is written, the agent restates the symptom, shares a root-cause hypothesis (or names what needs read-only investigation first), proposes the minimum fix, and waits for the user to agree. Only then does it create a {domain}/{kebab} branch, flip the ticket's Status to in-progress, and move the line in docs/issues/INDEX.md to "In progress". This is the workflow-heavy cousin of /plan-update — pick this one when the work needs alignment and a dedicated branch, not just a status field flip.
+description: Begin work on an existing ticket in docs/issues/. Trigger when the user says "start ticket NNNN", "pick up issue 0016", "let's tackle the invoicing bug", "work on the Save Template thing", or otherwise indicates they're starting on something already filed. Enforces the alignment-before-implementing rule: restate the symptom, propose the minimum fix, and wait for the user's go before writing code. Then creates a {domain}/{kebab} branch, flips Status to in-progress, and updates INDEX.md. Cousin of /plan-update — pick this when the work needs alignment and a branch.
 argument-hint: "[id-or-slug — e.g. 16 or invoicing-missing]"
 allowed-tools: Bash, Read, Edit, Glob, Grep
 ---
@@ -45,7 +45,7 @@ If the user replies with a refinement, integrate it and re-confirm before procee
 
 Convention: `{domain}/{kebab-case-description}`. See conventions.md § *Branch naming convention* for the domain list.
 
-If the ticket file or INDEX line lists a planned branch name (some teams pre-pick branch names during triage), use that. Otherwise propose one and confirm with the user before creating.
+If the ticket file or INDEX line lists a planned branch name, use that. Otherwise propose one and confirm with the user before creating.
 
 ```bash
 git status --porcelain

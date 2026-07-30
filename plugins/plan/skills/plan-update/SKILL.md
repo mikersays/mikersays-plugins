@@ -75,7 +75,7 @@ Always bump `updated:` to today, even if only a note was appended.
 
 For `note:"..."`, append after existing body content per operations.md § *Append a dated note*.
 
-For `status:done` — also set `closed:` to today and append `## <today>\n\nClosed.` if no `note:` was provided. `/plan-close` is the cleaner entry point for closing (it accepts a `reason:"..."`), but accepting `status:done` here keeps the update interface composable for bulk edits.
+For `status:done` — also set `closed:` to today and append `## <today>\n\nClosed.` if no `note:` was provided.
 
 For any status change away from `done` on an item that has a `closed:` line — delete the `closed:` line (schema: `closed` is present iff `status: done`) and append `## <today>\n\nReopened.` if no `note:` was provided.
 

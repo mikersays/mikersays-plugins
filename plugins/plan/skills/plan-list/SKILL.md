@@ -55,7 +55,7 @@ else
 fi
 ```
 
-For each item with a `due` value, apply the filter using string comparison (POSIX `\<` / `\>` in `[ ]` are lexical and work correctly on ISO dates):
+For each item with a `due` value, apply the filter using string comparison:
 
 ```bash
 case "$filter_due" in
@@ -92,7 +92,7 @@ One markdown table per non-empty group:
 Render notes:
 
 - Empty cells stay blank (no `-`, no `null`).
-- For the `done` group when shown, use columns `ID | Title | Closed` instead of priority/due/tags — those don't matter once it's done.
+- For the `done` group when shown, use columns `ID | Title | Closed` instead of priority/due/tags.
 - If filters produce zero results, say so and echo back the active filter set.
 
 ## 4. Tail summary
@@ -115,4 +115,4 @@ If any non-done item in the rendered output has `due < today`, prepend a one-lin
 
 > ⚠ X items are overdue.
 
-Don't repeat the items — they're already visible in the table.
+Don't repeat the items.
