@@ -13,23 +13,18 @@ STE output is meant to look constrained. Short declarative sentences, repeated n
 
 ## When to use this, and when not to
 
-Use `/ste` for:
-
-- Safety-critical procedures, runbooks, and incident playbooks.
-- Installation, maintenance, and operating instructions.
-- Documents headed for translation, or written for readers with limited English.
-- Anywhere a misread step costs money, hardware, or a person.
+Use `/ste` for safety-critical procedures, runbooks and incident playbooks, installation and maintenance instructions, and any document headed for translation or for readers with limited English.
 
 Do not use `/ste` for marketing pages, conceptual essays, changelogs, blog posts, or anything where natural register matters.
 
-**This skill deliberately contradicts `/tech-writer`.** They encode two different standards. Never run both over the same file, and never "fix" STE output with `/tech-writer` — see [Where STE and /tech-writer disagree](#where-ste-and-tech-writer-disagree).
+**This skill deliberately contradicts `/tech-writer`.** Never run both over the same file, and never "fix" STE output with `/tech-writer` — see [Where STE and /tech-writer disagree](#where-ste-and-tech-writer-disagree).
 
 ## Process
 
 1. **Pick the target file.** Use `$ARGUMENTS` if given. If that path does not exist, run Glob for similar filenames and confirm with the user before you edit anything. Otherwise use the file in context. If neither exists, ask.
 2. **Read the whole file**, then classify every block as **procedural**, **descriptive**, or **safety**. The rules differ by class, and applying the wrong class is the most common way to get STE wrong.
 3. **Rewrite in place, class by class.** Where a substitution will not fit, rebuild the sentence (rule 9.1a). Do not force a word-for-word swap that damages the meaning.
-4. **Report by rule group.** Include a word count for any sentence at or over its cap, and list every term you could not convert without changing the meaning.
+4. **Report** using the Output format below.
 
 ## Boundaries
 
@@ -81,6 +76,8 @@ Do not use `/ste` for marketing pages, conceptual essays, changelogs, blog posts
 
 - Before: `Email the incident report to the on-call engineer.`
 - After: `Send the incident report to the on-call engineer by e-mail.`
+- Before: `Firewall the management port on every edge node.`
+- After: `Block the management port on every edge node with the firewall.`
 
 **1.8 — Use the established name.** Where your company, industry, or subject field already has a settled name for a component or process, use exactly that name. Do not invent your own.
 
@@ -116,11 +113,6 @@ Do not use `/ste` for marketing pages, conceptual essays, changelogs, blog posts
 
 - Before: `Process the source image to 8-bit indexed color.`
 - After: `Convert the source image to 8-bit indexed color.`
-
-**1.12c — Never verb a tool, part, or material,** unless that word also qualifies on its own under a technical-verb category (see 1.7). Otherwise use an approved verb plus a technical noun.
-
-- Before: `Firewall the management port on every edge node.`
-- After: `Block the management port on every edge node with the firewall.`
 
 **1.12d — Subject-field sense only.** A word admitted as a technical verb is legal only in the sense that qualified it. Its unrelated everyday senses stay out.
 
@@ -180,15 +172,12 @@ Do not use `/ste` for marketing pages, conceptual essays, changelogs, blog posts
 
 ## 3. Verbs
 
-**3.1 — Approved verbs, approved inflections.** Use only the verbs the dictionary lists, in only the forms it prints. Do not coin a verb or an inflection.
-
-- Before: `The platform sunsets the v1 endpoint on 1 June, and the proxy transparently backfills the missing fields.`
-- After: `We remove the v1 endpoint on 1 June. The proxy adds the missing fields.`
-
 **3.2 — Six verb shapes only:** infinitive, imperative, simple present, simple past, simple future, and past participle used as an adjective. No perfect tenses, no progressives, no other multi-word tense.
 
 - Before: `The agent has been polling the queue since startup, and by the time the alert fired it had already retried three times.`
 - After: `The agent polls the queue after startup. The agent retried three times before the alert started.`
+- Before: `The platform sunsets the v1 endpoint on 1 June, and the proxy transparently backfills the missing fields.`
+- After: `We remove the v1 endpoint on 1 June. The proxy adds the missing fields.`
 
 **3.3a — Participles state a condition.** A past participle may state the condition of a thing, directly in front of the noun or after `be`, `become`, or `stay`. That is an adjective, not passive voice. Do not "fix" it into an active construction.
 
@@ -263,8 +252,6 @@ Do not use `/ste` for marketing pages, conceptual essays, changelogs, blog posts
 
 - Before: `Replication corrupted the row.` (the source said only that the row was corrupted during replication)
 - After: `During replication, something corrupted the row.`
-
-**3.6i — Classify before you rewrite a modal passive.** Decide whether the sentence is a procedure or a description, then choose deliberately: an imperative for the procedure, a named subject with an active modal for the description.
 
 **3.7a — Action in the verb, not the noun.** `gives an indication of` → `shows`; `before the removal of` → `before you remove`.
 
@@ -413,7 +400,7 @@ Do not use `/ste` for marketing pages, conceptual essays, changelogs, blog posts
 - Before: `NOTE: The service account must hold roles/storage.admin before the sync starts. 1. Start the sync job.`
 - After: `1. Make sure that the service account holds roles/storage.admin. 2. Start the sync job.`
 
-The note carried a requirement, so it becomes a step and no note remains. Do not invent replacement background to keep the note alive.
+Do not invent replacement background to keep the note alive.
 
 **5.5a — Notes may run to several sentences,** each capped at 25 words.
 
@@ -453,7 +440,7 @@ The note carried a requirement, so it becomes a step and no note remains. Do not
 
 **6.3 — 25 words per descriptive sentence, maximum.**
 
-**6.4 — Paragraphs carry the structure** that numbered steps carry in a procedure. A new paragraph tells the reader that a new subject or a different kind of information is starting.
+**6.4 — Start a new paragraph** at a new subject or a new kind of information.
 
 **6.5 — One topic per paragraph, opened by a topic sentence** that names the topic and links back to what came before. Read end to end, the topic sentences should form a usable outline.
 
@@ -614,6 +601,6 @@ After rewriting, report like this:
 
 ## Source and attribution
 
-The rules above are paraphrased from **ASD-STE100 Simplified Technical English, Issue 9** (January 2025), the standard for technical documentation published by the AeroSpace, Security and Defence Industries Association of Europe. Rule numbers are kept as citation anchors so you can check any paraphrase against the standard itself. Only the bare numbers are ASD's: the standard numbers its rules 1.1–1.14, 2.1–2.2, 3.1–3.7, 4.1–4.5, 5.1–5.5, 6.1–6.6, 7.1–7.3, 8.1–8.7, and 9.1–9.4, plus general recommendations GR-1 to GR-8. The letter suffixes used above (1.2a, 3.6f/g, 8.3a–g, GR-2b, and the rest) are this plugin's own subdivision of a single ASD rule and do not appear in ASD-STE100.
+The rules above are paraphrased from **ASD-STE100 Simplified Technical English, Issue 9** (January 2025), the standard for technical documentation published by the AeroSpace, Security and Defence Industries Association of Europe. Rule numbers are kept as citation anchors so you can check any paraphrase against the standard itself. The letter suffixes used above (1.2a, 3.6f/g, GR-2b, and the rest) are this plugin's own subdivisions and do not appear in ASD-STE100.
 
-ASD-STE100 is © ASD. This plugin is not affiliated with, endorsed by, or approved by ASD. It does not reproduce the standard's text, and it does not contain the ASD approved-word dictionary. The substitution table is a 122-entry selection of not-approved-word entries and their ASD-assigned alternatives drawn from that dictionary; it cannot tell you whether any other word is approved. For authoritative use, obtain ASD-STE100 from ASD directly.
+ASD-STE100 is © ASD. This plugin is not affiliated with, endorsed by, or approved by ASD. It does not reproduce the standard's text, and it does not contain the ASD approved-word dictionary; the substitution table is a 122-entry selection of not-approved-word entries and their ASD-assigned alternatives drawn from that dictionary. For authoritative use, obtain ASD-STE100 from ASD directly.

@@ -7,7 +7,7 @@ allowed-tools: Read, Write, Edit, Glob, AskUserQuestion
 
 # Slop
 
-Rewrite text so it trips **every** signal people use to detect AI writing — all at once, turned up to the maximum. This is the evil twin of `tech-writer`: where that plugin strips the tells out, this one packs all of them back in. Same meaning, peak machine smell.
+Rewrite text so it trips **every** signal people use to detect AI writing — all at once, turned up to the maximum. Same meaning, peak machine smell.
 
 It's a parody tool. Use it to stress-test AI detectors, to *show* people what the tells actually look like, to generate cursed examples, or for a laugh. The goal is to be detectably, gloriously, unmistakably AI-generated.
 
@@ -32,9 +32,7 @@ When in doubt, choose the more obviously-AI option. Within the chosen tier there
 
 ## The slop tiers — the obnoxiometer
 
-Slop is a dial, not a switch. Each tier sets the **ceiling**: which families of tells are in play and roughly how dense. A higher tier is a strict superset of the one below it. Pick the lowest tier that meets the user's intent — then max it out.
-
-The six `### Punctuation`, `### Vocabulary`, `### Rhetorical`, `### Structure`, `### Formatting`, and `### Tone` catalogs below are the full payload (Tier 4). Each tier draws from a growing slice of it.
+Each tier sets the **ceiling**: which families of tells are in play and roughly how dense. A higher tier is a strict superset of the one below it. Pick the lowest tier that meets the user's intent — then max it out.
 
 | Tier | Name | Obnoxiometer | Tells in play | Reads like |
 |---|---|---|---|---|
@@ -45,7 +43,7 @@ The six `### Punctuation`, `### Vocabulary`, `### Rhetorical`, `### Structure`, 
 
 **Selecting from fuzzy input:** "light / subtle / a little" → 1. "normal / medium / corporate" → 2. "heavy / linkedin / cranked" → 3. "max / nuclear / unhinged / 10000 / to the moon" → 4. A bare number: 1–2 → Tier 1, 3–4 → Tier 2, 5–7 → Tier 3, 8+ → Tier 4.
 
-**Length constraints compose with tiers.** If the text must fit a limit (a tweet, a LinkedIn 3,000-char cap), keep the chosen tier's *density* and trim *length* — cut whole paragraphs, not the tells. A higher tier in a tight space just means more tells per character.
+**Length constraints compose with tiers.** If the text must fit a limit (a tweet, a LinkedIn 3,000-char cap), keep the chosen tier's *density* and trim *length* — cut whole paragraphs, not the tells.
 
 ---
 
@@ -177,5 +175,3 @@ Same input, climbing the obnoxiometer.
 > In conclusion, this groundbreaking update is more than a refactor—it's a complex and multifaceted leap forward, marking a pivotal moment in our journey. Whether you're a seasoned engineer or just starting out, this is a game-changer.
 >
 > I hope this helps! Let me know if you have any other questions. 😊
-
-Notice the climb: Tier 1 reads like a human trying too hard; Tier 2 adds the corporate scaffolding and bullets; Tier 4 fires several tells *per paragraph* — em-dashes, not-X-but-Y, the "delve" cluster, inflated verbs, stock adjectives, the rule of three, bold-colon bullets, emoji, rhetorical-question-answered, "In conclusion," "Whether you're," servile open and close. That's the Tier 4 target density.

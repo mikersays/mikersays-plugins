@@ -7,9 +7,7 @@ allowed-tools: Write, Read, Edit, Bash, Agent, AskUserQuestion, Glob, Grep, WebS
 
 # Monograph — Build a scholarly GitHub Pages site on a topic
 
-This skill orchestrates a team of parallel subagents to produce a multi-page, PhD-level long-form essay site about a single subject. The output lives in `docs/` so GitHub Pages can serve it directly from the repo's `/docs` folder.
-
-The **design is chosen fresh** for every topic — there is no template aesthetic. Two topics, two sites that look nothing alike.
+The output lives in `docs/` so GitHub Pages can serve it directly from the repo's `/docs` folder.
 
 ---
 
@@ -37,7 +35,7 @@ Body essay is **8,000–12,000 words** across all pages. Bibliography is **30–
 
 ## The team
 
-You are the **orchestrator**. You make the topic-shaping decisions, write the design system, build the index/references pages, and verify the result. You delegate three kinds of work to subagents (via the `Agent` tool, `subagent_type: general-purpose`):
+You are the **orchestrator**. You delegate three kinds of work to subagents (via the `Agent` tool, `subagent_type: general-purpose`):
 
 | Agent | Count | Job |
 |---|---|---|
@@ -128,7 +126,7 @@ Think through these axes, in this order:
    - Sport → a stopwatch / lap counter
    - Cinema → a film-leader countdown digit
    - Architecture → an isometric elevation that rotates per page
-   - Make one up if none of these fit. The signature is not optional. It is what makes the site memorable.
+   - Make one up if none of these fit. The signature is not optional.
 
 3. **Typography pairing.** Distinctive display × refined body × technical mono. **Never Inter / Roboto / Arial on the display.** All of these are on Google Fonts, so the build can actually load them. Cycle through pairings — never reuse one within a session:
 
@@ -285,7 +283,7 @@ Surface the concern; propose an adjacent topic that works.
 
 ## A note on token budget
 
-A full monograph build costs **roughly 500K–800K tokens** across all agents. The user should know this before you start a build on a tight budget. If they explicitly want a smaller build:
+A full build costs **roughly 500K–800K tokens** across all agents. Tell the user before starting. If they explicitly want a smaller build:
 
 - Reduce to 3 chapters
 - Reduce body word target to 800–1200 per chapter
