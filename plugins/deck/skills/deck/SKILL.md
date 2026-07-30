@@ -17,11 +17,11 @@ Produce a single `.html` file the user can double-click to present: scroll-snap 
 4. **Open it.** Try `open` (macOS) or `xdg-open` (Linux). If that fails, print the absolute path so the user can open it themselves.
 5. **Report** the path and slide count.
 
-If you don't know the topic well enough to fill 8 slides accurately, say so and ask for source material rather than inventing content. Lorem ipsum and filler defeat the point of the deck.
+If you don't know the topic well enough to fill 8 slides accurately, say so and ask for source material rather than inventing content.
 
 ## File structure
 
-The HTML file has three parts: a `<style>` block (use the template below verbatim), a sequence of `<div class="slide">` elements, and a `<script>` block for keyboard nav. Everything inline — no CDNs, no external CSS or JS — so the file works offline and travels as a single attachment.
+The HTML file has three parts: a `<style>` block (use the template below verbatim), a sequence of `<div class="slide">` elements, and a `<script>` block for keyboard nav. Everything inline — no CDNs, no external CSS or JS.
 
 ### Style template
 
@@ -207,9 +207,9 @@ Drop these into the `<!-- SLIDES GO HERE -->` slot. The class controls the layou
 
 ## Slide content guidance
 
-- One idea per slide. If a slide has more than ~5 bullets or covers two distinct points, split it — dense slides read as walls of text at presentation size.
-- Vary the shape. A deck of identical bullet lists is boring; mix in short paragraphs, a code block, a single emphasized sentence. The CSS already styles `<pre><code>`, `<strong>`, and `<em>` for this.
+- One idea per slide. If a slide has more than ~5 bullets or covers two distinct points, split it.
+- Vary the shape: mix in short paragraphs, a code block, a single emphasized sentence. The CSS already styles `<pre><code>`, `<strong>`, and `<em>` for this.
 - Keep code blocks under ~12 lines so they fit the viewport without scrolling.
-- Give every slide an empty `<div class="slide-number"></div>` — the script fills in N / TOTAL automatically so the audience can orient themselves.
-- Every slide needs a heading (`<h1>` on the title, `<h2>` elsewhere) — that's what makes it feel like a slide rather than a paragraph.
+- Give every slide an empty `<div class="slide-number"></div>` — the script fills in N / TOTAL automatically.
+- Every slide needs a heading (`<h1>` on the title, `<h2>` elsewhere).
 - No `<img>`, no remote fonts, no `<link>`/`<script src>` to anything off-disk. The file should render identically on a plane with no wifi.
