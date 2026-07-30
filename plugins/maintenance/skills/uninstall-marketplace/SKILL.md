@@ -58,7 +58,7 @@ curl -sL https://raw.githubusercontent.com/mikersays/mikersays-plugins/master/UN
   | codex exec --full-auto --add-dir ~/.codex --add-dir ~/.agents --skip-git-repo-check -
 ```
 
-`--add-dir` is scoped to the two directories the uninstaller writes to, so a misbehaving step cannot reach anywhere else. Capture and surface the full output — the user needs to see what each step did.
+Capture and surface the full output — the user needs to see what each step did.
 
 ### 4. Verify
 

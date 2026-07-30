@@ -28,8 +28,6 @@ The script handles: repo check, clean-tree early exit, `git add -A`, commit (wit
 
 ## Constraints
 
-These rules exist because shipping is fast and irreversible — the safeguards keep that speed from turning destructive.
-
 - No force pushes. They rewrite remote history and can erase teammates' work.
 - No `--no-verify`. Pre-commit hooks exist for a reason; bypassing them ships broken code.
 - On push, auth, conflict, or any non-hook failure: report the error verbatim and stop. Retrying blindly hides the real problem.

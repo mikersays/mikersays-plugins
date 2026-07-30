@@ -7,7 +7,7 @@ allowed-tools: Bash
 
 # PR — Create a GitHub Pull Request
 
-Analyze the current branch and open a pull request via `gh pr create`. The user invokes this when their work is ready for review.
+Analyze the current branch and open a pull request via `gh pr create`.
 
 ## 1. Preflight
 
@@ -80,7 +80,7 @@ EOF
 
 Pass `--base` explicitly so the PR targets the branch you detected, not whatever GitHub guesses. End the body with a `---` separator and an attribution line naming the agent that generated it (e.g. `Generated with [Claude Code](https://claude.com/claude-code)` or the Codex CLI equivalent).
 
-If `gh pr create` fails, show the full error. Most failures map to a preflight check that should have caught the issue (auth, no commits, unpushed branch); a title that's too long or contains invalid characters is the main runtime case — shorten and retry.
+If `gh pr create` fails, show the full error. A too-long or invalid title is the main runtime failure — shorten and retry.
 
 ## 6. Report
 

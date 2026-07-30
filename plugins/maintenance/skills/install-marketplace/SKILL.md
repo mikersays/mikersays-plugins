@@ -7,7 +7,7 @@ allowed-tools: Bash
 
 # install-marketplace
 
-Run the canonical native Codex plugin flow to do a fresh install, validate installer changes, or recover a broken setup. The installer writes Codex marketplace and plugin state under `~/.codex`.
+Run the canonical native Codex plugin flow. The installer writes Codex marketplace and plugin state under `~/.codex`.
 
 ## 1. Check prerequisites
 
