@@ -10,6 +10,7 @@
 - **Image research agent** finds and downloads 15–30 Wikimedia Commons / CC-licensed photographs with full attribution
 - **Chapter builders** (3–5, in parallel) each produce one 1,200–2,200 word chapter page following a shared design system
 - The orchestrator commits to a **distinctive aesthetic chosen for the topic** — typography, palette, layout, and a recurring "signature element" (a live ticking clock, a moving star map, a stopwatch, etc.) that telegraphs the subject at a glance
+- The design pass checks [Canvas UI](https://canvasui.dev/) and its [component gallery](https://canvasui.dev/components) for at most one topic-relevant canvas/WebGL signature effect, with local no-build assets, fallbacks, reduced-motion support, and licensing preserved
 - A bibliography + per-image-credits page is generated automatically
 - The whole site is verified in a headless browser before shipping
 

@@ -8,6 +8,7 @@
 
 - A **curriculum architect** designs the ordered zero→hero learning path — modules, prerequisites, and per-module learning objectives.
 - The orchestrator invokes the `frontend-design` skill (`/frontend-design:frontend-design`) to commit to a distinctive aesthetic and build the design system + interaction layer (progress tracking, quizzes, solution reveals, copy-code, a signature interactive element).
+- The design pass checks [Canvas UI](https://canvasui.dev/) and its [component gallery](https://canvasui.dev/components) for at most one subject-relevant canvas/WebGL signature effect, shipped locally with fallbacks, reduced-motion support, and licensing preserved.
 - **Content experts** (one per module, in parallel) write deep teaching dossiers — explanations, correct/runnable worked examples, exercises with solutions, common misconceptions, and checkpoint quizzes.
 - **Module builders** (one per module, in parallel) turn each dossier into a polished, consistent HTML page.
 - A **capstone author** designs an integrative project with a spec, rubric, and reference solution.

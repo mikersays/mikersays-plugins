@@ -165,6 +165,15 @@ Think through these axes, in this order:
 
 7. **Motion.** One well-orchestrated hero entrance (staggered fade) is plenty. Avoid scattered hover micro-interactions. The signature element should have its own life (ticking clock, rotating elevation, pulsing locator). Otherwise restraint.
 
+#### Canvas UI pass
+
+Browse [Canvas UI](https://canvasui.dev/) and its [component gallery](https://canvasui.dev/components) while choosing the signature element. Consider one of its creative canvas/WebGL effects when it has a precise relationship to the topic; this is a required design check, not permission to make the whole essay visually noisy. Use at most one effect and make it serve the monograph's concept, hierarchy, or narrative.
+
+- Prefer the vanilla implementation. Keep all shipped source local under `docs/assets/`; if TypeScript or bundling is required, produce and commit browser-ready JavaScript during authoring so GitHub Pages still serves a no-build static site. Do not depend on a CDN at runtime.
+- Preserve Canvas UI's copyright and permission notice in the copied source or `docs/THIRD_PARTY_NOTICES.md`. Do not redistribute the component as a standalone library.
+- The scholarly text, links, and navigation must remain fully usable without the effect. Add a non-WebGL fallback, honor `prefers-reduced-motion`, and verify keyboard, pointer, touch, mobile layout, and performance.
+- If no component strengthens the chosen direction, say so in `_research/design_brief.md` and implement the signature element directly.
+
 Write up the chosen direction in a short `_research/design_brief.md` file (~200 words) — palette tokens, font picks, signature element concept, layout primitives. This will be referenced by all chapter builders so they stay coherent.
 
 ### Phase 4 — Design system + index (orchestrator, ~10–15 min)

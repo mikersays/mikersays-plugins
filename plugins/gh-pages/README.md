@@ -11,6 +11,8 @@ Build or publish a static site on GitHub Pages the right way: every site file go
 
 The skill also triggers implicitly — "make me a GitHub Pages site for X" or "publish this on GitHub Pages" is enough.
 
+For new sites and substantial redesigns, the design pass checks [Canvas UI](https://canvasui.dev/) and its [component gallery](https://canvasui.dev/components) for one purposeful canvas/WebGL effect. Any selected component is adapted to the no-build static-site contract, shipped locally with a fallback and reduced-motion support, and tested before deployment; if no effect fits, the site stays purpose-built HTML/CSS/JS.
+
 ## What it does
 
 1. Writes (or moves) the site into `docs/` — `docs/index.html` entry point, relative asset URLs, `.nojekyll`
