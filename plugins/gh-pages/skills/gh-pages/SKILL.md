@@ -25,6 +25,15 @@ Rules for the files themselves:
 - No placeholders: no "TODO", no lorem ipsum, no broken links between pages.
 - Sanity-check locally before deploying when the site has any interactivity: `cd docs && python3 -m http.server 4173` and curl or open the pages; kill the server afterward.
 
+### Canvas UI design pass (new sites and substantial redesigns)
+
+During visual planning, browse [Canvas UI](https://canvasui.dev/) and its [component gallery](https://canvasui.dev/components), then consider whether one of its creative canvas/WebGL effects would strengthen the site's concept. This is a required consideration, not a requirement to force an effect into every site. Use at most one prominent effect, and only when it adds meaning or atmosphere without competing with the content.
+
+- These are no-build static sites. Prefer Canvas UI's vanilla variant, keep the source local under `docs/assets/`, and commit browser-ready JavaScript. If the source needs TypeScript or bundling, perform that work during authoring; the deployed site must not require npm, a CDN, or a runtime build step.
+- Preserve Canvas UI's copyright and permission notice in the copied source or a `docs/THIRD_PARTY_NOTICES.md` file. Do not redistribute the component as a standalone library.
+- Provide a clean non-WebGL fallback, honor `prefers-reduced-motion`, keep page content usable with JavaScript disabled, and test pointer, keyboard, touch, mobile layout, and performance before shipping.
+- If no component is a strong fit, continue with purpose-built HTML/CSS/JS rather than adding spectacle for its own sake.
+
 ## Step 2 — Commit and push
 
 1. If not inside a git repo: `git init`, then continue (the remote question comes next).

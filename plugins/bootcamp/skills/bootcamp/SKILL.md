@@ -146,6 +146,13 @@ Spawn **in one message** one content expert per module (subagents). While they w
 - `_course/design_brief.md` — ~200 words capturing the aesthetic + the exact CSS classes/markup contract module builders must follow, so every page is visually and behaviorally consistent. It must include a **Mobile** section restating the contract in terms of *this* design system: the breakpoints, which components collapse or reflow at phone width, how the nav behaves on a small screen, and the required `<head>` viewport tag.
 Aim for an aesthetic that fits the subject and the energy of a bootcamp; **avoid generic AI-template look** (no Inter-on-white, no purple gradient hero). Distinct, confident, legible for long study sessions. If the `frontend-design` skill is not installed, design the system yourself to the same constraints above and still produce all three artifacts, including the `design_brief.md` contract.
 
+**Canvas UI pass.** While designing the signature interaction, browse [Canvas UI](https://canvasui.dev/) and its [component gallery](https://canvasui.dev/components), then consider whether one of its canvas/WebGL components directly supports the subject or learning experience. This check is required, but using a component is optional. Choose at most one prominent effect, and never let it interfere with reading, exercises, quizzes, code entry, or progress controls.
+
+- Prefer Canvas UI's vanilla implementation. Keep shipped source local under `docs/assets/`; when TypeScript or bundling is required, produce and commit browser-ready JavaScript during authoring so the deployed GitHub Pages site remains static and no-build. Do not rely on a runtime CDN.
+- Preserve Canvas UI's copyright and permission notice in the copied source or `docs/THIRD_PARTY_NOTICES.md`. Do not redistribute the component as a standalone library.
+- The course must work without the effect. Add a non-WebGL fallback, honor `prefers-reduced-motion`, and include the component in the mobile/touch, keyboard, performance, and JavaScript-disabled QA passes.
+- Record the selected component and integration contract in `_course/design_brief.md`. If none fits, record that decision and build the signature interaction directly.
+
 **Content experts** (one per module). Brief each with: the topic, the **full curriculum** (so they stay in their lane and reference neighbors correctly), their module's objectives, and the output path `_course/modules/<slug>.md`. Each dossier must contain:
 - A plain-language intro that assumes only the stated prerequisites — **never** assume knowledge from a later module.
 - Lessons that build one concept at a time, smallest viable steps.
