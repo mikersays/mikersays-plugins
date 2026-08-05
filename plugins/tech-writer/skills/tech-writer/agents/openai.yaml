@@ -1,5 +1,6 @@
 interface:
   display_name: Tech Writer
-  short_description: Review and rewrite documentation using Google's Technical Writing guidelines
+  short_description: Review and rewrite documentation using Google's Technical Writing guidelines or Simplified Technical English (ASD-STE100)
 policy:
   allow_implicit_invocation: true
+

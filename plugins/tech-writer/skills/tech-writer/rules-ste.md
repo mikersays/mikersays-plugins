@@ -1,30 +1,14 @@
----
-name: ste
-description: Rewrite documentation into Simplified Technical English following the rules of ASD-STE100 Issue 9. Use when asked for STE, Simplified Technical English, controlled language, or docs that must survive translation and non-native readers.
-argument-hint: "[file path]"
-allowed-tools: Read, Write, Edit, Glob, Grep
----
-
-# Simplified Technical English
+# Simplified Technical English rules
 
 Rewrite a document into Simplified Technical English (STE), the controlled language defined by ASD-STE100. STE is not a style preference. It is a restricted subset of English — a fixed vocabulary, six verb forms, and hard sentence-length limits — designed so that a procedure means exactly one thing to a reader whose English is weak, to a translator, and to a machine.
 
 STE output is meant to look constrained. Short declarative sentences, repeated nouns, and no variety for variety's sake are the point, not a failure of the rewrite.
 
-## When to use this, and when not to
-
-Use `/ste` for safety-critical procedures, runbooks and incident playbooks, installation and maintenance instructions, and any document headed for translation or for readers with limited English.
-
-Do not use `/ste` for marketing pages, conceptual essays, changelogs, blog posts, or anything where natural register matters.
-
-**This skill deliberately contradicts `/tech-writer`.** Never run both over the same file, and never "fix" STE output with `/tech-writer` — see [Where STE and /tech-writer disagree](#where-ste-and-tech-writer-disagree).
-
 ## Process
 
-1. **Pick the target file.** Use `$ARGUMENTS` if given. If that path does not exist, run Glob for similar filenames and confirm with the user before you edit anything. Otherwise use the file in context. If neither exists, ask.
-2. **Read the whole file**, then classify every block as **procedural**, **descriptive**, or **safety**. The rules differ by class, and applying the wrong class is the most common way to get STE wrong.
-3. **Rewrite in place, class by class.** Where a substitution will not fit, rebuild the sentence (rule 9.1a). Do not force a word-for-word swap that damages the meaning.
-4. **Report** using the Output format below.
+1. **Read the whole file**, then classify every block as **procedural**, **descriptive**, or **safety**. The rules differ by class, and applying the wrong class is the most common way to get STE wrong.
+2. **Rewrite in place, class by class.** Where a substitution will not fit, rebuild the sentence (rule 9.1a). Do not force a word-for-word swap that damages the meaning.
+3. **Report** using the Output format below.
 
 ## Boundaries
 
@@ -558,23 +542,6 @@ Do not invent replacement background to keep the note alive.
 ## Word substitutions
 
 For a curated table of common unapproved words and their approved replacements, read `substitutions.md` in this skill's directory. Consult it whenever you need a replacement and apply rule 1.2a: where the replacement changes part of speech, rebuild the sentence rather than swapping the word in place.
-
-## Where STE and /tech-writer disagree
-
-These are intentional divergences, not bugs. Do not "correct" one skill's output with the other.
-
-| Subject | STE (`/ste`) | Google (`/tech-writer`) |
-|---|---|---|
-| Nouns used as verbs | Banned. `Do a test of the response.` | Fine — strong specific verbs are preferred |
-| Sentence length | Hard cap: 20 words procedural, 25 descriptive | Semantic test only: one idea per sentence |
-| `-ing` forms | Banned outside a small approved set and technical nouns | Restricted only in chained participial phrases; otherwise allowed |
-| Procedure headings | Gerund headings permitted: `## Packaging` | Reader's task: `## Package the release` |
-| First person | `we` allowed where the organization is the actor | Use `you`, not `we` |
-| Contractions | Expanded in full | Left alone |
-| List punctuation | Terminal period after the last fragment | Strictly parallel punctuation across items |
-| Phrasal verbs | Replaced with single verbs | Kept — `log in`, `roll back`, `spin up` |
-| Imperatives in prose | Banned outside procedures | Fine where it reads naturally |
-| Severity labels | `WARNING` and `CAUTION` by convention | Note and Warning callouts; no fixed severity vocabulary |
 
 ## Output format
 

@@ -45,7 +45,7 @@ Codex records the marketplace and installed plugins in `~/.codex/config.toml`, t
 | Plugin | Description | Usage |
 |--------|-------------|-------|
 | [ship](plugins/ship/) | Git commit and push in one command | `/ship [message]` |
-| [tech-writer](plugins/tech-writer/) | Review and rewrite docs using Google's Technical Writing guidelines | `/tech-writer [file path]` |
+| [tech-writer](plugins/tech-writer/) | Review and rewrite docs using Google's Technical Writing guidelines or Simplified Technical English | `/tech-writer [file path] [ste\|google]` |
 | [deck](plugins/deck/) | Generate a self-contained HTML slide deck from a topic | `/deck [topic]` |
 | [roadmap](plugins/roadmap/) | Generate a visual HTML Gantt-chart roadmap from a markdown file | `/roadmap [file]` |
 | [diagram](plugins/diagram/) | Generate interactive SVG diagrams from a description | `/diagram [description]` |

@@ -1,6 +1,6 @@
 # STE word substitutions
 
-A curated table of common unapproved words and their approved STE replacements, selected for words that actually appear in software and technical documentation. Use it with `/ste`.
+A curated table of common unapproved words and their approved STE replacements, selected for words that actually appear in software and technical documentation. Use it with `/tech-writer` when it applies the Simplified Technical English standard.
 
 **This is not the ASD-STE100 dictionary.** The standard approves roughly 875 words and lists about 1,274 unapproved ones. This table is a selection of ASD's not-approved-word entries and their ASD-assigned alternatives, narrowed to the entries that matter for the kind of documents this plugin sees. It is a starting point, not an authority: a word missing from this table is not thereby approved, and the plugin cannot verify approval status. For authoritative work, obtain ASD-STE100 Issue 9 from ASD.
 

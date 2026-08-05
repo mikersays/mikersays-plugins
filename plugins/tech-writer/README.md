@@ -1,27 +1,43 @@
 # tech-writer
 
-Two documentation rewriters in one plugin:
+One documentation rewriter, two standards. `/tech-writer` reads the document, picks the standard that fits it, and applies exactly that one:
 
-- **`/tech-writer`** — Google's Technical Writing One and Two guidelines, extended with clarity rules adapted from ASD-STE100 Issue 9. For READMEs, API docs, guides, and ordinary prose.
-- **`/ste`** — strict Simplified Technical English (ASD-STE100 Issue 9). For safety-critical procedures, runbooks, maintenance manuals, and documents headed for translation.
+- **Google's Technical Writing One and Two** guidelines, extended with clarity rules adapted from ASD-STE100 Issue 9. The default — for READMEs, API docs, guides, and ordinary prose.
+- **Simplified Technical English** (ASD-STE100 Issue 9), strict. For safety-critical procedures, runbooks, maintenance manuals, and documents headed for translation.
 
 ## Usage
 
 ```
-/tech-writer path/to/document.md   # review a specific file
-/tech-writer                       # review the file currently in context
+/tech-writer path/to/document.md        # pick the standard automatically
+/tech-writer                            # review the file currently in context
 
-/ste path/to/runbook.md            # rewrite into Simplified Technical English
+/tech-writer path/to/runbook.md ste     # force Simplified Technical English
+/tech-writer path/to/README.md google   # force Google's guidelines
 ```
+
+An explicit request always wins — `ste`, `Simplified Technical English`, `ASD-STE100`, `controlled language`, "for translation," or `google` and `Google style` in the arguments or the surrounding request. Otherwise the skill classifies the document: procedures, runbooks, incident playbooks, and installation or maintenance manuals go to STE; everything else goes to Google. On a genuine toss-up — a runbook in a conversational register, a doc that mixes procedure and narrative — it asks you rather than guessing.
 
 ## What it does
 
-1. Reads the target document
-2. Applies every applicable rule
-3. Rewrites the file in place
-4. Reports a summary of changes grouped by rule category
+1. Picks the standard, and states which one and why
+2. Reads the target document in full
+3. Reads only the matching rule file, then applies every applicable rule
+4. Rewrites the file in place
+5. Reports a summary of changes in that standard's output format
 
-## `/tech-writer` rules applied
+## Layout
+
+```
+skills/tech-writer/SKILL.md         ← router: picks the standard, shared boundaries
+skills/tech-writer/rules-google.md  ← Google Technical Writing rules, with examples
+skills/tech-writer/rules-ste.md     ← the nine ASD-STE100 rule sections, with examples
+skills/tech-writer/substitutions.md ← 122 unapproved words and their approved replacements
+agents/tech-writer.md               ← background subagent, both standards inlined
+```
+
+Only one rule file is ever loaded per document. The two are never run over the same file.
+
+## Google rules applied
 
 - **Words & Terminology** — consistent terms, proper acronyms, clear pronouns
 - **Noun phrases** — cap stacked modifiers at three words, hyphenate what binds
@@ -38,7 +54,7 @@ Two documentation rewriters in one plugin:
 - **Sample Code** — correct, concise, descriptive names, comment the "why"
 - **Illustrations** — captions first, limited density, callouts for focus
 
-## `/ste` rules applied
+## STE rules applied
 
 The nine rule sections of ASD-STE100 Part 1, paraphrased with software-documentation examples:
 
@@ -52,29 +68,29 @@ The nine rule sections of ASD-STE100 Part 1, paraphrased with software-documenta
 8. **Punctuation and word count** — no semicolons, hyphen and parenthesis rules, how to count a sentence
 9. **Writing practices** — rebuild rather than force a substitution, no phrasal verbs, no Latin abbreviations
 
-`/ste` also ships `skills/ste/substitutions.md`, a curated table of 122 common unapproved words and their approved replacements, selected for words that actually appear in software documentation.
+`skills/tech-writer/substitutions.md` holds a curated table of 122 common unapproved words and their approved replacements, selected for words that actually appear in software documentation.
 
-### The two skills disagree on purpose
+### The two standards disagree on purpose
 
-STE and Google's guidelines are different standards. They conflict on sentence length caps, `-ing` forms, nouns used as verbs, gerund vs. imperative headings, `we` vs. `you`, contractions, list punctuation, phrasal verbs, imperatives in prose, and severity labels. Pick one per document. Never run both over the same file, and never "fix" `/ste` output with `/tech-writer`. `/ste` documents the full list of divergences.
+STE and Google's guidelines conflict on sentence length caps, `-ing` forms, nouns used as verbs, gerund vs. imperative headings, `we` vs. `you`, contractions, list punctuation, phrasal verbs, imperatives in prose, and severity labels. The skill picks one per document and never blends them, never "fixes" one standard's output with the other, and never runs both rule files over the same file. `SKILL.md` tabulates the full list of divergences.
 
-## Subagents
+## Subagent
 
-The plugin registers two Task agents that Claude can spawn autonomously to review docs in the background:
+The plugin registers one Task agent that Claude can spawn autonomously to review docs in the background. It carries both standards and the same routing rule:
 
 ```
 Task(subagent_type="tech-writer", prompt="Review plugins/ship/README.md")
-Task(subagent_type="ste", prompt="Convert docs/runbooks/failover.md to STE")
+Task(subagent_type="tech-writer", prompt="Convert docs/runbooks/failover.md to STE")
 ```
 
-Both use Sonnet for fast, cost-effective reviews and have access to Read, Write, Edit, Glob, and Grep tools.
+It uses Sonnet for fast, cost-effective reviews and has access to Read, Write, Edit, Glob, and Grep.
 
 ## Sources
 
 - Google Technical Writing One and Technical Writing Two.
 - **ASD-STE100 Simplified Technical English, Issue 9** (January 2025), © ASD, published by the AeroSpace, Security and Defence Industries Association of Europe.
 
-Rules from ASD-STE100 are paraphrased with our own examples, and rule numbers are kept as citation anchors. Only the bare numbers (1.1, 4.3, 8.6) are ASD's; the letter suffixes used in `/ste` are this plugin's own subdivision of a single ASD rule. This plugin does not reproduce the standard's text or the full ASD-STE100 dictionary; `skills/ste/substitutions.md` reproduces 122 not-approved-word entries with their ASD-assigned alternatives. This plugin is not affiliated with, endorsed by, or approved by ASD. For authoritative use, obtain ASD-STE100 from ASD.
+Rules from ASD-STE100 are paraphrased with our own examples, and rule numbers are kept as citation anchors. Only the bare numbers (1.1, 4.3, 8.6) are ASD's; the letter suffixes used in `rules-ste.md` are this plugin's own subdivision of a single ASD rule. This plugin does not reproduce the standard's text or the full ASD-STE100 dictionary; `skills/tech-writer/substitutions.md` reproduces 122 not-approved-word entries with their ASD-assigned alternatives. This plugin is not affiliated with, endorsed by, or approved by ASD. For authoritative use, obtain ASD-STE100 from ASD.
 
 ## Installation
 
