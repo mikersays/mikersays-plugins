@@ -20,7 +20,7 @@ codex plugin add <plugin>@mikersays-plugins
 
 - `ship` — Stage, commit, and push all changes in one step, with auto-generated message if none given
 - `pr` — Create a GitHub PR for the current branch with auto-generated title, summary, and test plan
-- `tech-writer` — Review and rewrite documentation in place using Google's Technical Writing guidelines; includes `tech-writer` and `ste`, a strict Simplified Technical English mode (ASD-STE100) for procedures, runbooks, and docs headed for translation
+- `tech-writer` — Review and rewrite documentation in place using either Google's Technical Writing guidelines or strict Simplified Technical English (ASD-STE100), chosen per document — Google for READMEs, guides, and ordinary prose; STE for procedures, runbooks, and docs headed for translation
 - `deck` — Generate a self-contained HTML slide deck from a topic — single file, dark theme, keyboard nav
 - `roadmap` — Generate a self-contained interactive HTML Gantt chart from a markdown roadmap file
 - `diagram` — Generate an interactive SVG diagram (architecture, sequence, flowchart, ER) from a description

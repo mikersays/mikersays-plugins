@@ -87,7 +87,7 @@ policy:
 ## Existing Plugins
 
 - **ship** (`plugins/ship/`) — `/ship [message]` — Git commit and push in one command
-- **tech-writer** (`plugins/tech-writer/`) — `/tech-writer [file path]`, `/ste [file path]` — Review and rewrite docs using Google's Technical Writing guidelines (extended with clarity rules adapted from ASD-STE100), or convert them to strict Simplified Technical English with `/ste`
+- **tech-writer** (`plugins/tech-writer/`) — `/tech-writer [file path] [ste|google]` — Review and rewrite docs under one of two standards, picked per document: Google's Technical Writing guidelines (extended with clarity rules adapted from ASD-STE100), or strict Simplified Technical English (ASD-STE100 Issue 9). The rules live in `skills/tech-writer/rules-google.md` and `rules-ste.md`; `SKILL.md` only routes, and exactly one rule file is ever loaded
 - **deck** (`plugins/deck/`) — `/deck [topic]` — Generate a self-contained HTML slide deck
 - **roadmap** (`plugins/roadmap/`) — `/roadmap [file]` — Generate a visual HTML Gantt-chart roadmap from a markdown file
 - **diagram** (`plugins/diagram/`) — `/diagram [description]` — Generate interactive SVG diagrams from a description

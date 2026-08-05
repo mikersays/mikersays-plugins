@@ -13,7 +13,7 @@
     {
       "name": "tech-writer",
       "source": "./plugins/tech-writer",
-      "description": "Review and rewrite documentation in place using Google's Technical Writing guidelines, plus a strict Simplified Technical English mode (ASD-STE100) — /tech-writer, /ste"
+      "description": "Review and rewrite documentation in place using either Google's Technical Writing guidelines or strict Simplified Technical English (ASD-STE100), chosen per document — /tech-writer"
     },
     {
       "name": "deck",

@@ -1,5 +1,0 @@
-interface:
-  display_name: Simplified Technical English
-  short_description: Rewrite documentation into Simplified Technical English (ASD-STE100 Issue 9)
-policy:
-  allow_implicit_invocation: true
