@@ -54,6 +54,7 @@ The validator checks:
 - Every `.codex-plugin/plugin.json` has an `interface` object
 - Every `SKILL.md` has parseable frontmatter with `name` matching its directory
 - Every `agents/openai.yaml` (if present) has an `interface:` key and is non-empty
+- Every bundled `plugins/**/*.py` compiles, and any that supports `--selftest` passes it
 - Every user-facing plugin and skill (everything except `maintenance`) appears in `INSTALL.md`, `UNINSTALL.md`, and `docs/index.html`
 
 Pure stdlib Python 3.9+ — no install step.
@@ -87,7 +88,7 @@ policy:
 ## Existing Plugins
 
 - **ship** (`plugins/ship/`) — `/ship [message]` — Git commit and push in one command
-- **tech-writer** (`plugins/tech-writer/`) — `/tech-writer [file path] [ste|google]` — Review and rewrite docs under one of two standards, picked per document: Google's Technical Writing guidelines (extended with clarity rules adapted from ASD-STE100), or strict Simplified Technical English (ASD-STE100 Issue 9). The rules live in `skills/tech-writer/rules-google.md` and `rules-ste.md`; `SKILL.md` only routes, and exactly one rule file is ever loaded
+- **tech-writer** (`plugins/tech-writer/`) — `/tech-writer [file path] [ste|google]` — Review and rewrite docs under one of two standards, picked per document: Google's Technical Writing guidelines (extended with clarity rules adapted from ASD-STE100), or strict Simplified Technical English (ASD-STE100 Issue 9). The rules live in `skills/tech-writer/rules-google.md` and `rules-ste.md`; `SKILL.md` only routes, and exactly one rule file is ever loaded. A stdlib-only en-GB → en-US converter at `skills/tech-writer/scripts/en_gb_to_en_us.py` runs as a mechanical dialect pass after the rewrite
 - **deck** (`plugins/deck/`) — `/deck [topic]` — Generate a self-contained HTML slide deck
 - **roadmap** (`plugins/roadmap/`) — `/roadmap [file]` — Generate a visual HTML Gantt-chart roadmap from a markdown file
 - **diagram** (`plugins/diagram/`) — `/diagram [description]` — Generate interactive SVG diagrams from a description

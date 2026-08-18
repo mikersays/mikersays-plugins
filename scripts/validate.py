@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import json
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -151,6 +152,42 @@ def check_plugin(plugin_dir: Path) -> None:
                 err(f"{rel(oyaml)}: file is empty")
             elif "interface:" not in text:
                 err(f"{rel(oyaml)}: missing 'interface:' key")
+
+
+def discover_plugin_scripts(plugin_dir: Path) -> list[Path]:
+    """Python helpers a plugin ships, at any depth. Sorted for stable output."""
+    return sorted(plugin_dir.rglob("*.py"))
+
+
+def check_scripts(plugin_dir: Path) -> None:
+    """Compile every bundled Python helper, then run any that offers --selftest.
+
+    A shipped script that no longer parses, or whose own assertions fail, is a
+    broken plugin: the skill that calls it has no other safety net.
+    """
+    for script in discover_plugin_scripts(plugin_dir):
+        source = script.read_text()
+        try:
+            compile(source, str(script), "exec")
+        except SyntaxError as e:
+            err(f"{rel(script)}: syntax error at line {e.lineno} ({e.msg})")
+            continue
+        if "--selftest" not in source:
+            continue
+        try:
+            proc = subprocess.run(
+                [sys.executable, str(script), "--selftest"],
+                capture_output=True,
+                text=True,
+                timeout=120,
+            )
+        except subprocess.TimeoutExpired:
+            err(f"{rel(script)}: --selftest timed out after 120s")
+            continue
+        if proc.returncode != 0:
+            lines = (proc.stdout + proc.stderr).strip().splitlines()
+            tail = lines[-1] if lines else "no output"
+            err(f"{rel(script)}: --selftest failed (exit {proc.returncode}: {tail})")
 
 
 def check_source_path(path: Path, value: str, field: str) -> None:
@@ -320,6 +357,7 @@ def main() -> int:
 
     for p in plugins:
         check_plugin(p)
+        check_scripts(p)
 
     check_claude_marketplace(REPO / ".claude-plugin" / "marketplace.json", plugin_names)
     check_codex_marketplace(REPO / ".codex-plugin" / "marketplace.json", plugin_names)

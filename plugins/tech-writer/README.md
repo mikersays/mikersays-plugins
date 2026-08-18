@@ -23,16 +23,18 @@ An explicit request always wins — `ste`, `Simplified Technical English`, `ASD-
 2. Reads the target document in full
 3. Reads only the matching rule file, then applies every applicable rule
 4. Rewrites the file in place
-5. Reports a summary of changes in that standard's output format
+5. Normalizes British spellings to US English with the bundled converter
+6. Reports a summary of changes in that standard's output format
 
 ## Layout
 
 ```
-skills/tech-writer/SKILL.md         ← router: picks the standard, shared boundaries
-skills/tech-writer/rules-google.md  ← Google Technical Writing rules, with examples
-skills/tech-writer/rules-ste.md     ← the nine ASD-STE100 rule sections, with examples
-skills/tech-writer/substitutions.md ← 122 unapproved words and their approved replacements
-agents/tech-writer.md               ← background subagent, both standards inlined
+skills/tech-writer/SKILL.md                  ← router: picks the standard, shared boundaries
+skills/tech-writer/rules-google.md           ← Google Technical Writing rules, with examples
+skills/tech-writer/rules-ste.md              ← the nine ASD-STE100 rule sections, with examples
+skills/tech-writer/substitutions.md          ← 122 unapproved words and their approved replacements
+skills/tech-writer/scripts/en_gb_to_en_us.py ← en-GB → en-US spelling converter (stdlib Python 3.9+)
+agents/tech-writer.md                        ← background subagent, both standards inlined
 ```
 
 Only one rule file is ever loaded per document. The two are never run over the same file.
@@ -74,6 +76,27 @@ The nine rule sections of ASD-STE100 Part 1, paraphrased with software-documenta
 
 STE and Google's guidelines conflict on sentence length caps, `-ing` forms, nouns used as verbs, gerund vs. imperative headings, `we` vs. `you`, contractions, list punctuation, phrasal verbs, imperatives in prose, and severity labels. The skill picks one per document and never blends them, never "fixes" one standard's output with the other, and never runs both rule files over the same file. `SKILL.md` tabulates the full list of divergences.
 
+## Dialect pass
+
+Both standards want US spelling — `rules-ste.md` rule 1.14 says so outright, and Google's guidelines are US English — so the skill runs a bundled converter over the rewritten file. It is stdlib-only Python 3.9+ and runs standalone from any repo:
+
+```bash
+python3 plugins/tech-writer/skills/tech-writer/scripts/en_gb_to_en_us.py --check docs/api.md
+python3 plugins/tech-writer/skills/tech-writer/scripts/en_gb_to_en_us.py --write docs/api.md
+```
+
+`--check` reports and never writes, exiting 1 when it finds anything:
+
+```
+docs/api.md:1:3: Colour -> Color  (rule: our-or)
+docs/api.md:3:14: normalises -> normalizes  (rule: ise-ize)
+docs/api.md:8:45: licence -> license  (rule: ce-se)
+```
+
+`--write` applies them and prints `docs/api.md: 9 change(s) applied, 0 flagged`. Also available: `--diff` for a unified diff, `--stdin` to filter stdin to stdout, `--json` and `--stats` to reshape the report, and `--selftest` to run the built-in assertions.
+
+**What it does not touch.** Fenced and indented code blocks, inline code spans, link and image targets, HTML tags, frontmatter identifiers, and anything shaped like an identifier — the flag `--colour-output` and the symbol `ColourMap` survive intact. Words with two live meanings (`disc`, `draughts`, `storeyed`) and proper nouns (`the Labour Party`) are reported under a separate `-- flagged, not applied without --aggressive --` heading and are never written; the skill surfaces those to you instead of guessing. The pass is mechanical, so the skill still reads the result and reverts anything that landed in a quoted UI string or a citation.
+
 ## Subagent
 
 The plugin registers one Task agent that Claude can spawn autonomously to review docs in the background. It carries both standards and the same routing rule:
@@ -83,7 +106,7 @@ Task(subagent_type="tech-writer", prompt="Review plugins/ship/README.md")
 Task(subagent_type="tech-writer", prompt="Convert docs/runbooks/failover.md to STE")
 ```
 
-It uses Sonnet for fast, cost-effective reviews and has access to Read, Write, Edit, Glob, and Grep.
+It uses Sonnet for fast, cost-effective reviews and has access to Read, Write, Edit, Glob, Grep, and Bash.
 
 ## Sources
 

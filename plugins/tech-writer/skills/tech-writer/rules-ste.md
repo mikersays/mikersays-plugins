@@ -115,6 +115,8 @@ STE output is meant to look constrained. Short declarative sentences, repeated n
 - Before: `Initialise the analyser, then set the colour scheme in the behaviour profile.`
 - After: `Initialize the analyzer, then set the color scheme in the behavior profile.`
 
+Run the dialect pass in `SKILL.md` rather than hunting spellings by hand — but the contract exception is yours to apply, not the converter's. Where the document is bound to a British house style, skip the pass and record the reason. Rule 1.14a still governs whatever the pass produces.
+
 **1.14a — Quoted text is untouchable.** Reproduce on-screen labels, UI strings, flags, and command names exactly, even where their spelling differs from the document's convention.
 
 - Before: `In the toolbar menu, click Customize Toolbar.` (the button reads `Customise Toolbar`)

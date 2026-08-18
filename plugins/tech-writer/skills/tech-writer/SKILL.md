@@ -2,7 +2,7 @@
 name: tech-writer
 description: Review and rewrite documentation in place — Google's Technical Writing guidelines for READMEs, guides, and ordinary prose, or strict Simplified Technical English (ASD-STE100) for safety-critical procedures, runbooks, and translation-bound docs. The standard is chosen automatically from the document, or by explicit request ("use STE", "Simplified Technical English", "Google style"). Use when asked to polish, edit, clean up, review, or improve the clarity of a README, doc, or markdown file, or when asked for STE / controlled language.
 argument-hint: "[file path] [ste|google]"
-allowed-tools: Read, Write, Edit, Glob, Grep
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
 # Tech Writer
@@ -15,7 +15,8 @@ Review and rewrite documentation using one of two standards: Google's Technical 
 2. **Choose the standard** (see below).
 3. **Read the whole file** before editing — context matters for terminology, pronouns, and classification.
 4. **Read only the matching rule file** — `rules-google.md` or `rules-ste.md` in this skill's directory — and follow its Process, Boundaries, and Output format exactly. Do not read the other rule file and do not apply any of its rules.
-5. **Report** using that rule file's output format, and state up front which standard you applied and why.
+5. **Normalize the dialect.** Both standards want US spelling, so run the bundled converter over the file you just rewrote — see *Dialect pass* below. Skip this step entirely if you were not asked to edit the file.
+6. **Report** using that rule file's output format, and state up front which standard you applied and why.
 
 ## Choose the standard
 
@@ -57,6 +58,26 @@ These apply regardless of which standard you picked — the per-standard rule fi
 - Don't delete information — reword or relocate it.
 - Never alter quoted text, UI strings, command names, or flag spellings.
 - If the document is already well-written for its standard, say so and stop. Don't churn for the sake of churn.
+
+## Dialect pass
+
+`scripts/en_gb_to_en_us.py` in this skill's directory converts British spellings to American ones. It is stdlib-only Python 3.9+ and needs no install. Resolve it once, then run it:
+
+```bash
+PY="${CLAUDE_PLUGIN_ROOT}/skills/tech-writer/scripts/en_gb_to_en_us.py"
+[ -f "$PY" ] || PY="$(find ~/.claude/plugins ~/.codex/plugins -path '*/tech-writer/*/en_gb_to_en_us.py' -print -quit 2>/dev/null)"
+python3 "$PY" --check docs/api.md    # findings only, never writes
+python3 "$PY" --write docs/api.md    # apply the certain ones
+```
+
+- `--check` prints `path:line:col: british -> american  (rule: <name>)` and exits **1 when it finds anything**, 0 when clean, 2 on a real error. Exit 1 is not a failure — read the findings. Never chain `--check && --write`; the exit code makes `&&` skip the write.
+- Findings printed under `-- flagged, not applied without --aggressive --` are **ambiguous** (`disc` may be optical media, `draughts` may be the game) or **proper nouns** (`the Labour Party`). `--write` deliberately leaves them alone. List them in your report and let the user decide. Do not pass `--aggressive`.
+- `--write` prints `path: N change(s) applied, M flagged`. Run it **only** on a file the user asked you to edit. For a review-only request, use `--check` or `--diff` and report what you found.
+- `--diff` prints a unified diff, `--stdin` filters stdin to stdout, `--json` reshapes `--check` output, `--stats` adds counters.
+
+The converter skips fenced and indented code blocks, inline code spans, link and image targets, HTML tags, frontmatter identifiers, and anything shaped like an identifier — `--colour-output` and `ColourMap` stay as they are. That is a mechanical pre-pass, not a judgment call: you still own the result. Read the diff, and revert anything that lands inside a quoted UI string, a product name, or a citation the converter could not see was verbatim.
+
+Where the document declares a British house convention, or the request asks for one, skip the pass and say so in your report.
 
 ## Word substitutions (STE only)
 

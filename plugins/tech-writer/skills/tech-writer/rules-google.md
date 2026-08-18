@@ -243,6 +243,7 @@ State the target audience and prerequisites near the top, and say what the docum
 - Use **you**, not **we**. The reader is doing the work, not the author.
 - Put conditions before instructions: `If the build fails, run make clean.` — not `Run make clean if the build fails.`
 - Wrap file names, variables, commands, and class names in `code font`.
+- US spelling throughout — `color`, `behavior`, `initialize`. Google's guidelines are US English and carry no exception clause, so the only spellings that stay British are the ones inside quoted text, a UI label, a command, or a flag name. The dialect pass in `SKILL.md` does the sweep; check its diff for those four cases.
 
 ### Headings
 
