@@ -259,6 +259,13 @@
       line-height: 1.7;
       background: var(--code-bg);
     }
+    @media (max-width: 640px) {
+      pre {
+        white-space: pre-wrap;
+        word-break: break-word;
+        overflow-wrap: anywhere;
+      }
+    }
     code { color: var(--text); }
     .c { color: #4a4a4a; }        /* comment */
     .kw { color: var(--accent); } /* keyword / prompt text */
