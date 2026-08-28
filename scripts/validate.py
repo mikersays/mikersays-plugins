@@ -11,6 +11,7 @@ relative to the repo root the script lives in.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 import subprocess
@@ -309,6 +310,29 @@ def check_codex_marketplace(path: Path, all_names: set[str]) -> None:
             err(f"{rel(path)}: {name} missing category")
 
 
+# Assets several plugins ship byte-identical copies of. Plugins install independently, so
+# each one carries its own copy; a fix applied to one copy and not the rest is the failure
+# mode this guards against.
+SHARED_ASSETS = ("diagram-zoom.js", "diagram-zoom.css", "mermaid-diagrams.md")
+
+
+def check_shared_assets() -> None:
+    """Every copy of a shared asset must be identical across plugins."""
+    for filename in SHARED_ASSETS:
+        copies = sorted((REPO / "plugins").rglob(filename))
+        if not copies:
+            continue
+        digests: dict[str, list[Path]] = {}
+        for copy in copies:
+            digest = hashlib.sha256(copy.read_bytes()).hexdigest()
+            digests.setdefault(digest, []).append(copy)
+        if len(digests) > 1:
+            groups = " vs ".join(
+                "{" + ", ".join(rel(c) for c in group) + "}" for group in digests.values()
+            )
+            err(f"{filename}: copies have diverged — {groups}")
+
+
 def check_sync_surfaces(plugin_names: set[str], all_skills: set[str]) -> None:
     install = (REPO / "INSTALL.md").read_text()
     uninstall = (REPO / "UNINSTALL.md").read_text()
@@ -366,6 +390,8 @@ def main() -> int:
     for doc in ("CLAUDE.md", "AGENTS.md"):
         if not (REPO / doc).exists():
             err(f"{doc}: missing (required for cross-platform compatibility)")
+
+    check_shared_assets()
 
     all_skills = {s.name for p in plugins for s in discover_skills(p)}
     check_sync_surfaces(plugin_names, all_skills)

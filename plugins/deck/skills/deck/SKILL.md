@@ -205,6 +205,33 @@ Drop these into the `<!-- SLIDES GO HERE -->` slot. The class controls the layou
 </div>
 ```
 
+## Diagram slides (mermaid and SVG)
+
+A slide whose point *is* a diagram needs the diagram to be inspectable, not decorative: the
+viewer clicks it, it opens full-screen, and it pans and zooms there. That matters more in a deck
+than anywhere else — a diagram inside a slide's padding is small, and the person at the back of
+the room cannot lean in.
+
+The deck stays a single offline file, so:
+
+1. **Render the diagram to SVG at authoring time** and paste the SVG into the slide — mermaid's
+   3.5 MB runtime does not belong in a self-contained deck:
+   ```bash
+   npx -y @mermaid-js/mermaid-cli -i diagram.mmd -o diagram.svg -b transparent
+   ```
+   If `mermaid-cli` is unavailable, hand-author the SVG. Never paste mermaid source into a slide
+   and hope: nothing renders it.
+2. **Wrap it** in `<figure class="diagram">…<figcaption>…</figcaption></figure>` inside the slide.
+3. **Inline the zoom module** — paste `assets/diagram-zoom.css` from this skill's directory into
+   the `<style>` block and `assets/diagram-zoom.js` into a `<script>` block before the existing
+   navigation script. It auto-initializes, adds an Expand control to every `figure > svg`, and
+   provides wheel/pinch zoom, drag pan, `+` / `−` / Fit, and Esc-to-close.
+4. Keep the overlay's `Esc` handler in mind: Esc closes the diagram, arrow keys pan while it is
+   open, and slide navigation resumes once it is closed. Do not rewire either script.
+
+`references/mermaid-diagrams.md` in this skill's directory has the full contract, the theming
+tokens, and the verification checklist. Decks with no diagram need none of this.
+
 ## Slide content guidance
 
 - One idea per slide. If a slide has more than ~5 bullets or covers two distinct points, split it.
@@ -212,4 +239,4 @@ Drop these into the `<!-- SLIDES GO HERE -->` slot. The class controls the layou
 - Keep code blocks under ~12 lines so they fit the viewport without scrolling.
 - Give every slide an empty `<div class="slide-number"></div>` — the script fills in N / TOTAL automatically.
 - Every slide needs a heading (`<h1>` on the title, `<h2>` elsewhere).
-- No `<img>`, no remote fonts, no `<link>`/`<script src>` to anything off-disk. The file should render identically on a plane with no wifi.
+- No `<img>`, no remote fonts, no `<link>`/`<script src>` to anything off-disk. The file should render identically on a plane with no wifi. Inline `<svg>` is fine — it is part of the file, and it is how diagram slides work.

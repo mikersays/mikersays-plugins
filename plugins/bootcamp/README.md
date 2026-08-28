@@ -11,6 +11,7 @@
 - The design pass checks [Canvas UI](https://canvasui.dev/) and its [component gallery](https://canvasui.dev/components) for at most one subject-relevant canvas/WebGL signature effect, shipped locally with fallbacks, reduced-motion support, and licensing preserved.
 - **Content experts** (one per module, in parallel) write deep teaching dossiers — explanations, correct/runnable worked examples, exercises with solutions, common misconceptions, and checkpoint quizzes.
 - **Module builders** (one per module, in parallel) turn each dossier into a polished, consistent HTML page.
+- Every **diagram is click-to-expand and zoomable** (mermaid vendored locally, no CDN), so an architecture graph is readable on a phone instead of shrunk to a smudge.
 - A **capstone author** designs an integrative project with a spec, rubric, and reference solution.
 - A **QA / proctor** pass drives the real site in a browser via the **Playwright MCP** to verify technical accuracy, links, interactivity, and responsive/mobile layout (if the MCP isn't installed, the skill helps you set it up first).
 

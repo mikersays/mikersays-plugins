@@ -52,6 +52,24 @@ A prior audit across every site this skill had built found a viewport tag alone 
 - **Images/media**: always `max-width: 100%; height: auto;` — never a bare fixed pixel width on an `<img>` or `<video>`.
 - Before declaring the site done, mentally (or via the local server plus a resized/narrow browser window) walk through every page — not just the homepage — at a ~390px-wide viewport and confirm no element requires horizontal scrolling of the page itself, and that any code samples are either short enough to fit or wrap.
 
+### Diagrams must expand and zoom
+
+Any diagram on the site — a mermaid graph, an inline `<svg>`, an exported image — ships with
+click-to-expand and pan/zoom. A diagram squeezed into a text column is unreadable, and on a phone
+it is useless. Read `${CLAUDE_PLUGIN_ROOT}/skills/gh-pages/references/mermaid-diagrams.md`
+(relative to this SKILL.md: `references/mermaid-diagrams.md`) whenever the site contains one, and
+copy the bundled module rather than writing your own:
+
+```bash
+SKILL_DIR="${CLAUDE_PLUGIN_ROOT:-.}/skills/gh-pages"   # fall back to this SKILL.md's directory
+mkdir -p docs/assets/css docs/assets/js
+cp "$SKILL_DIR/assets/diagram-zoom.css" docs/assets/css/
+cp "$SKILL_DIR/assets/diagram-zoom.js"  docs/assets/js/
+```
+
+Mermaid itself is vendored into `docs/assets/vendor/`, never loaded from a CDN at runtime — the
+reference has the exact commands, the init order, and the theming tokens.
+
 ### Canvas UI design pass (new sites and substantial redesigns)
 
 During visual planning, browse [Canvas UI](https://canvasui.dev/) and its [component gallery](https://canvasui.dev/components), then consider whether one of its creative canvas/WebGL effects would strengthen the site's concept. This is a required consideration, not a requirement to force an effect into every site. Use at most one prominent effect, and only when it adds meaning or atmosphere without competing with the content.

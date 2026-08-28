@@ -176,6 +176,27 @@ Browse [Canvas UI](https://canvasui.dev/) and its [component gallery](https://ca
 
 Write up the chosen direction in a short `_research/design_brief.md` file (~200 words) — palette tokens, font picks, signature element concept, layout primitives. This will be referenced by all chapter builders so they stay coherent.
 
+### Diagrams — expandable and zoomable, always
+
+If the essay carries a diagram (a mermaid graph, a schematic `<svg>`, a plate that is really a
+figure rather than a photograph), it must open full-screen on click and pan/zoom there. A
+schematic scaled into a scholarly text column cannot be read, and a reader who cannot enlarge it
+loses the argument the figure was carrying.
+
+Copy the bundled module into the design system rather than writing a lightbox per build:
+
+```bash
+SKILL_DIR="${CLAUDE_PLUGIN_ROOT:-.}/skills/monograph"   # fall back to this SKILL.md's directory
+cp "$SKILL_DIR/assets/diagram-zoom.css" docs/assets/css/
+cp "$SKILL_DIR/assets/diagram-zoom.js"  docs/assets/js/
+```
+
+Read `references/mermaid-diagrams.md` in this skill's directory for the mermaid vendoring
+commands, the init order, and the theming tokens (`--dz-backdrop`, `--dz-fg`, `--dz-muted`, …) —
+set those tokens from the design brief's palette so the overlay belongs to the same design system.
+Pass the same instruction to every chapter builder that gets a diagram, and add "diagrams expand
+and zoom" to the Phase 7 verification pass.
+
 ### Phase 4 — Design system + index (orchestrator, ~10–15 min)
 
 When the research dossier and image manifest are in, write:

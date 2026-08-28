@@ -93,7 +93,9 @@ Most learners work through a course on a phone. Mobile is a **build constraint f
 - Every `<head>` starts with `<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">`. A page without it is broken on mobile no matter how good the CSS is.
 - One column at phone width. Multi-column layouts only above a `min-width` breakpoint — no fixed pixel widths, no markup that assumes a desktop window.
 - Long code blocks and wide tables scroll inside their own container (`overflow-x: auto`); they never stretch the page.
-- Wide media (diagrams, screenshots, iframes, canvases) capped with `max-width: 100%`.
+- Wide media (diagrams, screenshots, iframes, canvases) capped with `max-width: 100%`, and every
+  diagram click-to-expandable and zoomable (see *Diagrams* below) — a shrunk-to-fit diagram is
+  the single most common unreadable element on a phone.
 
 **CSS (`main.css`):**
 
@@ -111,6 +113,27 @@ Most learners work through a course on a phone. Mobile is a **build constraint f
 - **Scroll-lock gotcha:** when locking scroll for an open drawer, set `document.documentElement.style.overflowY = 'clip'` / `''` — NOT `document.body.style.overflow`, which creates a scroll container with the same sticky-breaking effect as above.
 
 **Content (content experts):** write phone-legible examples — prefer short code lines (~60 chars) over ones that need horizontal scrolling to read, keep tables to a few columns, and avoid wide ASCII-art diagrams that only parse at desktop width.
+
+---
+
+## Diagrams (mermaid and SVG)
+
+Course pages are diagram-heavy — architectures, state machines, data flows. Every one of them
+ships with click-to-expand plus pan/zoom, on desktop and phone alike, and mermaid renders to SVG
+so it stays sharp at any magnification.
+
+Build it into the design system in Phase 2, then require it in every module-builder brief:
+
+```bash
+SKILL_DIR="${CLAUDE_PLUGIN_ROOT:-.}/skills/bootcamp"   # fall back to this SKILL.md's directory
+cp "$SKILL_DIR/assets/diagram-zoom.css" docs/assets/css/
+cp "$SKILL_DIR/assets/diagram-zoom.js"  docs/assets/js/
+```
+
+`references/mermaid-diagrams.md` in this skill's directory has the mermaid vendoring commands
+(no runtime CDN), the init order, and the theming tokens — restate the "diagrams expand and zoom"
+rule in `_course/design_brief.md` alongside the mobile contract, and have QA verify it on a real
+phone viewport in Phase 5.
 
 ---
 

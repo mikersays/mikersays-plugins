@@ -23,6 +23,7 @@ Generate a self-contained HTML slide deck from a topic. Zero dependencies — pu
 - **Dark theme** — clean typography with a system font stack
 - **Code blocks** — styled monospace with syntax-friendly colors
 - **Responsive** — works on any screen size
+- **Zoomable diagram slides** — a diagram on a slide opens full-screen on click, with wheel/pinch zoom, drag pan, and Esc to close (mermaid pre-rendered to SVG so the file stays self-contained)
 - **Self-contained** — no CDN, no frameworks, just one HTML file
 
 ## Installation

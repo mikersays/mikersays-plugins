@@ -1,0 +1,164 @@
+/* diagram-zoom.css — companion to diagram-zoom.js.
+   Colors are read from CSS custom properties so the site's own theme wins;
+   the fallbacks below keep it legible if the tokens are absent. */
+
+.dz-figure {
+  position: relative;
+  margin: 2rem 0;
+  padding: 0;
+  cursor: zoom-in;
+}
+
+/* mermaid's own <pre class="mermaid"> host: strip the code-block look once it holds an SVG */
+pre.dz-figure {
+  background: none;
+  border: 0;
+  padding: 0;
+  overflow: visible;
+  white-space: normal;
+  font: inherit;
+}
+
+.dz-figure > svg,
+.dz-figure > img,
+.dz-figure .dz-target {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin-inline: auto;
+}
+
+.dz-expand {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  min-height: 44px;          /* touch target */
+  padding: 0.4rem 0.7rem;
+  font: inherit;
+  font-size: 0.8rem;
+  line-height: 1;
+  color: var(--dz-fg, #e2e8f0);
+  background: var(--dz-chip-bg, rgba(15, 23, 42, 0.72));
+  border: 1px solid var(--dz-border, rgba(148, 163, 184, 0.4));
+  border-radius: 8px;
+  cursor: zoom-in;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.dz-figure:hover .dz-expand,
+.dz-figure:focus-within .dz-expand,
+.dz-expand:focus-visible { opacity: 1; }
+
+@media (hover: none) {
+  .dz-expand { opacity: 1; }   /* no hover on touch — always show the affordance */
+}
+
+.dz-expand:focus-visible {
+  outline: 2px solid var(--dz-accent, #60a5fa);
+  outline-offset: 2px;
+}
+
+.dz-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  background: var(--dz-backdrop, #080b12);
+  color: var(--dz-fg, #e2e8f0);
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.dz-overlay[hidden] { display: none; }
+
+html.dz-open { overflow-y: clip; }   /* not `body{overflow:hidden}` — that breaks sticky */
+
+.dz-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--dz-border, rgba(148, 163, 184, 0.25));
+}
+
+.dz-title {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dz-controls { display: flex; gap: 0.4rem; flex: none; }
+
+.dz-btn {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 0.6rem;
+  font: inherit;
+  font-size: 1rem;
+  color: inherit;
+  background: var(--dz-chip-bg, rgba(148, 163, 184, 0.14));
+  border: 1px solid var(--dz-border, rgba(148, 163, 184, 0.3));
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.dz-btn:hover { background: var(--dz-chip-hover, rgba(148, 163, 184, 0.26)); }
+.dz-btn:focus-visible { outline: 2px solid var(--dz-accent, #60a5fa); outline-offset: 2px; }
+.dz-level {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 4ch;
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--dz-muted, #94a3b8);
+}
+
+.dz-stage {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+  touch-action: none;        /* we handle pinch/drag ourselves */
+  cursor: grab;
+}
+
+.dz-stage.is-grabbing { cursor: grabbing; }
+
+.dz-canvas {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform-origin: 50% 50%;  /* JS sets width/height and the centring margins */
+  will-change: transform;
+}
+
+.dz-canvas > svg,
+.dz-canvas > img { display: block; max-width: none; height: auto; }
+
+.dz-hint {
+  margin: 0;
+  padding: 0.6rem 1rem;
+  font-size: 0.75rem;
+  text-align: center;
+  color: var(--dz-muted, #94a3b8);
+  border-top: 1px solid var(--dz-border, rgba(148, 163, 184, 0.25));
+}
+
+@media (max-width: 640px) {
+  .dz-expand-text { display: none; }
+  .dz-expand { padding: 0.4rem; min-width: 44px; justify-content: center; }
+  .dz-hint { font-size: 0.7rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dz-expand { transition: none; }
+}

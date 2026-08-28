@@ -55,6 +55,7 @@ The validator checks:
 - Every `SKILL.md` has parseable frontmatter with `name` matching its directory
 - Every `agents/openai.yaml` (if present) has an `interface:` key and is non-empty
 - Every bundled `plugins/**/*.py` compiles, and any that supports `--selftest` passes it
+- Every copy of a shared asset (`diagram-zoom.js`, `diagram-zoom.css`, `mermaid-diagrams.md`) is byte-identical across the plugins that ship it
 - Every user-facing plugin and skill (everything except `maintenance`) appears in `INSTALL.md`, `UNINSTALL.md`, and `docs/index.html`
 
 Pure stdlib Python 3.9+ — no install step.
@@ -84,6 +85,19 @@ interface:
 policy:
   allow_implicit_invocation: true   # false for init/setup skills
 ```
+
+## Shared diagram assets
+
+`deck`, `gh-pages`, `monograph`, and `bootcamp` each ship an identical copy of the click-to-expand
++ pan/zoom diagram module, because plugins install independently and cannot share files:
+
+```
+plugins/<name>/skills/<name>/assets/diagram-zoom.js       ← vanilla, no dependencies
+plugins/<name>/skills/<name>/assets/diagram-zoom.css      ← themed via --dz-* custom properties
+plugins/<name>/skills/<name>/references/mermaid-diagrams.md ← how to render mermaid + wire it up
+```
+
+Edit one copy, then copy it to the other three — `scripts/validate.py` fails if they diverge.
 
 ## Existing Plugins
 

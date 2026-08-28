@@ -13,6 +13,8 @@ The skill also triggers implicitly — "make me a GitHub Pages site for X" or "p
 
 For new sites and substantial redesigns, the design pass checks [Canvas UI](https://canvasui.dev/) and its [component gallery](https://canvasui.dev/components) for one purposeful canvas/WebGL effect. Any selected component is adapted to the no-build static-site contract, shipped locally with a fallback and reduced-motion support, and tested before deployment; if no effect fits, the site stays purpose-built HTML/CSS/JS.
 
+Diagrams on the site — mermaid graphs, inline SVG, exported images — ship click-to-expand and pan/zoom by default: click a diagram to open it full-screen, then scroll/pinch to zoom, drag to pan, Fit to see the whole thing, Esc to close. Mermaid is vendored into `docs/assets/vendor/` rather than loaded from a CDN, so the page still renders offline.
+
 ## What it does
 
 1. Writes (or moves) the site into `docs/` — `docs/index.html` entry point, relative asset URLs, `.nojekyll`
