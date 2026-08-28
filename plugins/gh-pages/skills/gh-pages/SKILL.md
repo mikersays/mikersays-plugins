@@ -23,7 +23,34 @@ Rules for the files themselves:
 - **Relative URLs only.** A project site is served at `https://<owner>.github.io/<repo>/`, not at the domain root — root-absolute paths like `/assets/main.css` 404. Use `assets/main.css` or `./assets/main.css`.
 - **Add `docs/.nojekyll`** (empty file) so GitHub serves files and directories starting with `_` and skips the Jekyll build entirely for plain HTML sites.
 - No placeholders: no "TODO", no lorem ipsum, no broken links between pages.
-- Sanity-check locally before deploying when the site has any interactivity: `cd docs && python3 -m http.server 4173` and curl or open the pages; kill the server afterward.
+- Sanity-check locally before deploying when the site has any interactivity: `cd docs && python3 -m http.server 4173` and curl or open the pages; kill the server afterward. Include a narrow-viewport pass in this check (see below) — desktop-only testing is what let this bug ship repeatedly in the past.
+
+### Mobile responsiveness (required, not optional)
+
+A prior audit across every site this skill had built found a viewport tag alone is not sufficient: the recurring, user-visible failure is code blocks and other wide content that force horizontal pinch-zoom-and-pan on a phone. Every site built with this skill must satisfy all of the following:
+
+- **Viewport meta tag**, always, in every HTML page's `<head>`:
+  ```html
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  ```
+- **No fixed-width root containers.** The page's outermost wrapper/shell/container element must use `max-width` (with `width: 100%` or no `width` set) plus `margin-inline: auto`, never a bare `width: <N>px` that doesn't shrink below `N`. Fluid units (`%`, `rem`, `clamp()`, `minmax(0, 1fr)`) over fixed px for anything that spans the page.
+- **`<pre>`/code blocks must wrap on narrow screens, not only scroll.** `overflow-x: auto` alone is not enough — on a touchscreen there is no visible affordance that the box scrolls independently of the page, so users pinch-zoom-out and pan the whole page instead, which doesn't work. Always pair it with a mobile breakpoint that wraps:
+  ```css
+  pre {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  @media (max-width: 640px) {
+    pre {
+      white-space: pre-wrap;
+      word-break: break-word;
+      overflow-wrap: anywhere;
+    }
+  }
+  ```
+- **Tables** with more than 2-3 columns of prose-length content: wrap in a container with `overflow-x: auto` at minimum; prefer a layout that reflows to stacked rows below ~600px if the table is central to the page.
+- **Images/media**: always `max-width: 100%; height: auto;` — never a bare fixed pixel width on an `<img>` or `<video>`.
+- Before declaring the site done, mentally (or via the local server plus a resized/narrow browser window) walk through every page — not just the homepage — at a ~390px-wide viewport and confirm no element requires horizontal scrolling of the page itself, and that any code samples are either short enough to fit or wrap.
 
 ### Canvas UI design pass (new sites and substantial redesigns)
 
@@ -88,3 +115,4 @@ gh api -X POST "repos/$REPO/pages" \
 - Put site files anywhere other than `docs/`, or deploy via a `gh-pages` branch or GitHub Actions workflow — the `/docs` folder source is the contract.
 - Change repository visibility, force-push, or commit unrelated files.
 - Declare success without having enabled Pages and observed the URL respond.
+- Ship a page with a fixed-width root container, a `<pre>` block that only scrolls (no mobile wrap), or a bare fixed-width image — see Mobile responsiveness above.
