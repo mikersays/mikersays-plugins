@@ -71,6 +71,11 @@
       "description": "Build or publish a static site on GitHub Pages — saves the site to docs/ and enables Pages from the docs/ folder on the default branch — /gh-pages"
     },
     {
+      "name": "okf",
+      "source": "./plugins/okf",
+      "description": "Author, index, and validate Open Knowledge Format (OKF v0.2) bundles — markdown concepts with YAML frontmatter for provenance, trust, lifecycle, and attested computations — /okf-init /okf-new /okf-index /okf-validate"
+    },
+    {
       "name": "maintenance",
       "source": "./plugins/maintenance",
       "description": "Maintenance skills for the mikersays-plugins marketplace — /sync-docs /install-marketplace /uninstall-marketplace"

@@ -1,0 +1,5 @@
+interface:
+  display_name: OKF Validate
+  short_description: Check an OKF bundle for conformance, lint, and trust
+policy:
+  allow_implicit_invocation: true

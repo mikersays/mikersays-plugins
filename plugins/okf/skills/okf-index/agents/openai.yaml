@@ -1,0 +1,5 @@
+interface:
+  display_name: OKF Index
+  short_description: Regenerate index.md files from concept frontmatter
+policy:
+  allow_implicit_invocation: true

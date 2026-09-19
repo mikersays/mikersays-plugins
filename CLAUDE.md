@@ -114,6 +114,7 @@ Edit one copy, then copy it to the other three — `scripts/validate.py` fails i
 - **handoff** (`plugins/handoff/`) — `/handoff` — Audit session context and persist what matters for the next agent
 - **slop** (`plugins/slop/`) — `/slop [file | text | topic]` — Rewrite any text to maximally overuse every known AI-writing tell
 - **gh-pages** (`plugins/gh-pages/`) — `/gh-pages [site description]` — Build or publish a static site on GitHub Pages: saves the site to `docs/` and enables Pages from the `docs/` folder on the default branch
+- **okf** (`plugins/okf/`) — `/okf-init`, `/okf-new`, `/okf-index`, `/okf-validate` — Author, index, and validate Open Knowledge Format (OKF v0.2) knowledge bundles: markdown concepts with frontmatter for provenance, trust, lifecycle, and attested computations; `scripts/okf.py` (stdlib, `--selftest`) does the mechanical validate/index/log work and `references/okf-spec.md` is the condensed spec every skill reads
 - **maintenance** (`plugins/maintenance/`) — `/sync-docs`, `/install-marketplace`, `/uninstall-marketplace` — Marketplace maintenance skills; not installed by end users
 
 <!-- claude-memory-pointer -->

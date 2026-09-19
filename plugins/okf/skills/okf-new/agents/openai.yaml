@@ -1,0 +1,5 @@
+interface:
+  display_name: OKF New
+  short_description: Author a new OKF concept with provenance and trust fields
+policy:
+  allow_implicit_invocation: true
