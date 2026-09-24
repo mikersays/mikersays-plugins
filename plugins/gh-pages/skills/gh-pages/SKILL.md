@@ -70,13 +70,14 @@ cp "$SKILL_DIR/assets/diagram-zoom.js"  docs/assets/js/
 Mermaid itself is vendored into `docs/assets/vendor/`, never loaded from a CDN at runtime — the
 reference has the exact commands, the init order, and the theming tokens.
 
-### Canvas UI design pass (new sites and substantial redesigns)
+### Design pass — Canvas UI and React Bits (new sites and substantial redesigns)
 
-During visual planning, browse [Canvas UI](https://canvasui.dev/) and its [component gallery](https://canvasui.dev/components), then consider whether one of its creative canvas/WebGL effects would strengthen the site's concept. This is a required consideration, not a requirement to force an effect into every site. Use at most one prominent effect, and only when it adds meaning or atmosphere without competing with the content.
+During visual planning, browse [Canvas UI](https://canvasui.dev/) and its [component gallery](https://canvasui.dev/components) for creative canvas/WebGL effects (cursor trails, cloth/paint/refraction surfaces), and [React Bits](https://reactbits.dev/) for backgrounds, text animations, and micro-interactions (shiny text, typewriter/type effects, dot fields, aurora/beam backgrounds, and similar). Consider whether one effect from either library would strengthen the site's concept and brand. This is a required consideration, not a requirement to force an effect into every site. Use at most one prominent effect, and only when it adds meaning or atmosphere without competing with the content.
 
-- These are no-build static sites. Prefer Canvas UI's vanilla variant, keep the source local under `docs/assets/`, and commit browser-ready JavaScript. If the source needs TypeScript or bundling, perform that work during authoring; the deployed site must not require npm, a CDN, or a runtime build step.
-- Preserve Canvas UI's copyright and permission notice in the copied source or a `docs/THIRD_PARTY_NOTICES.md` file. Do not redistribute the component as a standalone library.
-- Provide a clean non-WebGL fallback, honor `prefers-reduced-motion`, keep page content usable with JavaScript disabled, and test pointer, keyboard, touch, mobile layout, and performance before shipping.
+- These are no-build static sites. Both libraries offer a vanilla JS/CSS variant of each component (React Bits shows this under its "Code" tab's JavaScript/CSS toggle, separate from its React version) — use that variant, keep the source local under `docs/assets/`, and commit browser-ready JavaScript. If the source needs TypeScript, bundling, or a React runtime, either port it to plain JS/CSS during authoring or skip it — the deployed site must not require npm, a CDN framework runtime, or a build step.
+- Preserve the source library's copyright and permission notice in the copied source or a `docs/THIRD_PARTY_NOTICES.md` file. Do not redistribute a component as a standalone library.
+- Provide a clean fallback when the effect depends on WebGL or canvas, honor `prefers-reduced-motion` (disable or simplify the animation, keep any text content statically visible), keep page content usable with JavaScript disabled, and test pointer, keyboard, touch, mobile layout, and performance before shipping.
+- A subtle, on-brand effect (e.g. a shimmer on a key word, a typewriter-style terminal prompt for a dev-facing brand) is often a better fit for a professional/business site than a heavy WebGL centerpiece — match the effect's intensity to the site's tone.
 - If no component is a strong fit, continue with purpose-built HTML/CSS/JS rather than adding spectacle for its own sake.
 
 ## Step 2 — Commit and push
