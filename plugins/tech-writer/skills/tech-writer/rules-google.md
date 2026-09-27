@@ -6,7 +6,8 @@ Review and rewrite documentation against the conventions from Google's Technical
 
 1. **Read the whole file** before editing — context matters for terminology and pronouns.
 2. **Edit in place.** Preserve the author's intent, voice, and technical accuracy. Restructure and reword; do not add new content or delete information.
-3. **Report changes** grouped by rule — for example, "Active voice: 4 sentences. Filler: removed 7 phrases."
+3. **Check that no fact was lost.** Follow *Preserve every fact* in `SKILL.md`: run the fact checker against the snapshot, then compare the original with the rewrite paragraph by paragraph.
+4. **Report changes** grouped by rule — for example, "Active voice: 4 sentences. Filler: removed 7 phrases."
 
 If the document is already well-written, say so and stop. Don't churn for the sake of churn.
 
@@ -14,7 +15,7 @@ If the document is already well-written, say so and stop. Don't churn for the sa
 
 - Don't change technical meaning. If something reads as factually wrong, flag it instead of silently fixing it.
 - Don't add sections, features, or claims the author didn't write.
-- Don't delete information — reword or relocate it.
+- Don't delete information — reword or relocate it. Every rule below that shortens text — filler, noun stacks, one idea per sentence, scope — removes words, never facts. When concision and completeness conflict, keep the fact.
 - Preserve the author's voice. The goal is clarity, not homogenization.
 
 ---
@@ -79,7 +80,7 @@ Put the action back in the verb. Watch for `gives an indication of`, `performs a
 
 ### Specific, measurable claims
 
-Vague intensifiers (`significantly`, `much`, `very`) are noise. Use numbers when you have them.
+Vague intensifiers (`significantly`, `much`, `very`) are noise. Use numbers when you have them — that is, when the document or the author supplies them. Never invent a number. If the document has none, keep the claim as written and flag it for the author.
 
 - Before: `The new index is significantly faster.`
 - After:  `The new index is 225–250% faster on the benchmark suite.`
@@ -92,6 +93,12 @@ If a sentence has two ideas joined by `and`, `but`, or a subordinate clause that
 - After:  `The build runs in CI and fails fast on lint errors. CI uses a cached image, rebuilt nightly.`
 
 When a sentence chains three or more items with `and` / `or`, lift them into a list.
+
+A split must not orphan a qualifier. If a condition, limit, or scope governed the whole original sentence, every new sentence it governed must still carry it.
+
+- Before: `On Windows, the installer adds the binary to PATH and registers the service, which starts at boot.`
+- Wrong:  `On Windows, the installer adds the binary to PATH. The installer registers the service. The service starts at boot.` — the last two sentences now claim to apply on every platform.
+- After:  `On Windows, the installer adds the binary to PATH and registers the service. On Windows, the service starts at boot.`
 
 ### Chained and dangling participles
 
@@ -125,6 +132,8 @@ These phrases add length without meaning:
 | `provides a detailed description of` | `describes` |
 | `due to the fact that` | `because` |
 
+Filler is only what you can remove without changing what a reader believes or does. Qualifiers (`only`, `at least`, `usually`, `not`), conditions, reasons, and hedges that record real uncertainty are not filler, however padded they look. `in order to` → `to` is a cut; `usually fails` → `fails` is a change of meaning. See the filler test in `SKILL.md`.
+
 ### Pronouns
 
 Place pronouns within about five words of the noun they refer to. If another noun gets in between, repeat the original noun. After `this` or `that` used as a determiner, add the noun.
@@ -150,7 +159,7 @@ For acronyms: spell out on first use with the acronym in parentheses — **Trans
 
 ### Stacked noun modifiers
 
-Keep a noun phrase to about three words. When it grows past that, break it apart with `of`, `in`, `for`, or a relative clause, and drop any modifier the reader doesn't need to identify the thing. Established terms are exempt — `dead letter queue`, `continuous integration pipeline`, and `cross-site request forgery token` are the names readers search for, so leave them whole and count each as one term.
+Keep a noun phrase to about three words. When it grows past that, break it apart with `of`, `in`, `for`, or a relative clause. Drop a modifier only when it repeats something the phrase already says. A modifier that narrows the thing — a version, a region, an environment — is a fact, so move it into its own clause instead. Established terms are exempt — `dead letter queue`, `continuous integration pipeline`, and `cross-site request forgery token` are the names readers search for, so leave them whole and count each as one term.
 
 - Before: `Update the Kubernetes cluster node pool autoscaler configuration file.`
 - After:  `Update the configuration file for the node pool autoscaler in the Kubernetes cluster.`
@@ -229,7 +238,7 @@ Splitting long sentences strips out the causal and temporal links that were hold
 
 ### Audience and scope
 
-State the target audience and prerequisites near the top, and say what the document does *not* cover. Skip idioms (`hit the ground running`, `Bob's your uncle`) and culture-specific references.
+State the target audience and prerequisites near the top, and say what the document does *not* cover. If content falls outside the stated scope, flag it and suggest where it belongs. Do not delete it. Skip idioms (`hit the ground running`, `Bob's your uncle`) and culture-specific references.
 
 ### Latin abbreviations
 
@@ -287,6 +296,9 @@ After rewriting the file, return a summary structured like this:
 
 ### No Changes Needed
 - [list categories where the document already followed the guidelines]
+
+### Fact check
+- [the Fact check section from SKILL.md]
 ```
 
 ## Source and attribution

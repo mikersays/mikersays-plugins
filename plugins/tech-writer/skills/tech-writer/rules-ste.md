@@ -8,14 +8,15 @@ STE output is meant to look constrained. Short declarative sentences, repeated n
 
 1. **Read the whole file**, then classify every block as **procedural**, **descriptive**, or **safety**. The rules differ by class, and applying the wrong class is the most common way to get STE wrong.
 2. **Rewrite in place, class by class.** Where a substitution will not fit, rebuild the sentence (rule 9.1a). Do not force a word-for-word swap that damages the meaning.
-3. **Report** using the Output format below.
+3. **Check that no fact was lost.** STE rewrites are aggressive, so this step matters most here. Follow *Preserve every fact* in `SKILL.md`: run the fact checker against the snapshot, then compare the original with the rewrite paragraph by paragraph. An abbreviation that rule 2.x expanded, or a word that 9.1a rebuilt, is an expected finding; list it under *Removed on purpose*.
+4. **Report** using the Output format below.
 
 ## Boundaries
 
 - Never change technical meaning. Flag anything that reads as factually wrong; do not silently fix it.
 - Never invent an actor to satisfy the active-voice rule (3.6h).
 - Never alter quoted text, UI strings, command names, or flag spellings (1.14a).
-- Never add or delete information. Restructure and reword.
+- Never add or delete information. Restructure and reword. A short sentence that drops a condition, a limit, a reason, or a number is a change of meaning, not a simplification. Where the 20-word or 25-word cap forces a split, put the fact in its own sentence.
 - This skill does **not** contain the ASD approved-word dictionary and cannot check a word's approval status against it. Where approval status matters and you are unsure, reason from the technical-noun and technical-verb categories, apply the rule, and flag the uncertainty in the report.
 
 ---
@@ -492,7 +493,7 @@ Do not invent replacement background to keep the note alive.
 - Before: `The retry count is configurable through the environment.`
 - After: `You can set the retry count with an environment variable.`
 
-**9.1b — Check the surrounding text after a rewrite.** Split any sentence that grew too long, delete information that is now given twice, and hoist a repeated instruction into a table heading or a single lead-in line.
+**9.1b — Check the surrounding text after a rewrite.** Split any sentence that grew too long, merge information that is now given twice, and hoist a repeated instruction into a table heading or a single lead-in line. Merge two statements only when every fact in both — each qualifier, number, condition, and reason — survives in the one you keep. If the two differ in any detail, they are not duplicates.
 
 **9.3 — No phrasal verbs** whose meaning differs from their parts. Choose a single verb that names the action directly. **Exception:** keep a phrasal verb that appears verbatim in a UI label, a command name, or a flag — rule 1.14a wins.
 
@@ -566,6 +567,9 @@ After rewriting, report like this:
 
 ### Not converted
 - [terms that could not be replaced without changing the meaning, and why]
+
+### Fact check
+- [the Fact check section from SKILL.md]
 ```
 
 ## Source and attribution

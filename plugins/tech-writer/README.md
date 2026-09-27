@@ -22,9 +22,10 @@ An explicit request always wins — `ste`, `Simplified Technical English`, `ASD-
 1. Picks the standard, and states which one and why
 2. Reads the target document in full
 3. Reads only the matching rule file, then applies every applicable rule
-4. Rewrites the file in place
+4. Snapshots the file, then rewrites it in place
 5. Normalizes British spellings to US English with the bundled converter
-6. Reports a summary of changes in that standard's output format
+6. Runs the fact checker against the snapshot, re-reads the original paragraph by paragraph, and restores anything the rewrite dropped
+7. Reports a summary of changes in that standard's output format, ending with a *Fact check* section
 
 ## Layout
 
@@ -34,6 +35,7 @@ skills/tech-writer/rules-google.md           ← Google Technical Writing rules,
 skills/tech-writer/rules-ste.md              ← the nine ASD-STE100 rule sections, with examples
 skills/tech-writer/substitutions.md          ← 122 unapproved words and their approved replacements
 skills/tech-writer/scripts/en_gb_to_en_us.py ← en-GB → en-US spelling converter (stdlib Python 3.9+)
+skills/tech-writer/scripts/fact_check.py     ← lists facts the rewrite lost (stdlib Python 3.9+)
 agents/tech-writer.md                        ← background subagent, both standards inlined
 ```
 
@@ -75,6 +77,31 @@ The nine rule sections of ASD-STE100 Part 1, paraphrased with software-documenta
 ### The two standards disagree on purpose
 
 STE and Google's guidelines conflict on sentence length caps, `-ing` forms, nouns used as verbs, gerund vs. imperative headings, `we` vs. `you`, contractions, list punctuation, phrasal verbs, imperatives in prose, and severity labels. The skill picks one per document and never blends them, never "fixes" one standard's output with the other, and never runs both rule files over the same file. `SKILL.md` tabulates the full list of divergences.
+
+## Fact preservation
+
+Clarity edits shorten text, and shortening is where facts leak: a qualifier reads as filler, a reason reads as padding, a "duplicate" carries one extra condition. The skill treats every fact as content that must survive the rewrite. When concision and completeness conflict, completeness wins.
+
+`SKILL.md` defines what counts as a fact: literals (identifiers, commands, paths, numbers, units, dates, error messages, quoted text), qualifiers (negations, conditions, limits, modality), reasons and consequences, scope and provenance, real uncertainty, and examples. A word is filler only if removing it changes nothing a reader would believe or do. The rules that shorten text — filler, noun stacks, one idea per sentence, scope, and STE rule 9.1b — relocate facts rather than delete them.
+
+The skill snapshots the file before the first edit and runs the bundled checker after the rewrite:
+
+```bash
+cp docs/api.md /tmp/api.md.orig
+# ...rewrite docs/api.md...
+python3 plugins/tech-writer/skills/tech-writer/scripts/fact_check.py /tmp/api.md.orig docs/api.md
+```
+
+The checker lists every literal that appears fewer times in the rewrite — code blocks, inline code, URLs, link targets, quoted strings, and tokens with a digit, a path separator, an underscore, a leading dash, or two capitals. It also flags a qualifier class (negation, condition, limit, obligation, cause) whose total drops. It exits 1 when it finds anything, supports `--json`, and has a `--selftest`.
+
+```
+-- literals missing from the rewrite (restore, or justify in the report) --
+  --verbose  (original 1, rewrite 0)
+-- qualifier classes that dropped (re-read the matching sentences) --
+  condition: 1 -> 0  (if, unless, until, when, whenever, while, before, after, ...)
+```
+
+A clean result does not prove completeness, because reasons and examples can vanish without touching a literal. The skill still compares the original with the rewrite paragraph by paragraph, then reports what it restored, relocated, or removed on purpose.
 
 ## Dialect pass
 

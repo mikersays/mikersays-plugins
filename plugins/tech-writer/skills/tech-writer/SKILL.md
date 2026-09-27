@@ -14,9 +14,11 @@ Review and rewrite documentation using one of two standards: Google's Technical 
 1. **Pick the target file.** Use `$ARGUMENTS` if provided; if that path does not exist on disk, run Glob for similar filenames and ask the user to confirm before editing anything. Otherwise use the file currently in context. If neither exists, ask.
 2. **Choose the standard** (see below).
 3. **Read the whole file** before editing — context matters for terminology, pronouns, and classification.
-4. **Read only the matching rule file** — `rules-google.md` or `rules-ste.md` in this skill's directory — and follow its Process, Boundaries, and Output format exactly. Do not read the other rule file and do not apply any of its rules.
-5. **Normalize the dialect.** Both standards want US spelling, so run the bundled converter over the file you just rewrote — see *Dialect pass* below. Skip this step entirely if you were not asked to edit the file.
-6. **Report** using that rule file's output format, and state up front which standard you applied and why.
+4. **Snapshot the file** before you change it, so the fact check has an original to compare against. See *Preserve every fact* below.
+5. **Read only the matching rule file** — `rules-google.md` or `rules-ste.md` in this skill's directory — and follow its Process, Boundaries, and Output format exactly. Do not read the other rule file and do not apply any of its rules.
+6. **Normalize the dialect.** Both standards want US spelling, so run the bundled converter over the file you just rewrote — see *Dialect pass* below. Skip this step entirely if you were not asked to edit the file.
+7. **Check that no fact was lost.** Run the fact checker against the snapshot, then re-read the original paragraph by paragraph against the rewrite. Restore anything that went missing. See *Preserve every fact* below.
+8. **Report** using that rule file's output format, and state up front which standard you applied and why. End the report with the *Fact check* section described below.
 
 ## Choose the standard
 
@@ -55,9 +57,66 @@ These apply regardless of which standard you picked — the per-standard rule fi
 
 - Don't change technical meaning. If something reads as factually wrong, flag it instead of silently fixing it.
 - Don't add sections, features, or claims the author didn't write.
-- Don't delete information — reword or relocate it.
+- Don't delete information — reword or relocate it. *Preserve every fact* below defines what counts as information and how to cut without losing it.
 - Never alter quoted text, UI strings, command names, or flag spellings.
 - If the document is already well-written for its standard, say so and stop. Don't churn for the sake of churn.
+
+## Preserve every fact
+
+Clarity edits shorten text, and shortening is where facts leak. A qualifier looks like filler, a reason looks like padding, and a "duplicate" sentence turns out to carry one extra condition. The reader of the rewrite cannot see what was cut, so a lost fact is worse than a long sentence. When concision and completeness conflict, completeness wins.
+
+### What counts as a fact
+
+Treat all of these as content, never as filler:
+
+- **Literals:** identifiers, commands, flags, paths, URLs, file names, version numbers, numbers and their units, dates, times, limits, error messages, and quoted text.
+- **Qualifiers:** negations (`not`, `never`, `without`), conditions (`if`, `unless`, `until`, `before`), limits and quantifiers (`only`, `at least`, `up to`, `each`, `usually`), and modality (`must`, `should`, `may`). `Usually fails` and `fails` are different claims.
+- **Reasons and consequences:** a `because`, `so that`, or `otherwise` clause, and what goes wrong if the reader skips a step. The reason is often the only part a later reader needs.
+- **Scope and provenance:** which platform, version, environment, or user a statement applies to, who decided something and when, and the source of a claim.
+- **Real uncertainty:** a hedge such as `in our testing` or `we believe` that records what the author actually knows. Remove a hedge only when it is verbal habit, not when it marks an unconfirmed claim.
+- **Examples and edge cases:** a second example that covers a different case, a caveat, or an exception.
+
+### Filler test
+
+A word or phrase is filler only if removing it changes nothing a reader would believe or do. `in order to` → `to` passes the test. `only on Linux` → `on Linux` fails it. If you are unsure, keep the words and shorten something else.
+
+### How to cut safely
+
+- **Relocate, don't delete.** Move a fact that clutters a sentence into its own sentence, a list item, a table cell, or a note that carries background only.
+- **Split without orphaning.** When you split a sentence, each new sentence keeps the condition, scope, and subject that governed the original.
+- **Merge only true duplicates.** Merge two statements only when every fact in both survives in the merged one. Carry over each qualifier, number, and reason.
+- **Never replace a specific with a general.** Don't turn `retries 3 times at 5-second intervals` into `retries a few times`, or a named error into `an error`.
+- **Never fill a gap from memory.** Where the rules ask for a number, an actor, or a full list the document doesn't give, keep the original wording and flag the gap.
+
+### Run the fact check
+
+`scripts/fact_check.py` in this skill's directory compares the snapshot with the rewrite. It is stdlib-only Python 3.9+. It lists every literal that appears fewer times in the rewrite than in the original: code blocks, inline code, URLs, link targets, quoted strings, and any token with a digit, a path separator, an underscore, a leading dash, or two capitals. It also flags a class of qualifiers — negation, condition, limit, obligation, or cause — whose total drops.
+
+```bash
+FC="${CLAUDE_PLUGIN_ROOT}/skills/tech-writer/scripts/fact_check.py"
+[ -f "$FC" ] || FC="$(find ~/.claude/plugins ~/.codex/plugins -path '*/tech-writer/*/fact_check.py' -print -quit 2>/dev/null)"
+ORIG="${TMPDIR:-/tmp}/tech-writer-$(basename docs/api.md).orig"
+cp docs/api.md "$ORIG"                 # before the first edit
+python3 "$FC" "$ORIG" docs/api.md      # after the rewrite and the dialect pass
+```
+
+The checker exits 1 when it finds anything. Exit 1 is not a failure; read the findings. For each finding, either restore the fact or record why its removal was deliberate — for example, an STE rewrite that expands an abbreviation, or an `etc.` spelled out. If the checker is not available, compare the two versions by hand and say so in the report.
+
+A clean result does not prove the rewrite kept every fact. Reasons, consequences, scope, and examples can vanish without touching a literal or a qualifier word. After the checker, compare the original with the rewrite paragraph by paragraph and confirm that each fact from the list above still appears somewhere.
+
+For a review-only request, you do not edit the file, so skip the snapshot and the checker. Still apply the filler test to every cut you suggest.
+
+### Fact check section
+
+End every report with this section, after the rule file's own output format:
+
+```
+### Fact check
+- Checker: [clean | N findings, each restored or explained below | not available, compared by hand]
+- Restored: [facts that an earlier pass dropped and you put back]
+- Relocated: [facts that moved, and where they went]
+- Removed on purpose: [anything removed, and why — or "none"]
+```
 
 ## Dialect pass
 
