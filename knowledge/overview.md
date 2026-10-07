@@ -7,16 +7,16 @@ generated: { by: claude-code/claude-sonnet-5-5, at: 2026-10-07T07:53:13Z }
 status: draft
 sources:
   - id: claude-md
-    resource: CLAUDE.md
+    resource: ../CLAUDE.md
     title: Repository agent guidance
   - id: readme
-    resource: README.md
+    resource: ../README.md
     title: Repository README
   - id: validate
-    resource: scripts/validate.py
+    resource: ../scripts/validate.py
     title: Marketplace validator
   - id: hooks
-    resource: .codex-plugin/hooks.json
+    resource: ../.codex-plugin/hooks.json
     title: Codex SessionStart hook
 ---
 

@@ -7,10 +7,10 @@ generated: { by: claude-code/claude-sonnet-5-5, at: 2026-10-07T07:53:13Z }
 status: draft
 sources:
   - id: claude-md
-    resource: CLAUDE.md
+    resource: ../CLAUDE.md
     title: Repository agent guidance
   - id: validate
-    resource: scripts/validate.py
+    resource: ../scripts/validate.py
     title: Marketplace validator
 ---
 

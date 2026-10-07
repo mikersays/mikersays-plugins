@@ -7,10 +7,10 @@ generated: { by: claude-code/claude-sonnet-5-5, at: 2026-10-07T07:53:13Z }
 status: draft
 sources:
   - id: memory
-    resource: .claude/memory/skill-design-philosophy.md
+    resource: ../../.claude/memory/skill-design-philosophy.md
     title: Preserved session context on skill design
   - id: claude-md
-    resource: CLAUDE.md
+    resource: ../../CLAUDE.md
     title: SKILL.md format section
 ---
 
