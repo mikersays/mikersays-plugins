@@ -5,7 +5,7 @@ This page removes everything the mikersays installer placed on the current machi
 ## What gets removed
 
 - Repo at `~/.codex/plugins/mikersays/mikersays-plugins`
-- Skill symlinks from `~/.agents/skills/`: `ship`, `pr`, `tech-writer`, `deck`, `roadmap`, `diagram`, `monograph`, `bootcamp`, `handoff`, `slop`, `gh-pages`, `plan-init`, `plan-add`, `plan-list`, `plan-update`, `plan-close`, `issue-init`, `issue-new`, `issue-start`, `issue-close`, `okf-init`, `okf-new`, `okf-index`, `okf-validate`
+- Skill symlinks from `~/.agents/skills/`: `ship`, `pr`, `tech-writer`, `deck`, `roadmap`, `diagram`, `monograph`, `bootcamp`, `handoff`, `slop`, `gh-pages`, `plan-init`, `plan-add`, `plan-list`, `plan-update`, `plan-close`, `issue-init`, `issue-new`, `issue-start`, `issue-close`, `okf-init`, `okf-new`, `okf-index`, `okf-validate`, `expert`
 - `mikersays-marketplace` entry from `~/.agents/plugins/marketplace.json`
 - Native Codex marketplace `mikersays-plugins` and installed `*@mikersays-plugins` plugin entries, when present
 - Manual `mikersays` plugin entries from `~/.codex/config.toml`
@@ -47,7 +47,7 @@ rmdir ~/.codex/plugins/mikersays 2>/dev/null || true
 ### Step 2: Remove skill symlinks
 
 ```bash
-for skill in ship pr tech-writer deck roadmap diagram monograph bootcamp handoff slop gh-pages plan-init plan-add plan-list plan-update plan-close issue-init issue-new issue-start issue-close okf-init okf-new okf-index okf-validate; do
+for skill in ship pr tech-writer deck roadmap diagram monograph bootcamp handoff slop gh-pages plan-init plan-add plan-list plan-update plan-close issue-init issue-new issue-start issue-close okf-init okf-new okf-index okf-validate expert; do
   rm -f ~/.agents/skills/$skill
 done
 ```
@@ -136,6 +136,9 @@ enabled = true
 [plugins."okf@mikersays-plugins"]
 enabled = true
 
+[plugins."expert@mikersays-plugins"]
+enabled = true
+
 [plugins."ship@mikersays-marketplace"]
 enabled = true
 
@@ -176,6 +179,9 @@ enabled = true
 enabled = true
 
 [plugins."okf@mikersays-marketplace"]
+enabled = true
+
+[plugins."expert@mikersays-marketplace"]
 enabled = true
 ```
 

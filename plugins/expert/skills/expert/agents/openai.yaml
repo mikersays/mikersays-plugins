@@ -1,0 +1,5 @@
+interface:
+  display_name: Expert
+  short_description: Rewrite a task prompt the way a top professional would approach it
+policy:
+  allow_implicit_invocation: false

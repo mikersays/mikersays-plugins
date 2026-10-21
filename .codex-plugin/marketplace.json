@@ -173,6 +173,18 @@
       "category": "Developer Tools"
     },
     {
+      "name": "expert",
+      "source": {
+        "source": "local",
+        "path": "./plugins/expert"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    },
+    {
       "name": "maintenance",
       "source": {
         "source": "local",

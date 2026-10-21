@@ -58,6 +58,7 @@ Codex records the marketplace and installed plugins in `~/.codex/config.toml`, t
 | [slop](plugins/slop/) | Rewrite any text to maximally overuse every known AI-writing tell | `/slop [file \| text \| topic]` |
 | [gh-pages](plugins/gh-pages/) | Build or publish a static site on GitHub Pages — saves the site to `docs/` and enables Pages from the `docs/` folder on the default branch | `/gh-pages [site description]` |
 | [okf](plugins/okf/) | Author, index, and validate Open Knowledge Format (OKF v0.2) knowledge bundles — markdown concepts with frontmatter for provenance, trust, lifecycle, and attested computations | `/okf-init` `/okf-new` `/okf-index` `/okf-validate` |
+| [expert](plugins/expert/) | Rewrite a task prompt the way a top professional would approach it: expert habits, raw sources, named methods, and independent proof | `/expert [task]` |
 | [maintenance](plugins/maintenance/) | Sync docs, run installer, run uninstaller | `/sync-docs` `/install-marketplace` `/uninstall-marketplace` |
 
 ## Contributing

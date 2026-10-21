@@ -1,0 +1,11 @@
+{
+  "name": "expert",
+  "description": "Turn a task description into a deeper, expert-grade prompt — what a top professional would do, their raw sources, methods and tools, and independent proof the result is right",
+  "version": "1.0.0",
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Expert",
+    "shortDescription": "Rewrite a task prompt the way a top professional would approach it",
+    "category": "Productivity"
+  }
+}

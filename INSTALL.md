@@ -32,6 +32,7 @@ codex plugin add <plugin>@mikersays-plugins
 - `slop` — Rewrite any text to maximally overuse every known AI-writing tell — em-dashes, the rule of three, "not X but Y", and the rest
 - `gh-pages` — Build or publish a static site on GitHub Pages — saves the site to docs/ and enables Pages from the docs/ folder on the default branch
 - `okf` — Author, index, and validate Open Knowledge Format (OKF v0.2) bundles — markdown concepts with YAML frontmatter for provenance, trust, lifecycle, and attested computations; includes `okf-init`, `okf-new`, `okf-index`, and `okf-validate`
+- `expert` — Turn a task description into a deeper, expert-grade prompt — what a top professional would do, their raw sources, methods and tools, and independent proof the result is right
 
 ## Install
 

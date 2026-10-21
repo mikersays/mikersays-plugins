@@ -76,6 +76,11 @@
       "description": "Author, index, and validate Open Knowledge Format (OKF v0.2) bundles — markdown concepts with YAML frontmatter for provenance, trust, lifecycle, and attested computations — /okf-init /okf-new /okf-index /okf-validate"
     },
     {
+      "name": "expert",
+      "source": "./plugins/expert",
+      "description": "Turn a task description into a deeper, expert-grade prompt — what a top professional would do, their raw sources, methods and tools, and independent proof the result is right — /expert"
+    },
+    {
       "name": "maintenance",
       "source": "./plugins/maintenance",
       "description": "Maintenance skills for the mikersays-plugins marketplace — /sync-docs /install-marketplace /uninstall-marketplace"

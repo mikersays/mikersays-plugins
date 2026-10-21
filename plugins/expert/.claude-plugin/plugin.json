@@ -1,0 +1,8 @@
+{
+  "name": "expert",
+  "description": "Turn a task description into a deeper, expert-grade prompt — what a top professional would do, their raw sources, methods and tools, and independent proof the result is right",
+  "version": "1.0.0",
+  "author": {
+    "name": "mikersays"
+  }
+}
