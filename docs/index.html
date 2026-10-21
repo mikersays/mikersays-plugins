@@ -4,25 +4,86 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>mikersays-plugins</title>
+  <meta name="description" content="A plugin marketplace for Claude Code and Codex CLI: ship code, write PRs, build decks, generate diagrams, and more." />
+  <script>
+    try {
+      var t = localStorage.getItem('theme');
+      if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+    } catch (e) {}
+  </script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+    /* Catppuccin Mocha (dark) is the default; Latte (light) follows the system
+       setting unless the visitor picks a theme with the toggle. */
     :root {
-      --bg: #0d0d0d;
-      --surface: #161616;
-      --surface2: #1f1f1f;
-      --border: #2a2a2a;
-      --text: #e8e8e8;
-      --muted: #888;
-      --accent: #7c6af7;
-      --accent-dim: #3d3470;
-      --green: #3ecf8e;
-      --green-dim: #1a3d2e;
-      --code-bg: #111;
-      --warn: #f59e0b;
+      color-scheme: dark;
+      --bg: #1e1e2e;          /* base */
+      --nav-bg: #181825;      /* mantle */
+      --code-bg: #11111b;     /* crust */
+      --surface: #181825;     /* mantle */
+      --surface2: #313244;    /* surface0 */
+      --border: #313244;      /* surface0 */
+      --border-strong: #585b70; /* surface2 */
+      --text: #cdd6f4;
+      --muted: #a6adc8;       /* subtext0 */
+      --faint: #7f849c;       /* overlay1 */
+      --accent: #cba6f7;      /* mauve */
+      --accent-dim: #3b3158;
+      --on-accent: #11111b;
+      --green: #a6e3a1;
+      --green-dim: #1f3a2c;
+      --warn: #f9e2af;
+      --focus: #89b4fa;       /* blue */
+    }
+    @media (prefers-color-scheme: light) {
+      :root:not([data-theme="dark"]) {
+        color-scheme: light;
+        --bg: #eff1f5;
+        --nav-bg: #e6e9ef;
+        --code-bg: #dce0e8;
+        --surface: #e6e9ef;
+        --surface2: #ccd0da;
+        --border: #ccd0da;
+        --border-strong: #9ca0b0;
+        --text: #4c4f69;
+        --muted: #5c5f77;
+        --faint: #6c6f85;
+        --accent: #8839ef;
+        --accent-dim: #e2d3fb;
+        --on-accent: #eff1f5;
+        --green: #2f7d20;
+        --green-dim: #d9efd5;
+        --warn: #a8610b;
+        --focus: #1e66f5;
+      }
+    }
+    :root[data-theme="light"] {
+      color-scheme: light;
+      --bg: #eff1f5;
+      --nav-bg: #e6e9ef;
+      --code-bg: #dce0e8;
+      --surface: #e6e9ef;
+      --surface2: #ccd0da;
+      --border: #ccd0da;
+      --border-strong: #9ca0b0;
+      --text: #4c4f69;
+      --muted: #5c5f77;
+      --faint: #6c6f85;
+      --accent: #8839ef;
+      --accent-dim: #e2d3fb;
+      --on-accent: #eff1f5;
+      --green: #2f7d20;
+      --green-dim: #d9efd5;
+      --warn: #a8610b;
+      --focus: #1e66f5;
     }
 
-    html { scroll-behavior: smooth; }
+    html { scroll-behavior: smooth; scroll-padding-top: 72px; }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      * { transition: none !important; }
+    }
 
     body {
       background: var(--bg);
@@ -30,18 +91,54 @@
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       font-size: 15px;
       line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
     }
+
+    :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
 
     .container { max-width: 760px; margin: 0 auto; padding: 0 24px; }
 
     /* ── Nav ── */
-    nav { border-bottom: 1px solid var(--border); padding: 16px 0; }
-    nav .container { display: flex; align-items: center; justify-content: space-between; }
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: color-mix(in srgb, var(--nav-bg) 88%, transparent);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 0;
+    }
+    nav .container { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
     .nav-brand { font-weight: 700; font-size: 15px; color: var(--text); text-decoration: none; }
     .nav-brand span { color: var(--accent); }
     nav a { color: var(--muted); text-decoration: none; font-size: 14px; transition: color 0.15s; }
     nav a:hover { color: var(--text); }
-    .nav-links { display: flex; gap: 24px; align-items: center; }
+    .nav-links { display: flex; gap: 20px; align-items: center; }
+    .theme-toggle {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .theme-toggle:hover { color: var(--text); border-color: var(--border-strong); }
+    .theme-toggle svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .theme-toggle .icon-sun { display: none; }
+    :root:not([data-theme="light"]) .theme-toggle .icon-sun { display: block; }
+    :root:not([data-theme="light"]) .theme-toggle .icon-moon { display: none; }
+    @media (prefers-color-scheme: light) {
+      :root:not([data-theme="dark"]) .theme-toggle .icon-sun { display: none; }
+      :root:not([data-theme="dark"]) .theme-toggle .icon-moon { display: block; }
+    }
+    :root[data-theme="light"] .theme-toggle .icon-sun { display: none; }
+    :root[data-theme="light"] .theme-toggle .icon-moon { display: block; }
 
     /* ── Hero ── */
     .hero { padding: 80px 0 56px; text-align: center; }
@@ -53,7 +150,7 @@
       font-weight: 600;
       letter-spacing: 0.06em;
       text-transform: uppercase;
-      padding: 4px 10px;
+      padding: 4px 12px;
       border-radius: 20px;
       margin-bottom: 20px;
     }
@@ -65,7 +162,7 @@
       margin-bottom: 16px;
     }
     h1 em { color: var(--accent); font-style: normal; }
-    .hero-sub { color: var(--muted); font-size: 17px; max-width: 480px; margin: 0 auto 36px; }
+    .hero-sub { color: var(--muted); font-size: 17px; max-width: 520px; margin: 0 auto 36px; }
     .hero-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
     .btn {
       display: inline-block;
@@ -74,14 +171,15 @@
       font-size: 14px;
       font-weight: 600;
       text-decoration: none;
-      transition: opacity 0.15s, transform 0.1s;
+      transition: opacity 0.15s, transform 0.1s, border-color 0.15s, color 0.15s;
       cursor: pointer;
       border: none;
     }
-    .btn:hover { opacity: 0.85; transform: translateY(-1px); }
-    .btn-primary { background: var(--accent); color: #fff; }
-    .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--muted); }
-    .btn-ghost:hover { color: var(--text); border-color: #444; }
+    .btn:hover { transform: translateY(-1px); }
+    .btn-primary { background: var(--accent); color: var(--on-accent); }
+    .btn-primary:hover { opacity: 0.88; }
+    .btn-ghost { background: transparent; border: 1px solid var(--border-strong); color: var(--muted); }
+    .btn-ghost:hover { color: var(--text); border-color: var(--accent); }
 
     /* ── Section ── */
     section { padding: 56px 0; border-top: 1px solid var(--border); }
@@ -95,10 +193,14 @@
       margin-bottom: 24px;
       font-size: 14px;
       line-height: 1.55;
-      color: #cfe9da;
+      color: var(--text);
     }
     .callout strong { color: var(--green); }
-    .callout code {
+    code {
+      font-family: "SF Mono", "Fira Code", "Cascadia Code", monospace;
+      color: var(--text);
+    }
+    .callout code, .section-sub code, .what-item code {
       background: var(--code-bg);
       border-radius: 4px;
       padding: 1px 5px;
@@ -118,19 +220,37 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px 16px;
       margin-bottom: 14px;
     }
-    .picker-actions { display: flex; gap: 8px; }
+    .picker-actions { display: flex; gap: 8px; align-items: center; }
+    .picker-actions .sep { color: var(--border-strong); }
     .text-btn {
       background: none;
       border: none;
       color: var(--muted);
       font-size: 13px;
       cursor: pointer;
-      padding: 0;
+      padding: 2px 0;
       transition: color 0.15s;
     }
     .text-btn:hover { color: var(--accent); }
+    .search {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font: inherit;
+      font-size: 14px;
+      padding: 9px 12px;
+      margin-bottom: 14px;
+      transition: border-color 0.15s;
+    }
+    .search::placeholder { color: var(--faint); }
+    .search:hover { border-color: var(--border-strong); }
+    .no-results { grid-column: 1 / -1; text-align: center; color: var(--muted); font-size: 14px; padding: 24px 0; }
 
     .plugins-grid {
       display: grid;
@@ -147,10 +267,10 @@
       user-select: none;
       position: relative;
     }
-    .plugin-card:hover { border-color: #3a3a3a; }
+    .plugin-card:hover { border-color: var(--border-strong); }
     .plugin-card.selected {
       border-color: var(--accent);
-      background: color-mix(in srgb, var(--accent) 6%, var(--surface));
+      background: color-mix(in srgb, var(--accent) 8%, var(--surface));
     }
     .plugin-card-top {
       display: flex;
@@ -164,12 +284,12 @@
       font-weight: 600;
       color: var(--accent);
     }
-    .plugin-name::before { content: "/"; opacity: 0.45; }
+    .plugin-name::before { content: "/"; opacity: 0.55; }
     .checkmark {
       width: 18px;
       height: 18px;
       border-radius: 5px;
-      border: 1.5px solid var(--border);
+      border: 1.5px solid var(--border-strong);
       flex-shrink: 0;
       display: flex;
       align-items: center;
@@ -180,7 +300,7 @@
     .plugin-card.selected .checkmark {
       background: var(--accent);
       border-color: var(--accent);
-      color: #fff;
+      color: var(--on-accent);
     }
     .plugin-desc { font-size: 13px; color: var(--muted); }
 
@@ -195,13 +315,12 @@
       padding: 4px 12px;
       font-size: 13px;
       color: var(--muted);
-      margin-bottom: 28px;
       transition: all 0.2s;
     }
     .selection-pill .count { color: var(--accent); font-weight: 700; }
     .none-selected-warn {
-      background: color-mix(in srgb, var(--warn) 10%, transparent);
-      border-color: color-mix(in srgb, var(--warn) 30%, transparent);
+      background: color-mix(in srgb, var(--warn) 12%, transparent);
+      border-color: color-mix(in srgb, var(--warn) 40%, transparent);
       color: var(--warn);
     }
 
@@ -213,11 +332,12 @@
       font-size: 13px;
       font-weight: 600;
       cursor: pointer;
-      border: 1px solid var(--border);
+      border: 1px solid var(--border-strong);
       color: var(--muted);
       background: none;
       transition: all 0.15s;
     }
+    .tab:hover { color: var(--text); }
     .tab.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
     .tab-content { display: none; }
     .tab-content.active { display: block; }
@@ -234,14 +354,14 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 10px 16px;
+      padding: 8px 16px;
       border-bottom: 1px solid var(--border);
       background: var(--surface2);
     }
     .block-label { font-size: 12px; font-weight: 600; color: var(--muted); letter-spacing: 0.04em; text-transform: uppercase; }
     .copy-btn {
       background: none;
-      border: 1px solid var(--border);
+      border: 1px solid var(--border-strong);
       color: var(--muted);
       font-size: 12px;
       padding: 3px 10px;
@@ -249,7 +369,7 @@
       cursor: pointer;
       transition: color 0.15s, border-color 0.15s;
     }
-    .copy-btn:hover { color: var(--text); border-color: #555; }
+    .copy-btn:hover { color: var(--text); border-color: var(--accent); }
     .copy-btn.copied { color: var(--green); border-color: var(--green); }
     pre {
       padding: 16px;
@@ -260,15 +380,16 @@
       background: var(--code-bg);
     }
     @media (max-width: 640px) {
+      .hero { padding: 56px 0 40px; }
+      .nav-links { gap: 14px; }
       pre {
         white-space: pre-wrap;
         word-break: break-word;
         overflow-wrap: anywhere;
       }
     }
-    code { color: var(--text); }
-    .c { color: #4a4a4a; }        /* comment */
-    .kw { color: var(--accent); } /* keyword / prompt text */
+    .c { color: var(--faint); }        /* comment */
+    .kw { color: var(--accent); }      /* keyword / prompt text */
 
     /* empty state */
     .empty-state {
@@ -293,7 +414,8 @@
       display: flex; align-items: center; justify-content: center;
       margin-top: 2px;
     }
-    .step-body { flex: 1; }
+    .step-num::before { content: counter(step); }
+    .step-body { flex: 1; min-width: 0; }
     .step-title { font-weight: 600; margin-bottom: 8px; font-size: 14px; }
     .step-desc { color: var(--muted); font-size: 13px; margin-bottom: 10px; }
 
@@ -306,7 +428,7 @@
     footer { border-top: 1px solid var(--border); padding: 28px 0; text-align: center; color: var(--muted); font-size: 13px; }
     footer a { color: var(--muted); text-decoration: none; }
     footer a:hover { color: var(--text); }
-    .uninstall-link { font-size: 12px; color: #444; text-decoration: none; }
+    .uninstall-link { font-size: 12px; color: var(--faint); text-decoration: none; }
     .uninstall-link:hover { color: var(--muted); }
   </style>
 </head>
@@ -318,7 +440,11 @@
     <div class="nav-links">
       <a href="#plugins">Plugins</a>
       <a href="#install">Install</a>
-      <a href="https://github.com/mikersays/mikersays-plugins" target="_blank">GitHub</a>
+      <a href="https://github.com/mikersays/mikersays-plugins" target="_blank" rel="noopener">GitHub</a>
+      <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch to light theme" title="Toggle theme">
+        <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      </button>
     </div>
   </div>
 </nav>
@@ -327,10 +453,10 @@
   <div class="container">
     <div class="badge">Claude Code + Codex CLI</div>
     <h1>Skills for your<br><em>AI coding agent</em></h1>
-    <p class="hero-sub">A plugin marketplace that works in Claude Code and Codex CLI. Ship code, write PRs, build decks, generate diagrams — all with a single command.</p>
+    <p class="hero-sub">A plugin marketplace that works in Claude Code and Codex CLI. Ship code, write PRs, build decks, sharpen your prompts — all with a single command.</p>
     <div class="hero-actions">
       <a href="#install" class="btn btn-primary">Install now</a>
-      <a href="https://github.com/mikersays/mikersays-plugins" target="_blank" class="btn btn-ghost">View on GitHub</a>
+      <a href="https://github.com/mikersays/mikersays-plugins" target="_blank" rel="noopener" class="btn btn-ghost">View on GitHub</a>
     </div>
   </div>
 </header>
@@ -344,15 +470,17 @@
       <p class="section-sub">Select the ones you want — your install commands update below.</p>
 
       <div class="picker-header">
-        <div id="selection-pill" class="selection-pill">
-          <span class="count" id="pill-count">11</span> of 11 selected
+        <div id="selection-pill" class="selection-pill" aria-live="polite">
+          <span class="count" id="pill-count">15</span> of 15 selected
         </div>
         <div class="picker-actions">
           <button class="text-btn" onclick="selectAll()">Select all</button>
-          <span style="color:var(--border)">·</span>
+          <span class="sep" aria-hidden="true">·</span>
           <button class="text-btn" onclick="selectNone()">Clear</button>
         </div>
       </div>
+
+      <input class="search" id="plugin-search" type="search" placeholder="Filter plugins…" aria-label="Filter plugins" autocomplete="off" />
 
       <div class="plugins-grid" id="plugins-grid">
         <!-- rendered by JS -->
@@ -366,13 +494,13 @@
       <h2>Install</h2>
       <p class="section-sub">Choose your agent.</p>
 
-      <div class="tabs">
-        <button class="tab active" onclick="switchTab('codex', event)">Codex CLI</button>
-        <button class="tab" onclick="switchTab('claude', event)">Claude Code</button>
+      <div class="tabs" role="tablist">
+        <button class="tab active" role="tab" aria-selected="true" aria-controls="tab-codex" onclick="switchTab('codex', event)">Codex CLI</button>
+        <button class="tab" role="tab" aria-selected="false" aria-controls="tab-claude" onclick="switchTab('claude', event)">Claude Code</button>
       </div>
 
       <!-- Codex tab -->
-      <div id="tab-codex" class="tab-content active">
+      <div id="tab-codex" class="tab-content active" role="tabpanel">
 
         <h3 style="margin-bottom:10px;">Native — recommended</h3>
         <p class="section-sub" style="margin-bottom:12px;">
@@ -417,7 +545,7 @@ codex plugin add ship@mikersays-plugins</code></pre>
         <h3 style="margin-top:28px;margin-bottom:12px;">Interactive</h3>
         <div class="steps">
           <div class="step">
-            <div class="step-num"></div>
+            <div class="step-num" aria-hidden="true"></div>
             <div class="step-body">
               <div class="step-title">Open a Codex session in any directory</div>
               <div class="install-block">
@@ -430,7 +558,7 @@ codex plugin add ship@mikersays-plugins</code></pre>
             </div>
           </div>
           <div class="step">
-            <div class="step-num"></div>
+            <div class="step-num" aria-hidden="true"></div>
             <div class="step-body">
               <div class="step-title">Paste this prompt</div>
               <div class="step-desc">The agent runs the native marketplace and plugin install commands for your selection.</div>
@@ -458,7 +586,7 @@ codex plugin add ship@mikersays-plugins</code></pre>
       </div>
 
       <!-- Claude Code tab -->
-      <div id="tab-claude" class="tab-content">
+      <div id="tab-claude" class="tab-content" role="tabpanel">
         <div class="callout">
           <strong>Launch Claude Code first.</strong> These are <em>slash commands</em>, not terminal commands.
           Start Claude Code in your project (run <code>claude</code> in your terminal, or open the desktop / IDE app),
@@ -500,7 +628,10 @@ codex plugin add ship@mikersays-plugins</code></pre>
 /tech-writer docs/runbooks/failover.md ste
 
 <span class="c"># Build a slide deck</span>
-/deck microservices architecture</code></pre>
+/deck microservices architecture
+
+<span class="c"># Get an expert-grade rewrite of a task prompt</span>
+/expert migrate our billing service to Postgres</code></pre>
         </div>
       </div>
 
@@ -512,9 +643,9 @@ codex plugin add ship@mikersays-plugins</code></pre>
 <footer>
   <div class="container">
     <p>
-      Built by <a href="https://github.com/mikersays" target="_blank">mikersays</a> ·
-      <a href="https://github.com/mikersays/mikersays-plugins" target="_blank">GitHub</a> ·
-      <a class="uninstall-link" href="https://github.com/mikersays/mikersays-plugins/blob/master/UNINSTALL.md" target="_blank">Uninstall</a>
+      Built by <a href="https://github.com/mikersays" target="_blank" rel="noopener">mikersays</a> ·
+      <a href="https://github.com/mikersays/mikersays-plugins" target="_blank" rel="noopener">GitHub</a> ·
+      <a class="uninstall-link" href="https://github.com/mikersays/mikersays-plugins/blob/master/UNINSTALL.md" target="_blank" rel="noopener">Uninstall</a>
     </p>
   </div>
 </footer>
@@ -543,11 +674,19 @@ codex plugin add ship@mikersays-plugins</code></pre>
   // ── Render plugin cards ──────────────────────────────────────────
   function renderGrid() {
     const grid = document.getElementById('plugins-grid');
-    grid.innerHTML = PLUGINS.map(p => `
+    const focusedId = document.activeElement && document.activeElement.dataset ? document.activeElement.dataset.id : null;
+    const q = (document.getElementById('plugin-search').value || '').trim().toLowerCase();
+    const shown = PLUGINS.filter(p => !q || p.id.includes(q) || p.desc.toLowerCase().includes(q));
+    if (!shown.length) {
+      grid.innerHTML = '<div class="no-results">No plugins match your filter.</div>';
+      return;
+    }
+    grid.innerHTML = shown.map(p => `
       <div class="plugin-card ${selected.has(p.id) ? 'selected' : ''}"
            onclick="toggle('${p.id}')" role="checkbox"
            aria-checked="${selected.has(p.id)}" tabindex="0"
-           onkeydown="if(event.key==='Enter'||event.key===' ')toggle('${p.id}')">
+           data-id="${p.id}"
+           onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggle('${p.id}')}">
         <div class="plugin-card-top">
           <div class="plugin-name">${p.id}</div>
           <div class="checkmark">${selected.has(p.id) ? '✓' : ''}</div>
@@ -555,6 +694,10 @@ codex plugin add ship@mikersays-plugins</code></pre>
         <div class="plugin-desc">${p.desc}</div>
       </div>
     `).join('');
+    if (focusedId) {
+      const again = grid.querySelector(`[data-id="${focusedId}"]`);
+      if (again) again.focus();
+    }
   }
 
   // ── Update pill ──────────────────────────────────────────────────
@@ -664,24 +807,54 @@ Verify the installed plugins and report the final result.`;
 
   // ── Tabs ─────────────────────────────────────────────────────────
   function switchTab(name, e) {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => { t.classList.remove('active'); t.setAttribute('aria-selected', 'false'); });
     document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
     document.getElementById(`tab-${name}`).classList.add('active');
-    if (e) e.target.classList.add('active');
+    if (e) { e.currentTarget.classList.add('active'); e.currentTarget.setAttribute('aria-selected', 'true'); }
   }
 
   // ── Copy ─────────────────────────────────────────────────────────
   function copyEl(btn, id) {
     const el = document.getElementById(id);
     if (!el) return;
-    navigator.clipboard.writeText(el.innerText || el.textContent).then(() => {
-      btn.textContent = 'Copied!';
-      btn.classList.add('copied');
+    const text = el.innerText || el.textContent;
+    const done = ok => {
+      btn.textContent = ok ? 'Copied!' : 'Press Ctrl+C';
+      btn.classList.toggle('copied', ok);
       setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
-    });
+    };
+    if (!navigator.clipboard) {
+      const range = document.createRange();
+      range.selectNodeContents(el);
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+      done(false);
+      return;
+    }
+    navigator.clipboard.writeText(text).then(() => done(true), () => done(false));
   }
 
+  // ── Theme ────────────────────────────────────────────────────────
+  const root = document.documentElement;
+  const themeBtn = document.getElementById('theme-toggle');
+  const isLight = () => root.getAttribute('data-theme')
+    ? root.getAttribute('data-theme') === 'light'
+    : window.matchMedia('(prefers-color-scheme: light)').matches;
+  function syncThemeLabel() {
+    themeBtn.setAttribute('aria-label', isLight() ? 'Switch to dark theme (Catppuccin Mocha)' : 'Switch to light theme (Catppuccin Latte)');
+  }
+  themeBtn.addEventListener('click', () => {
+    const next = isLight() ? 'dark' : 'light';
+    root.setAttribute('data-theme', next);
+    try { localStorage.setItem('theme', next); } catch (e) {}
+    syncThemeLabel();
+  });
+  window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', syncThemeLabel);
+  syncThemeLabel();
+
   // ── Init ─────────────────────────────────────────────────────────
+  document.getElementById('plugin-search').addEventListener('input', renderGrid);
   render();
 </script>
 
