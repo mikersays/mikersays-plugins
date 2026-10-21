@@ -48,7 +48,6 @@ Codex records the marketplace and installed plugins in `~/.codex/config.toml`, t
 | [diagram](plugins/diagram/) | Generate interactive SVG diagrams from a description | `/diagram [description]` |
 | [bootcamp](plugins/bootcamp/) | Swarm of expert subagents builds an interactive zero-to-hero course site — modules, worked examples, exercises with solutions, checkpoints, a capstone, and progress tracking — shipped to `docs/` and deployed on GitHub Pages | `/bootcamp [topic]` |
 | [pr](plugins/pr/) | Create a GitHub PR with auto-generated title, summary, and test plan | `/pr [title]` |
-| [plan](plugins/plan/) | Track bugs, features, chores, and todos as markdown in `docs/plan/` | `/plan-init` `/plan-add` `/plan-list` `/plan-update` `/plan-close` |
 | [handoff](plugins/handoff/) | Audit session context and persist what matters for the next agent | `/handoff` |
 | [slop](plugins/slop/) | Rewrite any text to maximally overuse every known AI-writing tell | `/slop [file \| text \| topic]` |
 | [gh-pages](plugins/gh-pages/) | Build or publish a static site on GitHub Pages — saves the site to `docs/` and enables Pages from the `docs/` folder on the default branch | `/gh-pages [site description]` |

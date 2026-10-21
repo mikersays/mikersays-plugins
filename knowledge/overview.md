@@ -43,7 +43,7 @@ A plugin marketplace for Claude Code and Codex CLI. It holds skills, slash comma
 
 # Plugins
 
-`tech-writer`, `diagram`, `pr`, `plan`, `bootcamp`, `handoff`, `slop`, `gh-pages`, `okf`, `expert`, and `maintenance`. The `maintenance` plugin (`/sync-docs`, `/install-marketplace`, `/uninstall-marketplace`) is for the marketplace owner and is not installed by end users.[^claude-md]
+`tech-writer`, `diagram`, `pr`, `bootcamp`, `handoff`, `slop`, `gh-pages`, `okf`, `expert`, and `maintenance`. The `maintenance` plugin (`/sync-docs`, `/install-marketplace`, `/uninstall-marketplace`) is for the marketplace owner and is not installed by end users.[^claude-md]
 
 # Add a plugin
 

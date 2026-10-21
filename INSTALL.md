@@ -22,7 +22,6 @@ codex plugin add <plugin>@mikersays-plugins
 - `tech-writer` — Review and rewrite documentation in place using either Google's Technical Writing guidelines or strict Simplified Technical English (ASD-STE100), chosen per document — Google for READMEs, guides, and ordinary prose; STE for procedures, runbooks, and docs headed for translation
 - `diagram` — Generate an interactive SVG diagram (architecture, sequence, flowchart, ER) from a description
 - `bootcamp` — Spin up a swarm of expert subagents to build an interactive zero-to-hero course site on any topic — progressive modules, worked examples, exercises with solutions, checkpoints, a capstone, and progress tracking — shipped to docs/ and deployed on GitHub Pages
-- `plan` — Lightweight markdown-based tracker for bugs/features/chores/todos that lives in docs/plan/ inside your repo; includes `plan-init`, `plan-add`, `plan-list`, `plan-update`, and `plan-close`
 - `handoff` — Audit session context and persist what matters for the next agent — decisions, dead ends, insights, and in-flight work
 - `slop` — Rewrite any text to maximally overuse every known AI-writing tell — em-dashes, the rule of three, "not X but Y", and the rest
 - `gh-pages` — Build or publish a static site on GitHub Pages — saves the site to docs/ and enables Pages from the docs/ folder on the default branch

@@ -26,11 +26,6 @@
       "description": "Create a GitHub PR for the current branch with auto-generated title, summary, and test plan — /pr"
     },
     {
-      "name": "plan",
-      "source": "./plugins/plan",
-      "description": "Lightweight markdown-based tracker for bugs/features/chores/todos in docs/plan/ — /plan-init /plan-add /plan-list /plan-update /plan-close"
-    },
-    {
       "name": "handoff",
       "source": "./plugins/handoff",
       "description": "Audit session context and persist what matters for the next agent — decisions, dead ends, insights, and in-flight work — /handoff"
