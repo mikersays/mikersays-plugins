@@ -5,7 +5,7 @@ This page removes everything the mikersays installer placed on the current machi
 ## What gets removed
 
 - Repo at `~/.codex/plugins/mikersays/mikersays-plugins`
-- Skill symlinks from `~/.agents/skills/`: `ship`, `pr`, `tech-writer`, `deck`, `roadmap`, `diagram`, `monograph`, `bootcamp`, `handoff`, `slop`, `gh-pages`, `plan-init`, `plan-add`, `plan-list`, `plan-update`, `plan-close`, `issue-init`, `issue-new`, `issue-start`, `issue-close`, `okf-init`, `okf-new`, `okf-index`, `okf-validate`, `expert`
+- Skill symlinks from `~/.agents/skills/`: `pr`, `tech-writer`, `diagram`, `bootcamp`, `handoff`, `slop`, `gh-pages`, `plan-init`, `plan-add`, `plan-list`, `plan-update`, `plan-close`, `okf-init`, `okf-new`, `okf-index`, `okf-validate`, `expert`
 - `mikersays-marketplace` entry from `~/.agents/plugins/marketplace.json`
 - Native Codex marketplace `mikersays-plugins` and installed `*@mikersays-plugins` plugin entries, when present
 - Manual `mikersays` plugin entries from `~/.codex/config.toml`
@@ -47,7 +47,7 @@ rmdir ~/.codex/plugins/mikersays 2>/dev/null || true
 ### Step 2: Remove skill symlinks
 
 ```bash
-for skill in ship pr tech-writer deck roadmap diagram monograph bootcamp handoff slop gh-pages plan-init plan-add plan-list plan-update plan-close issue-init issue-new issue-start issue-close okf-init okf-new okf-index okf-validate expert; do
+for skill in pr tech-writer diagram bootcamp handoff slop gh-pages plan-init plan-add plan-list plan-update plan-close okf-init okf-new okf-index okf-validate expert; do
   rm -f ~/.agents/skills/$skill
 done
 ```
@@ -94,34 +94,19 @@ Remove these lines (and the blank line following each block) if present:
 [marketplaces.mikersays-plugins]
 source = "mikersays/mikersays-plugins"
 
-[plugins."ship@mikersays-plugins"]
-enabled = true
-
 [plugins."pr@mikersays-plugins"]
 enabled = true
 
 [plugins."tech-writer@mikersays-plugins"]
 enabled = true
 
-[plugins."deck@mikersays-plugins"]
-enabled = true
-
-[plugins."roadmap@mikersays-plugins"]
-enabled = true
-
 [plugins."diagram@mikersays-plugins"]
-enabled = true
-
-[plugins."monograph@mikersays-plugins"]
 enabled = true
 
 [plugins."bootcamp@mikersays-plugins"]
 enabled = true
 
 [plugins."plan@mikersays-plugins"]
-enabled = true
-
-[plugins."issues@mikersays-plugins"]
 enabled = true
 
 [plugins."handoff@mikersays-plugins"]
@@ -139,34 +124,19 @@ enabled = true
 [plugins."expert@mikersays-plugins"]
 enabled = true
 
-[plugins."ship@mikersays-marketplace"]
-enabled = true
-
 [plugins."pr@mikersays-marketplace"]
 enabled = true
 
 [plugins."tech-writer@mikersays-marketplace"]
 enabled = true
 
-[plugins."deck@mikersays-marketplace"]
-enabled = true
-
-[plugins."roadmap@mikersays-marketplace"]
-enabled = true
-
 [plugins."diagram@mikersays-marketplace"]
-enabled = true
-
-[plugins."monograph@mikersays-marketplace"]
 enabled = true
 
 [plugins."bootcamp@mikersays-marketplace"]
 enabled = true
 
 [plugins."plan@mikersays-marketplace"]
-enabled = true
-
-[plugins."issues@mikersays-marketplace"]
 enabled = true
 
 [plugins."handoff@mikersays-marketplace"]

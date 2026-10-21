@@ -68,4 +68,4 @@ A short description of what needs to happen and why.
 
 ## Pairing with the rest of the marketplace
 
-After triaging with `/plan-*`, ship the diff with `/ship` and open a PR with `/pr`. If you want to mirror items to GitHub Issues, `gh issue create --body-file docs/plan/NNN-*.md` does the job — that's a one-off command, not built into the plugin.
+After triaging with `/plan-*`, commit the diff and open a PR with `/pr`. If you want to mirror items to GitHub Issues, `gh issue create --body-file docs/plan/NNN-*.md` does the job — that's a one-off command, not built into the plugin.

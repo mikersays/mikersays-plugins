@@ -36,7 +36,7 @@ The same check runs in `.githooks/pre-commit` and in `.github/workflows/validate
 
 # Shared diagram assets
 
-`deck`, `gh-pages`, `monograph`, and `bootcamp` each ship a copy of `diagram-zoom.js`, `diagram-zoom.css`, and `references/mermaid-diagrams.md`, because plugins install independently and cannot share files. Edit one copy, then copy it to the other three. The validator fails if they diverge.[^claude-md]
+`gh-pages` and `bootcamp` each ship a copy of `diagram-zoom.js`, `diagram-zoom.css`, and `references/mermaid-diagrams.md`, because plugins install independently and cannot share files. Edit one copy, then copy it to the other. The validator fails if they diverge.[^claude-md]
 
 [^claude-md]: CLAUDE.md
 [^validate]: scripts/validate.py

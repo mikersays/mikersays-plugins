@@ -129,7 +129,7 @@ docs/api.md:8:45: licence -> license  (rule: ce-se)
 The plugin registers one Task agent that Claude can spawn autonomously to review docs in the background. It carries both standards and the same routing rule:
 
 ```
-Task(subagent_type="tech-writer", prompt="Review plugins/ship/README.md")
+Task(subagent_type="tech-writer", prompt="Review plugins/pr/README.md")
 Task(subagent_type="tech-writer", prompt="Convert docs/runbooks/failover.md to STE")
 ```
 

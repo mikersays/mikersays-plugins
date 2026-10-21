@@ -6,34 +6,14 @@
   },
   "plugins": [
     {
-      "name": "ship",
-      "source": "./plugins/ship",
-      "description": "Stage, commit, and push all changes in one step, with auto-generated message if none given — /ship"
-    },
-    {
       "name": "tech-writer",
       "source": "./plugins/tech-writer",
       "description": "Review and rewrite documentation in place using either Google's Technical Writing guidelines or strict Simplified Technical English (ASD-STE100), chosen per document — /tech-writer"
     },
     {
-      "name": "deck",
-      "source": "./plugins/deck",
-      "description": "Generate a self-contained HTML slide deck from a topic — single file, dark theme, keyboard nav — /deck"
-    },
-    {
-      "name": "roadmap",
-      "source": "./plugins/roadmap",
-      "description": "Generate a self-contained interactive HTML Gantt chart from a markdown roadmap file — /roadmap"
-    },
-    {
       "name": "diagram",
       "source": "./plugins/diagram",
       "description": "Generate an interactive SVG diagram (architecture, sequence, flowchart, ER) from a description — /diagram"
-    },
-    {
-      "name": "monograph",
-      "source": "./plugins/monograph",
-      "description": "Build a multi-page PhD-level GitHub Pages site on any topic — research, free-licensed photography, a distinctive topic-tuned design, all built by a team of parallel expert subagents and shipped to docs/ — /monograph"
     },
     {
       "name": "bootcamp",
@@ -49,11 +29,6 @@
       "name": "plan",
       "source": "./plugins/plan",
       "description": "Lightweight markdown-based tracker for bugs/features/chores/todos in docs/plan/ — /plan-init /plan-add /plan-list /plan-update /plan-close"
-    },
-    {
-      "name": "issues",
-      "source": "./plugins/issues",
-      "description": "Per-issue bug/feature/incident tracker in docs/issues/ — one file per ticket with symptom/repro/root cause/fix/verification, branch-on-start, and a hard rule to align with the user before implementing — /issue-init /issue-new /issue-start /issue-close"
     },
     {
       "name": "handoff",

@@ -11,7 +11,7 @@ A marketplace of plugins for Claude Code and Codex CLI.
 Then install any plugin:
 
 ```bash
-/plugin install ship@mikersays-plugins
+/plugin install pr@mikersays-plugins
 ```
 
 ## Install — Codex CLI
@@ -20,7 +20,7 @@ Then install any plugin:
 
 ```bash
 codex plugin marketplace add mikersays/mikersays-plugins
-codex plugin add ship@mikersays-plugins
+codex plugin add pr@mikersays-plugins
 ```
 
 Repeat `codex plugin add <plugin>@mikersays-plugins` for each plugin you want.
@@ -29,7 +29,7 @@ Repeat `codex plugin add <plugin>@mikersays-plugins` for each plugin you want.
 
 ```bash
 codex exec --full-auto --add-dir ~/.codex --skip-git-repo-check \
-  "Run: codex plugin marketplace add mikersays/mikersays-plugins && codex plugin add ship@mikersays-plugins. Verify the plugin install and report the result."
+  "Run: codex plugin marketplace add mikersays/mikersays-plugins && codex plugin add pr@mikersays-plugins. Verify the plugin install and report the result."
 ```
 
 **Interactive** — paste this prompt into a Codex session:
@@ -44,16 +44,11 @@ Codex records the marketplace and installed plugins in `~/.codex/config.toml`, t
 
 | Plugin | Description | Usage |
 |--------|-------------|-------|
-| [ship](plugins/ship/) | Git commit and push in one command | `/ship [message]` |
 | [tech-writer](plugins/tech-writer/) | Review and rewrite docs using Google's Technical Writing guidelines or Simplified Technical English | `/tech-writer [file path] [ste\|google]` |
-| [deck](plugins/deck/) | Generate a self-contained HTML slide deck from a topic | `/deck [topic]` |
-| [roadmap](plugins/roadmap/) | Generate a visual HTML Gantt-chart roadmap from a markdown file | `/roadmap [file]` |
 | [diagram](plugins/diagram/) | Generate interactive SVG diagrams from a description | `/diagram [description]` |
-| [monograph](plugins/monograph/) | Build a multi-page PhD-level GitHub Pages site on any topic, with research, free-licensed photography, and a topic-tuned design — shipped to `docs/` via parallel expert subagents | `/monograph [topic]` |
 | [bootcamp](plugins/bootcamp/) | Swarm of expert subagents builds an interactive zero-to-hero course site — modules, worked examples, exercises with solutions, checkpoints, a capstone, and progress tracking — shipped to `docs/` and deployed on GitHub Pages | `/bootcamp [topic]` |
 | [pr](plugins/pr/) | Create a GitHub PR with auto-generated title, summary, and test plan | `/pr [title]` |
 | [plan](plugins/plan/) | Track bugs, features, chores, and todos as markdown in `docs/plan/` | `/plan-init` `/plan-add` `/plan-list` `/plan-update` `/plan-close` |
-| [issues](plugins/issues/) | Per-issue bug/feature/incident tracker in `docs/issues/` with symptom/repro/root cause/fix/verification, branch-on-start, and an alignment-before-implement rule | `/issue-init` `/issue-new` `/issue-start` `/issue-close` |
 | [handoff](plugins/handoff/) | Audit session context and persist what matters for the next agent | `/handoff` |
 | [slop](plugins/slop/) | Rewrite any text to maximally overuse every known AI-writing tell | `/slop [file \| text \| topic]` |
 | [gh-pages](plugins/gh-pages/) | Build or publish a static site on GitHub Pages — saves the site to `docs/` and enables Pages from the `docs/` folder on the default branch | `/gh-pages [site description]` |

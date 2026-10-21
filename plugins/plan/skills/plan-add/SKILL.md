@@ -99,4 +99,4 @@ Tell the user:
 - Any defaults you inferred (so they can override)
 - The relative path of the regenerated `docs/plan/README.md`
 
-Do not commit. Do not run `/ship` or any git command beyond `git rev-parse`.
+Do not commit. Do not run any git command beyond `git rev-parse`.
