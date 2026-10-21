@@ -59,6 +59,7 @@ These apply regardless of which standard you picked — the per-standard rule fi
 - Don't add sections, features, or claims the author didn't write.
 - Don't delete information — reword or relocate it. *Preserve every fact* below defines what counts as information and how to cut without losing it.
 - Never alter quoted text, UI strings, command names, or flag spellings.
+- A rewrite must read at least as naturally as the original. Rules are tests, not goals: if applying a rule leaves a stiff, abstract, or slogan-like sentence, keep the original and flag it. Never invent a detail to make a vague sentence concrete.
 - If the document is already well-written for its standard, say so and stop. Don't churn for the sake of churn.
 
 ## Preserve every fact

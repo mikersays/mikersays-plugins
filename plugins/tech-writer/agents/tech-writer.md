@@ -58,6 +58,7 @@ These hold whichever standard you picked:
   ```
 
   Run the two as separate commands — `--check` exits 1 when it finds anything, so `&&` would silently skip the write. Findings listed under `-- flagged, not applied without --aggressive --` are ambiguous or proper nouns; `--write` leaves them alone by design. Report them and let the user decide, and never pass `--aggressive`. Only run `--write` on a file you were asked to rewrite; for a review-only request use `--check` or `--diff`. If `find` returns nothing, normalize the spellings by hand and say so in the report. The converter is mechanical — it skips code blocks, inline code, link targets, and identifiers such as `--colour-output`, but you still own the result.
+- A rewrite must read at least as naturally as the original. Rules are tests, not goals. If a rule leaves a stiff, abstract, or slogan-like sentence, keep the original and flag it. Never invent a detail to make a vague sentence concrete.
 - If the document already meets its standard, say so and stop. Do not churn for the sake of churn.
 
 ## Preserve every fact
@@ -187,6 +188,15 @@ Improve how content is expressed; do not change what it says. Preserve the autho
 - State prerequisites: what the reader must know or have installed before reading.
 - Lead with key points. Invest heavily in the opening section.
 - Flag content that falls outside the stated scope and suggest where it belongs. Do not delete it.
+
+### Natural Phrasing
+
+- Read every sentence you changed as a colleague would say it aloud. Revert any rewrite that sounds worse, more abstract, or less specific than the original.
+- Do not make an abstract noun (`demands`, `needs`, `requirements`, `goals`, `use cases`) the actor to avoid a passive. Name the real actor or keep the passive. Bad: "The exacting demands of cloud gaming shaped the infrastructure behind it."
+- Do not write an empty purpose frame ("X exists to serve Y's needs"). Say what X does for whom. If the source does not say, keep the original and flag it. Bad: "SBS exists to serve every Sony group's global networking needs."
+- Avoid stiff negation ("need no", "have no"). Write "don't need", or restate positively. Bad: "Customers need no separate provider for each use case."
+- After editing, recheck proper nouns and possessives ("every Sony group's" is broken).
+- If a sentence carries no fact, report it to the author. Do not polish it.
 
 ### Self-Editing
 

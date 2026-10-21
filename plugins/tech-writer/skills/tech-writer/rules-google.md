@@ -6,8 +6,9 @@ Review and rewrite documentation against the conventions from Google's Technical
 
 1. **Read the whole file** before editing — context matters for terminology and pronouns.
 2. **Edit in place.** Preserve the author's intent, voice, and technical accuracy. Restructure and reword; do not add new content or delete information.
-3. **Check that no fact was lost.** Follow *Preserve every fact* in `SKILL.md`: run the fact checker against the snapshot, then compare the original with the rewrite paragraph by paragraph.
-4. **Report changes** grouped by rule — for example, "Active voice: 4 sentences. Filler: removed 7 phrases."
+3. **Read your changes aloud.** Apply *Natural phrasing* below to every sentence you changed. Revert any rewrite that sounds worse than the original.
+4. **Check that no fact was lost.** Follow *Preserve every fact* in `SKILL.md`: run the fact checker against the snapshot, then compare the original with the rewrite paragraph by paragraph.
+5. **Report changes** grouped by rule — for example, "Active voice: 4 sentences. Filler: removed 7 phrases."
 
 If the document is already well-written, say so and stop. Don't churn for the sake of churn.
 
@@ -246,6 +247,29 @@ State the target audience and prerequisites near the top, and say what the docum
 
 - Before: `Set the log level (i.e., debug, info, etc.) in config.yaml.`
 - After:  `Set the log level in config.yaml. The permitted values include debug and info — confirm the full set with the author.`
+
+### Natural phrasing
+
+The rules above are tests for a draft, not goals for a rewrite. A sentence can pass every one and still read badly. When a rule and plain English disagree, plain English wins, and the original stays if your version sounds worse. Watch for these failures, which the active-voice, strong-verb, and filler rules tend to cause:
+
+- **Abstract noun as actor.** `Demands`, `needs`, `requirements`, `goals`, `challenges`, and `use cases` don't shape, drive, or serve anything. Don't promote one to subject to dodge a passive. Name the real actor, or keep the passive.
+  - Bad: `The exacting demands of cloud gaming shaped the infrastructure behind it.` (no one chose or built anything, and `exacting` is decoration)
+  - Better, when the source gives the facts: `The team built the infrastructure to meet cloud gaming's latency limit of <n> ms.` When the source gives none, keep the original wording and flag the gap. Don't invent the detail.
+- **Empty purpose frame.** `X exists to serve Y's needs` says nothing. Say what X does for whom.
+  - Bad: `SBS exists to serve every Sony group's global networking needs.`
+  - Better, when the source gives the facts: `SBS runs the global network for every company in the Sony Group.`
+- **Stiff negation.** `need no`, `have no`, and `lacks any` read as slogans. Use `don't need`, `doesn't have`, or restate the point positively.
+  - Bad: `Customers need no separate provider for each use case.`
+  - Better: `Customers don't need a separate provider for each use case.`
+- **Broken names and possessives.** After an edit, check each proper noun, product name, and `every X's` form. `every Sony group's` should be `every Sony Group company's` or `each company in the Sony Group`.
+- **Slogan rhythm.** Short, clipped, noun-heavy sentences that sound like ad copy. Join them back into the sentence a colleague would say out loud.
+
+Run this read-aloud pass on every sentence you changed:
+
+1. Read the sentence as a colleague would say it. Stop at any word you would not say aloud.
+2. Ask what each noun does. If a noun names a feeling, a need, or a demand and does the acting, rewrite.
+3. Compare with the original. If the rewrite is more abstract, more formal, or less specific than the original, restore the original and flag it.
+4. Ask whether a reader learns anything from the sentence. If it carries no fact, report that to the author. Don't polish it.
 
 ### Self-editing pass
 
