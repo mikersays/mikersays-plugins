@@ -661,6 +661,7 @@ codex plugin add ship@mikersays-plugins</code></pre>
     { id: 'gh-pages',    desc: 'Build or publish a static site on GitHub Pages — saves the site to docs/ and enables Pages from the docs/ folder on the default branch' },
     { id: 'okf',         desc: 'Author, index, and validate Open Knowledge Format (OKF v0.2) bundles — markdown concepts with YAML frontmatter for provenance, trust, lifecycle, and attested computations' },
     { id: 'expert',      desc: 'Turn a task description into a deeper, expert-grade prompt — what a top professional would do, their raw sources, methods and tools, and independent proof the result is right' },
+    { id: 'end',         desc: 'Check that a session's work is finished and persisted before you close it, so the next agent has the context it needs' },
   ];
 
   let selected = new Set(PLUGINS.map(p => p.id));

@@ -1,0 +1,8 @@
+{
+  "name": "end",
+  "description": "Check that a session's work is finished and persisted before you close it, so the next agent has the context it needs",
+  "version": "1.0.0",
+  "author": {
+    "name": "mikersays"
+  }
+}

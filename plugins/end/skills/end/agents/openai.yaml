@@ -1,0 +1,5 @@
+interface:
+  display_name: End
+  short_description: Verify the session is finished and persisted before closing
+policy:
+  allow_implicit_invocation: false

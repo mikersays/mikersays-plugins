@@ -1,0 +1,11 @@
+{
+  "name": "end",
+  "description": "Check that a session's work is finished and persisted before you close it, so the next agent has the context it needs",
+  "version": "1.0.0",
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "End",
+    "shortDescription": "Verify the session is finished and persisted before closing",
+    "category": "Productivity"
+  }
+}
