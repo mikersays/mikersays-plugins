@@ -56,6 +56,11 @@
       "description": "Check that a session's work is finished and persisted before you close it, so the next agent has the context it needs — /end"
     },
     {
+      "name": "lipsync",
+      "source": "./plugins/lipsync",
+      "description": "Make a pixel-art character speak in sync with real audio: narrate text with a local model on Apple Silicon, get phoneme timestamps, turn them into a viseme frame plan, build a PixelLab mouth-shape sheet, and render an MP4 or a web player — /lipsync-narrate /lipsync-phonemes /lipsync-plan /lipsync-sheet /lipsync-clip"
+    },
+    {
       "name": "maintenance",
       "source": "./plugins/maintenance",
       "description": "Maintenance skills for the mikersays-plugins marketplace — /sync-docs /install-marketplace /uninstall-marketplace"

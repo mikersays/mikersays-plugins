@@ -5,7 +5,7 @@ This page removes everything the mikersays installer placed on the current machi
 ## What gets removed
 
 - Repo at `~/.codex/plugins/mikersays/mikersays-plugins`
-- Skill symlinks from `~/.agents/skills/`: `pr`, `tech-writer`, `diagram`, `bootcamp`, `handoff`, `slop`, `gh-pages`, `okf-init`, `okf-new`, `okf-index`, `okf-validate`, `expert`, `end`
+- Skill symlinks from `~/.agents/skills/`: `pr`, `tech-writer`, `diagram`, `bootcamp`, `handoff`, `slop`, `gh-pages`, `okf-init`, `okf-new`, `okf-index`, `okf-validate`, `expert`, `end`, `lipsync-narrate`, `lipsync-phonemes`, `lipsync-plan`, `lipsync-sheet`, `lipsync-clip`
 - `mikersays-marketplace` entry from `~/.agents/plugins/marketplace.json`
 - Native Codex marketplace `mikersays-plugins` and installed `*@mikersays-plugins` plugin entries, when present
 - Manual `mikersays` plugin entries from `~/.codex/config.toml`
@@ -47,7 +47,7 @@ rmdir ~/.codex/plugins/mikersays 2>/dev/null || true
 ### Step 2: Remove skill symlinks
 
 ```bash
-for skill in pr tech-writer diagram bootcamp handoff slop gh-pages okf-init okf-new okf-index okf-validate expert end; do
+for skill in pr tech-writer diagram bootcamp handoff slop gh-pages okf-init okf-new okf-index okf-validate expert end lipsync-narrate lipsync-phonemes lipsync-plan lipsync-sheet lipsync-clip; do
   rm -f ~/.agents/skills/$skill
 done
 ```
@@ -124,6 +124,9 @@ enabled = true
 [plugins."end@mikersays-plugins"]
 enabled = true
 
+[plugins."lipsync@mikersays-plugins"]
+enabled = true
+
 [plugins."pr@mikersays-marketplace"]
 enabled = true
 
@@ -152,6 +155,9 @@ enabled = true
 enabled = true
 
 [plugins."end@mikersays-marketplace"]
+enabled = true
+
+[plugins."lipsync@mikersays-marketplace"]
 enabled = true
 ```
 

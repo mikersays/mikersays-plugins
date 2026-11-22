@@ -1,0 +1,5 @@
+interface:
+  display_name: Lipsync Clip
+  short_description: Render a talking character as MP4 or a web player
+policy:
+  allow_implicit_invocation: true

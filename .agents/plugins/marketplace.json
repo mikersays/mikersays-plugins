@@ -125,6 +125,18 @@
       "category": "Productivity"
     },
     {
+      "name": "lipsync",
+      "source": {
+        "source": "local",
+        "path": "./plugins/lipsync"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Creative Tools"
+    },
+    {
       "name": "maintenance",
       "source": {
         "source": "local",
