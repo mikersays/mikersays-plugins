@@ -1,7 +1,7 @@
 {
   "name": "lipsync",
-  "description": "Make a pixel-art character speak in sync with real audio: narrate text with a local model on Apple Silicon, get phoneme timestamps, turn them into a viseme frame plan, build a PixelLab mouth-shape sheet, and render an MP4 or a web player",
-  "version": "1.0.0",
+  "description": "Make a pixel-art character speak in sync with real audio: narrate text with a local model on Apple Silicon, get phoneme timestamps, turn them into a viseme frame plan, build a PixelLab mouth-shape sheet, render an MP4 or a web player, and export a device pack that an ESP32 with a 1-bit OLED or an M5Stack StickS3 plays",
+  "version": "1.1.0",
   "skills": "./skills/",
   "interface": {
     "displayName": "Lipsync",
