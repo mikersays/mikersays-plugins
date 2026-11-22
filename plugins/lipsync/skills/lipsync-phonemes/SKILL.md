@@ -54,7 +54,10 @@ MFA_ROOT_DIR="$PWD/.mfa/root" ./.mfa/bin/mfa model download dictionary english_u
   keeps micromamba's package cache (533 MB) in `.mfa-pkgs/` next to it,
   not in the home folder; delete that folder after the install if you want
   the space back.
-- Add `.mfa/` and `.mfa-pkgs/` to `.gitignore`.
+- Run these commands from the project folder. The model downloads print
+  little; `ls .mfa/root/pretrained_models/acoustic` and `.../dictionary`
+  must each show `english_us_arpa`.
+- In a git repository, add `.mfa/` and `.mfa-pkgs/` to `.gitignore`.
 - Set `MFA_ENV` to reuse one environment across projects.
 
 ## Align
@@ -79,6 +82,9 @@ The script prints the phone count, any unknown words, and the onset check
   `unknown_words`. `spn` is speech, not silence: a first version of the
   frame plan treated it as silence and closed the mouth through the word
   "Psst". Respell the word in the transcript, or accept a generic open mouth.
+- **Resolution.** MFA's times fall on 10 ms steps.
+- **No offset.** Use MFA's times as they are. The -50 ms offset belongs to
+  Kokoro's own durations only.
 - **Silence.** MFA writes no entry for a pause; a gap between two phones is
   the pause.
 - **Stops.** MFA puts the silent closure of p, b, t, d, k, g inside the

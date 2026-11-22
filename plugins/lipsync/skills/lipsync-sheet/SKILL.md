@@ -110,7 +110,13 @@ such holes.
   frame. Set it when `rest` is borrowed.
 - Order the open shapes by the height of the opening, judged by eye:
   `small_open` < `medium_open` < `wide_open` <= `jaw_drop`. When no frame is
-  taller than `wide_open`, use the same frame for `jaw_drop`.
+  taller than `wide_open`, use the same frame for `jaw_drop`, or the
+  other frame of the same height.
+- `round_small` is an open round hole; `pucker` is the smaller one, with
+  the lips pushed forward. When two frames could be either, give `pucker`
+  the smaller opening.
+- The palette snap can dull a bright color such as a red tongue. That is
+  acceptable as long as the shape still reads.
 
 ## 4. Build
 
@@ -131,11 +137,17 @@ uv run "$LS/viseme_sheet.py" inspect raw/vocal-neutral-grid.png review/neutral-r
 ```
 
 `--ruler` labels every 8th cell pixel along the top and left of each tile.
-Read the left, top, right, and bottom of the largest mouth (lips included)
-across all 12 frames, add 2 px on each side, and pass the result as
-`--show-box`: the yellow outline must enclose every mouth. Boxes that
-worked: 40x28 (a woman, neutral), 48x34 (her smile), 46x24 (a bearded man),
-54x34 (a goblin's grin). A smile is wider, so a mood can have its own box
+The `--box` and `--show-box` values here are one character's: `--box` only
+sets what the tile shows, so change it until the mouth is in view. Read the
+left, top, right, and bottom of the largest mouth (lips included) across
+all 12 frames, add 2 px on each side, and pass the result as `--show-box`:
+the yellow outline must enclose every mouth. For a sharper reading, zoom
+into the mouth with the ruler on, for example
+`--box 44,56,92,92 --zoom 8 --ruler`. Boxes that
+worked: 26x18 and 40x23 (the same woman, two testers), 40x28 (another
+woman, neutral), 48x34 (her smile), 46x24 (a bearded man), 54x34 (a
+goblin's grin). A box larger than needed costs nothing as long as it stays
+off the eyes and the nose. A smile is wider, so a mood can have its own box
 (`--mood-box`).
 
 The build prints, for each shape, how many pixels of the cell differ from
