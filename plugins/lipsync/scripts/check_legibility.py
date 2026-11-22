@@ -74,23 +74,50 @@ def matrix(images: dict, box: tuple[int, int, int, int]) -> list[list[int]]:
     return [[sum(p != q for p, q in zip(a, b)) for b in boxes] for a in boxes]
 
 
+# The mouths are dark on a lit face: the cell with the smallest mouth must
+# still light this share of the mouth box.
+MIN_LIT = 0.80
+
+
+def outside_and_lit(images: dict, box: tuple[int, int, int, int]) -> tuple[int, float]:
+    """(pixels outside the mouth box that differ between any two cells,
+    lit share of the mouth box in the most lit cell)."""
+    x, y, w, h = box
+    ims = list(images.values())
+    masked = []
+    for im in ims:
+        m = im.copy()
+        m.paste(0, (x, y, x + w, y + h))
+        masked.append(m.tobytes())
+    stray = max(sum(p != q for p, q in zip(masked[0], other)) for other in masked)
+    lit = max(sum(1 for v in im.crop((x, y, x + w, y + h)).tobytes() if v) for im in ims) / (w * h)
+    return stray, lit
+
+
 def count_check(strips: dict[str, Path], shapes: list[str], cell: tuple[int, int],
                 box: tuple[int, int, int, int], min_pixels: int) -> dict:
     """Part 1 for every strip. Prints each matrix; returns the result."""
     result = {"shapes": shapes, "mouth_box": list(box), "min_pixels_required": min_pixels, "strips": {}}
     for name, path in strips.items():
-        m = matrix(cells(path, shapes, cell), box)
+        images = cells(path, shapes, cell)
+        m = matrix(images, box)
+        stray, lit = outside_and_lit(images, box)
         pairs = [(m[i][j], shapes[i], shapes[j]) for i in range(len(shapes)) for j in range(i + 1, len(shapes))]
         low = min(pairs)
-        result["strips"][name] = {"matrix": m, "closest_pair": [low[1], low[2]], "closest_pixels": low[0]}
+        result["strips"][name] = {"matrix": m, "closest_pair": [low[1], low[2]], "closest_pixels": low[0],
+                                  "pixels_changed_outside_box": stray, "most_lit_mouth_box": round(lit, 3)}
         print(f"\n{name}: pixels that differ in the mouth box")
         print(" " * 8 + "".join(f"{s:>7}" for s in shapes))
         for s, row in zip(shapes, m):
             print(f"{s:>8}" + "".join(f"{v:>7}" for v in row))
         print(f"closest pair: {low[1]} / {low[2]}, {low[0]} pixels")
+        print(f"pixels that change outside the mouth box: {stray} (must be 0)")
+        print(f"lit share of the mouth box in the most lit cell: {lit:.0%} (must be at least {MIN_LIT:.0%})")
     worst = min(c["closest_pixels"] for c in result["strips"].values())
     result["closest_pixels"] = worst
-    result["pass"] = worst >= min_pixels
+    result["pass"] = (worst >= min_pixels
+                      and all(c["pixels_changed_outside_box"] == 0 for c in result["strips"].values())
+                      and all(c["most_lit_mouth_box"] >= MIN_LIT for c in result["strips"].values()))
     return result
 
 

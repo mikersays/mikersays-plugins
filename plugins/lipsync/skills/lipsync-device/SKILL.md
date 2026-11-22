@@ -104,7 +104,13 @@ Follow these rules:
 
 The strip is a horizontal PNG of 7 cells, 128x64 each, in the order
 `closed`, `teeth`, `small`, `open`, `wide`, `smile`, `round`. A lit pixel is
-white. Check the strip by count:
+white. The skill gives rules, not coordinates: you choose the face. A head
+that fills the panel as a close-up, with eyes near y 20 to 30 and the mouth
+box left lit, has worked for four faces.
+
+Check the strip by count. The script fails when two mouths differ by fewer
+than 40 pixels, when any pixel outside the mouth box changes between
+cells, or when the most lit cell lights less than 80% of the mouth box:
 
 ```bash
 uv run "$LS/check_legibility.py" --strip wren=oled/wren.png
@@ -237,7 +243,8 @@ and matches each framebuffer to the pack's frames. It runs three checks:
 - **Framebuffer.** No framebuffer may differ from its pack frame. Pass: 0.
 - **Timing.** The video must show exactly the pack's frame changes, in
   order, each within one panel frame (16.667 ms at 60 fps) of the start of
-  its run.
+  its run. Errors up to 16.646 ms are normal: a change that is due just
+  after a panel frame starts shows on the next one.
 - **Closed mouth** (only with `--phones`). Every P, B, and M has a closed
   frame on screen, and every pause over 150 ms shows only closed frames.
   Pass: 0 misses.
