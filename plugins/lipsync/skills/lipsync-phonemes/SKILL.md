@@ -19,6 +19,8 @@ speech recording, from the audio and its transcript.
 
 ## Choose the source
 
+The following table compares the three sources:
+
 | Source | Use it when | Accuracy measured |
 |---|---|---|
 | The TTS model's durations | The audio comes from Kokoro (`lipsync-narrate` writes `phones.json` itself) | Median 15 ms from MFA, 90th percentile 45 ms, after a constant -50 ms offset |
@@ -51,7 +53,7 @@ MFA_ROOT_DIR="$PWD/.mfa/root" ./.mfa/bin/mfa model download dictionary english_u
 - Creating the environment took 20 s and the two model downloads 11 s on a
   fast connection.
 - The environment is 1.4 GB with the models (MFA 3.4.4). `MAMBA_ROOT_PREFIX`
-  keeps micromamba's package cache (533 MB) in `.mfa-pkgs/` next to it,
+  keeps micromamba's package cache (533 MB) in `.mfa-pkgs/` next to the environment,
   not in the home folder; delete that folder after the install if you want
   the space back.
 - Run these commands from the project folder. The model downloads print
@@ -112,8 +114,8 @@ onset check: 17 onsets after pauses, word start - waveform onset: median -20.0 m
 
 Measured on Kokoro speech: -20.0 ms on a 47 s script (17 onsets) and
 -20.0 ms on a 10 s clip (4 onsets). A median beyond 30 ms either way prints
-`SUSPECT`; so does nothing else, so also distrust a sign that flips between
-files. With fewer than 3 onsets the median says little. The check needs a
+`SUSPECT`, and nothing else prints it, so also distrust a sign that flips
+between files. With fewer than 3 onsets the median says little. The check needs a
 16-bit PCM WAV.
 
 ## Tested on, and not

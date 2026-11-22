@@ -5,7 +5,7 @@ the sound: the plugin takes phoneme times from the audio (or from the model
 that made it), not from the letters of the text.
 
 The five skills are the steps of one pipeline. Each does one job and works
-alone.
+alone. The following table summarizes them:
 
 | Skill | Job | Script | Needs |
 |---|---|---|---|
@@ -31,7 +31,7 @@ text ──narrate──> narration.wav + phones.json ──plan──> plan.jso
   Labels are ARPAbet with a stress digit on vowels, `sil` for silence, and
   `spn` for a word the aligner does not know.
 - `plan.json`: `fps`, `duration`, `shapes`, `frames` (one shape name per
-  frame), `closed_shapes`, `cell`, `background`, `text`, and the phones and
+  frame), `runs`, `closed_shapes`, `cell`, `background`, `text`, and the phones and
   silences it was built from.
 - A sheet: a horizontal PNG strip of 12 square cells in the order `rest`,
   `closed`, `small_open`, `medium_open`, `wide_open`, `smile`,

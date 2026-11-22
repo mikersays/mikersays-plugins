@@ -39,12 +39,12 @@ WAV.
   so frame `k` covers `k/fps` to `(k+1)/fps` of the audio. Check `nb_frames`
   against the plan.
 - `--scale` is a whole number. Pixel art scales by nearest neighbor only;
-  4 turns a 128 px cell into 512x512. H.264 needs even sizes, so use an
+  a scale of 4 turns a 128 px cell into 512x512. H.264 needs even sizes, so use an
   even scale when the cell size is odd.
 - The encode is H.264 (`-crf 12 -tune animation`, `yuv420p`) with AAC audio.
   A 13 s clip is about 0.25 MB.
-- The cell is drawn over the plan's `background` color, because portraits
-  have transparent edges.
+- The script draws the cell over the plan's `background` color, because
+  portraits have transparent edges.
 
 ## Web player
 
@@ -59,8 +59,8 @@ writes the player.
 
 `player/` holds `index.html`, `player.js`, `sheet.png`, `audio.wav`, and
 `timeline.json`. On every animation frame the page computes
-`floor(audio.currentTime * fps)` and draws that cell. It runs no clock of
-its own, so the mouth cannot drift, and seeking the audio moves the mouth.
+`floor(audio.currentTime * fps)` and draws that cell. It does not run a clock
+of its own, so the mouth cannot drift, and seeking the audio moves the mouth.
 After the audio ends, the page shows the first frame.
 
 - Serve it over HTTP; `fetch` does not work from `file://`.
@@ -73,8 +73,8 @@ After the audio ends, the page shows the first frame.
 
 ## Verify
 
-1. Run the closed-mouth check of `lipsync-plan` on the MP4. It reads the
-   frames back from the file. It needs `reference.json`, an independent
+1. Run the closed-mouth check of `lipsync-plan` on the MP4. The check reads
+   the frames back from the file. The check needs `reference.json`, an independent
    alignment of the clip's audio: run Montreal Forced Aligner on the same
    WAV that went into the clip (`lipsync-phonemes` has the one-time
    install). Without that tool, skip this step and say so. Do not pass the
@@ -84,7 +84,7 @@ After the audio ends, the page shows the first frame.
    python3 "$LS/align_mfa.py" --wav narration.wav --text-file script.txt --out reference.json --mfa-env ./.mfa
    python3 "$LS/check_closures.py" clip.mp4 --sheet sheet.png --plan plan.json --phones reference.json
    ```
-2. For the player, compare the drawn shape with the plan while it plays.
+2. For the player, compare the drawn shape with the plan while the player plays.
    The page exposes `window.narrator.current()` and
    `window.narrator.shapeAt(t)`. In a headless browser, mute the audio,
    call `audio.play()`, and sample on `requestAnimationFrame` for a few
@@ -114,7 +114,7 @@ After the audio ends, the page shows the first frame.
 SyncNet (`joonson/syncnet_python`, commit 907c0b5, on CPU, no patch needed)
 is a second, independent measure of the MP4. Its face detector (S3FD) found
 the pixel-art faces: every frame of two human portraits and 281 of 317
-frames of a goblin (the tracker filled the rest).
+frames of a goblin (the tracker filled the rest). The table shows the result for each clip:
 
 | Clip | Offset | Confidence | Audio shifted +200 ms | Audio shifted -200 ms |
 |---|---|---|---|---|

@@ -115,8 +115,8 @@ such holes.
 - `round_small` is an open round hole; `pucker` is the smaller one, with
   the lips pushed forward. When two frames could be either, give `pucker`
   the smaller opening.
-- The palette snap can dull a bright color such as a red tongue. That is
-  acceptable as long as the shape still reads.
+- The palette snap can dull a bright color such as a red tongue. This
+  dulling is acceptable as long as the shape still reads.
 
 ## 4. Build
 
@@ -179,7 +179,7 @@ exactly 21.
 ## Gotchas
 
 - The portrait step changes the character: one sprite had a bob and a
-  mustard sweater, and its portrait had long hair and a black hoodie; a
+  mustard sweater, and its portrait had long hair and a black hoodie. A
   description with "short stubble that leaves the lips clear" got a full
   beard. The mouth shapes still worked, because they draw their own mouths.
 - A portrait with an open grin is fine: the mouth set has its own closed
@@ -194,6 +194,6 @@ exactly 21.
 
 Tested: four humanoid busts (two men with beards, a woman, a goblin) at
 128 px, moods `neutral` and `happy`, `viseme_count=12`, PixMiniMax. Not
-tested: animals, side views, 64 px or 256 px portraits, the moods `angry`,
+tested: animals, side views, 64 px or 160 px portraits, the moods `angry`,
 `sad`, and `surprised`, 3, 5, or 7 positions, and portraits drawn outside
 PixelLab.

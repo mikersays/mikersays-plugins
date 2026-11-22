@@ -52,14 +52,15 @@ Terms used below:
 
 ## The mapping
 
-ARPAbet phoneme, then Oculus viseme, then mouth shape.
+The mapping runs from an ARPAbet phoneme to an Oculus viseme to a mouth shape.
 
 The viseme set is the 15 visemes of the Oculus Lipsync "Viseme Reference"
 (https://developers.meta.com/horizon/documentation/unity/audio-ovrlipsync-viseme-reference/,
 read 2026-11-22): sil, PP, FF, TH, DD, kk, CH, SS, nn, RR, aa, E, I, O, U.
 The page gives phonemes or example words for 24 of the 39 ARPAbet phonemes.
 The other 15 (ZH, NG, HH, W, Y, ER, AE, AH, AO, IY, UW, EY, AY, AW, OY) are
-this skill's own choices, marked `extended` in `--table`.
+this skill's own choices, marked `extended` in `--table`. The table below
+gives the mapping:
 
 | Viseme | Phonemes | Shape |
 |---|---|---|
@@ -82,8 +83,8 @@ this skill's own choices, marked `extended` in `--table`.
 Diphthongs take two visemes: OW is O then U, EY is E then I, AY is aa then
 I, AW is aa then U, OY is O then I. The first gets 55% of the time.
 
-The table uses 9 of the 12 shapes. `rest` comes from silence (rule 0),
-`closed` from P, B, M, and `jaw_drop` only from rule 2.
+The table uses 11 of the 12 shapes. The twelfth, `jaw_drop`, comes only
+from rule 2.
 
 The 12 shapes are the mouth positions of PixelLab
 `create_vocal_animation(viseme_count=12)`. For another sheet, pass
@@ -94,7 +95,7 @@ The 12 shapes are the mouth positions of PixelLab
 0. Where the audio is silent (35 dB below its loudest 10 ms, for 100 ms or
    more), the phonemes give way to silence. Kokoro stretches a phrase's
    last phoneme across the pause; before this rule the mouth stayed open
-   through up to 330 ms of silence. These stretches start 15 to 60 ms
+   through up to 330 ms of silence. These silent stretches start 15 to 60 ms
    before the aligner's pause and end 5 to 45 ms after it.
 1. A pause shorter than 100 ms does not close the mouth.
 2. HH takes the shape of the next phoneme. A schwa (`AH0`) is half open. An
@@ -107,7 +108,7 @@ The 12 shapes are the mouth positions of PixelLab
    its frames shows `rest` or `closed`, the frame at its midpoint becomes
    `closed`. A P, B, or M next to a pause can be covered by the pause's
    `rest` frame. Every frame whose center lies in a pause shows `rest`.
-   These win over rule 4.
+   Both of these rules win over rule 4.
 
 ## Check a rendered clip
 
@@ -117,10 +118,11 @@ python3 "$LS/check_closures.py" clip.mp4 --sheet sheet.png --plan plan.json --ph
 ```
 
 The check trusts neither the plan nor the renderer. It decodes every frame
-of the MP4, names its mouth shape by the nearest sheet cell, and compares
-with `reference.json`: an independent alignment of the audio that went
-into the clip, made by Montreal Forced Aligner (the first command;
-`lipsync-phonemes` has the one-time install). It counts:
+of the MP4 and names the mouth shape of each frame by the nearest sheet
+cell. Then it compares the frames with `reference.json`: an independent
+alignment of the audio that went into the clip, made by Montreal Forced
+Aligner (the first command; `lipsync-phonemes` has the one-time install).
+The check counts:
 
 - each P, B, or M with no closed frame (`rest` or `closed`) on screen
   during the phoneme;
@@ -133,6 +135,8 @@ Do not pass the plan's own phones as the reference: the check then only
 proves that the plan agrees with itself.
 
 ## Results
+
+The following table shows the result for each clip:
 
 | Clip | Frames per second | P, B, M | Pauses over 150 ms | Misses |
 |---|---|---|---|---|
@@ -147,8 +151,8 @@ treated as speech, one clip missed 1 pause.
 
 ## Gotchas
 
-- The reference aligner cannot see a word outside its dictionary. A P, B, or
-  M inside such a word is not counted.
+- The reference aligner cannot see a word outside its dictionary. The check
+  does not count a P, B, or M inside such a word.
 - At 12 fps a frame is 83 ms and most phonemes are shorter. Rule 5 keeps the
   closures; other short visemes merge away.
 - `rest` and `closed` must really show closed lips in the sheet. Look at the
