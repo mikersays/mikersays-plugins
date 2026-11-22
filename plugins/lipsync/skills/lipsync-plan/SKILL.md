@@ -112,13 +112,15 @@ The 12 shapes are the mouth positions of PixelLab
 ## Check a rendered clip
 
 ```bash
+python3 "$LS/align_mfa.py" --wav narration.wav --text-file script.txt --out reference.json --mfa-env ./.mfa
 python3 "$LS/check_closures.py" clip.mp4 --sheet sheet.png --plan plan.json --phones reference.json
 ```
 
 The check trusts neither the plan nor the renderer. It decodes every frame
 of the MP4, names its mouth shape by the nearest sheet cell, and compares
-with `reference.json`: an independent alignment of the clip's own audio
-track (`lipsync-phonemes`, MFA). It counts:
+with `reference.json`: an independent alignment of the audio that went
+into the clip, made by Montreal Forced Aligner (the first command;
+`lipsync-phonemes` has the one-time install). It counts:
 
 - each P, B, or M with no closed frame (`rest` or `closed`) on screen
   during the phoneme;

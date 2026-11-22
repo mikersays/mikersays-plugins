@@ -39,7 +39,8 @@ uv run "$LS/narrate.py" --text-file script.txt --out narration.wav --phones-out 
   because a rounded time can move a phoneme across a frame edge.
 - The first run downloads the model (`mlx-community/Kokoro-82M-bf16`) to
   `~/.cache/huggingface/hub`. The full repository with its 54 voices is
-  339 MB.
+  339 MB. `uv` keeps the Python packages in `~/.cache/uv`. Both caches are
+  outside the project folder and are shared between projects.
 - Voices tested: `af_heart` (woman), `am_michael` (man), `am_puck` (man,
   lighter). The voice name's first letter sets the accent: `a` is American.
 

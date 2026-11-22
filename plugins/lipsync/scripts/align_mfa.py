@@ -12,10 +12,21 @@ dictionary and returns ARPAbet phonemes with start and end times.
 Inputs: `--wav audio.wav` and the transcript (`--text "..."` or
 `--text-file f.txt`). Output (`--out phones.json`): a phones file,
 `{"text", "duration", "source", "phones": [[start, end, label], ...],
-"unknown_words": [...]}`. A word that the MFA dictionary lacks comes back
+"words": [{"start", "end", "word"}, ...], "unknown_words": [...],
+"onset_check": {...}}`. A word that the MFA dictionary lacks comes back
 as one `spn` phone; `unknown_words` lists those words, because the mouth
 shows a generic half-open shape for them (add the word to a custom
 dictionary if the shape matters).
+
+`onset_check` compares the word starts with the waveform. After every
+pause of 150 ms or more, the first 5 ms step whose level rises above
+-40 dBFS is an onset that no aligner produced. The check reports the
+median of (word start - onset) in ms. On Kokoro speech MFA was a median of
+20 to 25 ms early. A median beyond 30 ms either way, or a sign that flips
+between files, means the alignment is suspect. It needs a 16-bit PCM WAV.
+
+After each run the script deletes MFA's working copy of the corpus
+(`<env>/root/corpus`, about 0.25 to 0.4 GB), which MFA would otherwise keep.
 
 The MFA environment is the conda prefix given by `--mfa-env`, else
 `$MFA_ENV`, else `./.mfa`. `--install` prints the commands that create it;
@@ -31,7 +42,9 @@ Exit code 0 on success; non-zero with a one-line reason on failure.
 from __future__ import annotations
 
 import argparse
+import array
 import json
+import math
 import os
 import shutil
 import subprocess
@@ -50,8 +63,8 @@ def default_env() -> Path:
 def install_commands(env: Path) -> list[str]:
     """Return the shell commands that install MFA into the conda prefix `env`."""
     return [
-        "brew install micromamba",
-        f"micromamba create -y -p {env} -c conda-forge montreal-forced-aligner python=3.11",
+        "command -v micromamba >/dev/null || brew install micromamba",
+        f"MAMBA_ROOT_PREFIX={env}-pkgs micromamba create -y -p {env} -c conda-forge montreal-forced-aligner python=3.11",
         f"MFA_ROOT_DIR={env}/root {env}/bin/mfa model download acoustic {MFA_MODEL}",
         f"MFA_ROOT_DIR={env}/root {env}/bin/mfa model download dictionary {MFA_MODEL}",
     ]
@@ -113,8 +126,59 @@ def mfa_align(wav: Path, text: str, env: Path, beam: int = 100, retry_beam: int 
         if run.returncode != 0 or not result.exists():
             raise RuntimeError(f"mfa align failed: {(run.stdout[-500:] + run.stderr[-500:]).strip()}")
         doc = json.loads(result.read_text())
+    # MFA keeps a working copy of the corpus under its root; remove it.
+    shutil.rmtree(env / "root" / "corpus", ignore_errors=True)
     phones, words, unknown = parse_mfa_json(doc)
     return {"phones": phones, "words": words, "unknown_words": unknown}
+
+
+def energy_onsets(path: Path) -> list[float]:
+    """Return the speech onsets that follow a pause of 150 ms or more.
+
+    The level is the RMS of 10 ms windows, 5 ms apart, in dBFS. A pause is
+    30 or more steps under -45 dBFS; the onset is the first step above
+    -40 dBFS after it. The start of the file counts as a pause.
+    """
+    with wave.open(str(path), "rb") as w:
+        if w.getsampwidth() != 2:
+            raise ValueError("the onset check needs a 16-bit PCM WAV")
+        sr, ch = w.getframerate(), w.getnchannels()
+        data = array.array("h")
+        data.frombytes(w.readframes(w.getnframes()))
+    if sys.byteorder == "big":
+        data.byteswap()
+    mono = [sum(data[i:i + ch]) / (ch * 32768.0) for i in range(0, len(data) - ch + 1, ch)]
+    hop = int(sr * 0.005)
+    onsets, quiet = [], 0
+    for k, i in enumerate(range(0, len(mono) - 2 * hop, hop)):
+        win = mono[i:i + 2 * hop]
+        db = 20 * math.log10(math.sqrt(sum(v * v for v in win) / len(win)) + 1e-6)
+        if db < -45:
+            quiet += 1
+        elif db > -40:
+            if quiet >= 30:
+                onsets.append(k * hop / sr)
+            quiet = 0
+    return onsets
+
+
+def onset_check(words: list[dict], onsets: list[float]) -> dict:
+    """Compare each waveform onset with the nearest word start (within 150 ms)."""
+    deltas = []
+    for t in onsets:
+        if not words:
+            break
+        w = min(words, key=lambda x: abs(x["start"] - t))
+        if abs(w["start"] - t) < 0.15:
+            deltas.append((w["start"] - t) * 1000)
+    if not deltas:
+        return {"onsets": 0}
+    srt = sorted(deltas)
+    mid = len(srt) // 2
+    median = srt[mid] if len(srt) % 2 else (srt[mid - 1] + srt[mid]) / 2
+    return {"onsets": len(deltas), "median_word_start_minus_onset_ms": round(median, 1),
+            "min_ms": round(srt[0], 1), "max_ms": round(srt[-1], 1),
+            "suspect": abs(median) > 30}
 
 
 def wav_duration(path: Path) -> float:
@@ -139,13 +203,31 @@ def selftest() -> None:
     assert unknown == ["psst"], unknown
     assert phones[2][2] == "spn"
     cmds = install_commands(Path("/x/.mfa"))
-    assert cmds[0] == "brew install micromamba" and "montreal-forced-aligner" in cmds[1]
+    assert "brew install micromamba" in cmds[0] and "montreal-forced-aligner" in cmds[1]
     assert cmds[2].startswith("MFA_ROOT_DIR=/x/.mfa/root /x/.mfa/bin/mfa model download acoustic")
     try:
         mfa_align(Path("none.wav"), "x", Path("/nonexistent-mfa-env"))
         raise AssertionError("expected an error for a missing environment")
     except RuntimeError as e:
         assert "not installed" in str(e)
+    # Onset check on a synthetic WAV: 0.3 s silence, 0.3 s tone, 0.3 s silence, 0.3 s tone.
+    with tempfile.TemporaryDirectory() as tmp:
+        path = Path(tmp) / "t.wav"
+        sr = 16000
+        samples = array.array("h")
+        for n in range(int(1.2 * sr)):
+            t = n / sr
+            on = 0.3 <= t < 0.6 or t >= 0.9
+            samples.append(int(12000 * math.sin(2 * math.pi * 220 * t)) if on else 0)
+        with wave.open(str(path), "wb") as w:
+            w.setnchannels(1); w.setsampwidth(2); w.setframerate(sr)
+            w.writeframes(samples.tobytes())
+        found = energy_onsets(path)
+        assert len(found) == 2 and abs(found[0] - 0.3) < 0.015 and abs(found[1] - 0.9) < 0.015, found
+        res = onset_check([{"start": 0.28, "end": 0.6, "word": "a"}, {"start": 0.88, "end": 1.2, "word": "b"}], found)
+        assert res["onsets"] == 2 and -30 < res["median_word_start_minus_onset_ms"] < -5 and not res["suspect"], res
+        late = onset_check([{"start": 0.36, "end": 0.6, "word": "a"}, {"start": 0.96, "end": 1.2, "word": "b"}], found)
+        assert late["suspect"], late
     print("selftest OK: align_mfa")
 
 
@@ -176,15 +258,27 @@ def main(argv: list[str] | None = None) -> int:
     except (OSError, RuntimeError, wave.Error, KeyError, ValueError) as e:
         print(f"error: {e}", file=sys.stderr)
         return 1
+    try:
+        check = onset_check(res["words"], energy_onsets(a.wav))
+    except (ValueError, wave.Error) as e:
+        check = {"onsets": 0, "skipped": str(e)}
     doc = {"text": text, "duration": round(duration, 6), "source": f"mfa {MFA_MODEL}",
            "phones": [[round(s, 4), round(e, 4), lab] for s, e, lab in res["phones"]],
-           "unknown_words": res["unknown_words"]}
+           "words": [{"start": round(w["start"], 4), "end": round(w["end"], 4), "word": w["word"]}
+                     for w in res["words"]],
+           "unknown_words": res["unknown_words"], "onset_check": check}
     a.out.parent.mkdir(parents=True, exist_ok=True)
     a.out.write_text(json.dumps(doc) + "\n")
     msg = f"{a.out}  {len(doc['phones'])} phones, {duration:.2f} s"
     if res["unknown_words"]:
         msg += f"; unknown words (spn): {', '.join(res['unknown_words'])}"
     print(msg)
+    if check.get("onsets"):
+        print(f"onset check: {check['onsets']} onsets after pauses, word start - waveform onset: median "
+              f"{check['median_word_start_minus_onset_ms']} ms (min {check['min_ms']}, max {check['max_ms']})"
+              + ("  SUSPECT: beyond 30 ms" if check["suspect"] else ""))
+    else:
+        print("onset check: no onset after a pause of 150 ms or more; nothing to compare")
     return 0
 
 

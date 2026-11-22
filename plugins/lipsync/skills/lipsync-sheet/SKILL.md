@@ -29,14 +29,17 @@ where expected; report that and stop.
 
 ## 1. Generate (about 21 generations per character and mood)
 
-Call `get_balance` before and after, and keep at most 6 jobs active.
+Call `get_balance` before and after: the difference is the only reliable
+cost figure, because `get_vocal_animation` does not report what a job cost.
+Keep at most 6 jobs active, or fewer if the user sets a lower limit.
 
 1. **Character** (2 generations):
    `create_character(description="<age, role, hair, skin, headwear, clothes with colors>, clearly visible mouth", name="<Name>", size=64, mode="v3")`.
    Wait with `wait_for_jobs`, then `get_character` for the south rotation URL.
 2. **Portrait** (15 generations at 128 px):
    `create_portrait_character(image_url="<south URL>", direction="character_to_portrait", result_size=128, seed=11)`,
-   then `get_portrait_character`. Look at it. Then attach it (free):
+   then `get_portrait_character`. Leave `view` at its default. Look at
+   the portrait. Then attach it (free):
    `set_character_portrait(character_id, from_job_id="<portrait job>")`.
 3. **Mouth positions** (about 4 generations per mood):
    `create_vocal_animation(character_id, mood="neutral", viseme_count=12, engine="pixminimax", seed=7)`.
@@ -59,7 +62,9 @@ uv run "$LS/viseme_sheet.py" inspect raw/vocal-neutral-grid.png review/neutral-r
 ```
 
 Open `review/neutral-raw.png` (add `--zoom 8` for single pixels). For each
-of the 12 frames, write down what the mouth shows. **Do not trust the frame
+of the 12 frames, write down what the mouth shows. A frame has the lips
+together only when no dark gap, tooth, or tongue pixel shows between the
+lips; a nearly closed pucker is not closed. **Do not trust the frame
 order.** PixelLab names the positions in the order above, but the drawings
 do not always match. In 7 sheets made on 2026-11-22:
 
@@ -71,8 +76,10 @@ do not always match. In 7 sheets made on 2026-11-22:
 - `jaw_drop` was the smallest opening in one sheet.
 - `teeth` and `hiss` were weak in one sheet (a teeth line, a tiny gap).
 
-The sheet draws transparent pixels in magenta. Magenta inside a mouth means
-the background removal cut white teeth out; the build fills such holes.
+The sheet draws transparent pixels in magenta, so the background around
+the head (often a corner of the tile) is magenta too. Magenta inside a
+mouth means the background removal cut white teeth out; the build fills
+such holes.
 
 ## 3. Write `labels.json`
 
@@ -101,8 +108,9 @@ the background removal cut white teeth out; the build fills such holes.
   frame plan shows them on silence and on p, b, m.
 - `base` supplies everything outside the mouth. It defaults to the `rest`
   frame. Set it when `rest` is borrowed.
-- Order the open shapes by size: `small_open` < `medium_open` < `wide_open`
-  <= `jaw_drop`.
+- Order the open shapes by the height of the opening, judged by eye:
+  `small_open` < `medium_open` < `wide_open` <= `jaw_drop`. When no frame is
+  taller than `wide_open`, use the same frame for `jaw_drop`.
 
 ## 4. Build
 
@@ -112,11 +120,29 @@ uv run "$LS/viseme_sheet.py" build --raw raw --labels labels.json \
 uv run "$LS/viseme_sheet.py" inspect sheet/neutral.png review/neutral-built.png --box 24,40,104,112
 ```
 
-`--mouth-box x0,y0,x1,y1` is in cell pixels and must contain the largest
-mouth with 2 px to spare, off the eyes and the nose tip. A point at
-(sx, sy) inside an inspection tile is cell pixel (x0 + sx/zoom,
-y0 + sy/zoom) of the `--box` used. A smile is wider, so a mood can have its
-own box.
+`--mouth-box x0,y0,x1,y1` is in cell pixels (x1 and y1 are outside the
+box). It must contain the largest mouth of the mood with 2 px to spare, and
+stay off the eyes and the nose tip. The numbers above are one character's;
+find your own:
+
+```bash
+uv run "$LS/viseme_sheet.py" inspect raw/vocal-neutral-grid.png review/neutral-ruler.png \
+    --box 24,40,104,112 --ruler --show-box 44,67,84,90
+```
+
+`--ruler` labels every 8th cell pixel along the top and left of each tile.
+Read the left, top, right, and bottom of the largest mouth (lips included)
+across all 12 frames, add 2 px on each side, and pass the result as
+`--show-box`: the yellow outline must enclose every mouth. Boxes that
+worked: 40x28 (a woman, neutral), 48x34 (her smile), 46x24 (a bearded man),
+54x34 (a goblin's grin). A smile is wider, so a mood can have its own box
+(`--mood-box`).
+
+The build prints, for each shape, how many pixels of the cell differ from
+the base. The number grows with the mouth and with how much beard or cheek
+changes; equal numbers for two shapes are not an error. It also prints how
+many pixels the `closed` cell differs from the `rest` cell; 0 means they
+are the same picture, which is fine.
 
 Why a build is needed: the raw frames differ from each other all over the
 head (5,000 to 7,700 of 16,384 pixels in one character), and some move the

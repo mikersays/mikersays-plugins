@@ -75,11 +75,13 @@ After the audio ends, the page shows the first frame.
 
 1. Run the closed-mouth check of `lipsync-plan` on the MP4. It reads the
    frames back from the file. It needs `reference.json`, an independent
-   alignment of the clip's audio from `lipsync-phonemes` (Montreal Forced
-   Aligner); without that tool, skip this step and say so. Do not pass the
+   alignment of the clip's audio: run Montreal Forced Aligner on the same
+   WAV that went into the clip (`lipsync-phonemes` has the one-time
+   install). Without that tool, skip this step and say so. Do not pass the
    plan's own phones.
 
    ```bash
+   python3 "$LS/align_mfa.py" --wav narration.wav --text-file script.txt --out reference.json --mfa-env ./.mfa
    python3 "$LS/check_closures.py" clip.mp4 --sheet sheet.png --plan plan.json --phones reference.json
    ```
 2. For the player, compare the drawn shape with the plan while it plays.

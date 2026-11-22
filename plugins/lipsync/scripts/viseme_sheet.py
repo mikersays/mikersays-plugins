@@ -160,7 +160,14 @@ def cmd_fetch(a: argparse.Namespace) -> None:
 # inspect
 # ---------------------------------------------------------------------------
 
-def inspect_strip(strip: Path, out: Path, box: list[int], zoom: int, cell: int) -> int:
+def inspect_strip(strip: Path, out: Path, box: list[int], zoom: int, cell: int,
+                  ruler: bool = False, show_box: list[int] | None = None) -> int:
+    """Write the inspection sheet. Return the number of cells.
+
+    `ruler` draws a tick every 8 cell pixels along the top and left of each
+    tile, labeled with the cell coordinate, so a mouth's position can be
+    read off the sheet. `show_box` outlines a proposed mouth box in yellow.
+    """
     from PIL import Image, ImageDraw
 
     img = Image.open(strip).convert("RGBA")
@@ -177,6 +184,21 @@ def inspect_strip(strip: Path, out: Path, box: list[int], zoom: int, cell: int) 
         x, y = (i % cols) * (w + 8), (i // cols) * (h + 22)
         sheet.paste(tile, (x, y + 18))
         draw.text((x + 4, y + 3), f"frame {i}", fill=(255, 255, 120))
+        if ruler:
+            for cx in range(-(-box[0] // 8) * 8, box[2], 8):
+                px = x + (cx - box[0]) * zoom
+                draw.line([(px, y + 18), (px, y + 24)], fill=(0, 255, 255))
+                draw.text((px + 2, y + 24), str(cx), fill=(0, 255, 255))
+            for cy in range(-(-box[1] // 8) * 8, box[3], 8):
+                py = y + 18 + (cy - box[1]) * zoom
+                draw.line([(x, py), (x + 6, py)], fill=(0, 255, 255))
+                draw.text((x + 8, py - 5), str(cy), fill=(0, 255, 255))
+        if show_box:
+            bx0 = x + (show_box[0] - box[0]) * zoom
+            by0 = y + 18 + (show_box[1] - box[1]) * zoom
+            bx1 = x + (show_box[2] - box[0]) * zoom - 1
+            by1 = y + 18 + (show_box[3] - box[1]) * zoom - 1
+            draw.rectangle([bx0, by0, bx1, by1], outline=(255, 255, 0))
     out.parent.mkdir(parents=True, exist_ok=True)
     sheet.save(out)
     return n
@@ -184,7 +206,8 @@ def inspect_strip(strip: Path, out: Path, box: list[int], zoom: int, cell: int) 
 
 def cmd_inspect(a: argparse.Namespace) -> None:
     box = parse_box(a.box) if a.box else [0, 0, a.cell, a.cell]
-    n = inspect_strip(a.strip, a.out, box, a.zoom, a.cell)
+    n = inspect_strip(a.strip, a.out, box, a.zoom, a.cell, a.ruler,
+                      parse_box(a.show_box) if a.show_box else None)
     print(f"{n} cells -> {a.out}")
 
 
@@ -405,6 +428,7 @@ def build(raw_dir: Path, labels: dict, mouth_box: list[int], mood_boxes: dict[st
     # Pass 2: composite and write.
     out.mkdir(parents=True, exist_ok=True)
     report = {}
+    closed_vs_rest: dict[str, int] = {}
     for mood, frames in raw.items():
         base = bases[mood]
         sheet = np.zeros((cell, cell * len(SHAPES), 4), np.int32)
@@ -416,6 +440,8 @@ def build(raw_dir: Path, labels: dict, mouth_box: list[int], mood_boxes: dict[st
                 c[m, 3] = 255
             sheet[:, k * cell:(k + 1) * cell] = c
             report[f"{mood}/{shape}"] = int((c != base).any(-1).sum())
+            if shape == "closed":
+                closed_vs_rest[mood] = int((c != sheet[:, :cell]).any(-1).sum())
         img = Image.fromarray(sheet.astype(np.uint8), "RGBA")
         img.save(out / f"{mood}.png")
         img.resize((img.width * 4, img.height * 4), Image.NEAREST).save(out / f"{mood}@4x.png")
@@ -429,7 +455,8 @@ def build(raw_dir: Path, labels: dict, mouth_box: list[int], mood_boxes: dict[st
     (out / "palette.json").write_text(json.dumps(pal, indent=1) + "\n")
     result = {"shapes": SHAPES, "palette_colors": len(palette),
               "registration_shift_xy": shifts,
-              "pixels_changed_from_base": report}
+              "pixels_changed_from_base": report,
+              "closed_differs_from_rest_px": closed_vs_rest}
     (out / "build-report.json").write_text(json.dumps(result, indent=1) + "\n")
     return result
 
@@ -446,6 +473,8 @@ def cmd_build(a: argparse.Namespace) -> None:
     print(f"{len(labels['moods'])} mood(s), palette {result['palette_colors']} colors -> {a.out}")
     for k, v in result["pixels_changed_from_base"].items():
         print(f"  {k:24s} {v:5d} px differ from base, shift {result['registration_shift_xy'][k]}")
+    for mood, n in result["closed_differs_from_rest_px"].items():
+        print(f"  {mood}: the closed cell differs from the rest cell in {n} px")
 
 
 # ---------------------------------------------------------------------------
@@ -578,6 +607,8 @@ def main(argv: list[str] | None = None) -> int:
     i.add_argument("out", type=Path)
     i.add_argument("--box", help="crop each cell to x0,y0,x1,y1 (default: the whole cell)")
     i.add_argument("--zoom", type=int, default=5)
+    i.add_argument("--ruler", action="store_true", help="label every 8th cell pixel along the top and left of each tile")
+    i.add_argument("--show-box", help="outline a proposed mouth box x0,y0,x1,y1 in yellow")
     i.add_argument("--cell", type=int, default=128, help="cell size in pixels (default 128)")
 
     b = sub.add_parser("build", help="build the final viseme sheets")
