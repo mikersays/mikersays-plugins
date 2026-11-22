@@ -19,9 +19,13 @@ and `uv`.
 ## Locate the script
 
 ```bash
-LS="${CLAUDE_PLUGIN_ROOT}/scripts"
-[ -f "$LS/viseme_sheet.py" ] || LS="$(dirname "$(find ~/.claude/plugins ~/.codex/plugins -path '*/lipsync/scripts/viseme_sheet.py' -print -quit 2>/dev/null)")"
+LS="$CLAUDE_PLUGIN_ROOT/scripts"
+[ -f "$LS/viseme_sheet.py" ] || LS="$(find ~/.claude/plugins ~/.codex/plugins -type d -path '*/lipsync/scripts' -print -quit 2>/dev/null)"
+[ -f "$LS/viseme_sheet.py" ] && echo "scripts: $LS" || echo "lipsync scripts not found"
 ```
+
+If this prints "lipsync scripts not found", the plugin is not installed
+where expected; report that and stop.
 
 ## 1. Generate (about 21 generations per character and mood)
 

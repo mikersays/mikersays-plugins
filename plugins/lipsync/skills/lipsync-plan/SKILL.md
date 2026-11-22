@@ -14,9 +14,13 @@ video frame. Input: `phones.json` (from `lipsync-narrate` or
 ## Locate the scripts
 
 ```bash
-LS="${CLAUDE_PLUGIN_ROOT}/scripts"
-[ -f "$LS/viseme_plan.py" ] || LS="$(dirname "$(find ~/.claude/plugins ~/.codex/plugins -path '*/lipsync/scripts/viseme_plan.py' -print -quit 2>/dev/null)")"
+LS="$CLAUDE_PLUGIN_ROOT/scripts"
+[ -f "$LS/viseme_plan.py" ] || LS="$(find ~/.claude/plugins ~/.codex/plugins -type d -path '*/lipsync/scripts' -print -quit 2>/dev/null)"
+[ -f "$LS/viseme_plan.py" ] && echo "scripts: $LS" || echo "lipsync scripts not found"
 ```
+
+If this prints "lipsync scripts not found", the plugin is not installed
+where expected; report that and stop.
 
 Both scripts use only the Python standard library; the check also needs
 `ffmpeg` and `ffprobe`.
@@ -28,10 +32,23 @@ python3 "$LS/viseme_plan.py" --phones phones.json --wav narration.wav --fps 24 -
 python3 "$LS/viseme_plan.py" --table      # the phoneme -> viseme -> shape table
 ```
 
+The file names are examples; give the paths of your own files.
+
 `plan.json` holds `fps`, `duration`, `shapes` (the 12 shape names in sheet
 order), `frames` (one shape name per frame), `runs`, `closed_shapes`, the
 phones, and the measured silences. Frame `k` is on screen from `k/fps` to
-`(k+1)/fps`. Use 12 to 24 fps; both passed the check.
+`(k+1)/fps`. The number of frames is the duration times the frame rate,
+rounded up, so the last frame can be partial. Use 12 to 24 fps; both passed
+the check.
+
+Terms used below:
+
+- A **closed frame** shows `rest` or `closed` (the plan's `closed_shapes`).
+- A frame is **on screen during** a phoneme when its time span overlaps the
+  phoneme's, by any amount.
+- A **pause** is a measured silence: an entry of the plan's `silences`
+  (100 ms or more). The `sil` entries of `phones.json` are mostly shorter
+  gaps between words and do not close the mouth by themselves.
 
 ## The mapping
 
@@ -65,6 +82,9 @@ this skill's own choices, marked `extended` in `--table`.
 Diphthongs take two visemes: OW is O then U, EY is E then I, AY is aa then
 I, AW is aa then U, OY is O then I. The first gets 55% of the time.
 
+The table uses 9 of the 12 shapes. `rest` comes from silence (rule 0),
+`closed` from P, B, M, and `jaw_drop` only from rule 2.
+
 The 12 shapes are the mouth positions of PixelLab
 `create_vocal_animation(viseme_count=12)`. For another sheet, pass
 `--shape-map overrides.json` (`{"FF": "your_shape", ...}`).
@@ -83,8 +103,11 @@ The 12 shapes are the mouth positions of PixelLab
 3. A viseme shorter than one frame merges into its longer neighbor. Lip
    closures and pauses are exempt.
 4. Each frame shows the shape that covers most of it.
-5. Every P, B, and M gets at least one `closed` frame, and every frame
-   inside a pause shows `rest`. These win over rule 4.
+5. Every P, B, and M gets at least one closed frame on screen: if none of
+   its frames shows `rest` or `closed`, the frame at its midpoint becomes
+   `closed`. A P, B, or M next to a pause can be covered by the pause's
+   `rest` frame. Every frame whose center lies in a pause shows `rest`.
+   These win over rule 4.
 
 ## Check a rendered clip
 

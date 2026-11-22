@@ -14,12 +14,15 @@ default model is Kokoro-82M, chosen by the bake-off below.
 ## Locate the scripts
 
 ```bash
-LS="${CLAUDE_PLUGIN_ROOT}/scripts"
-[ -f "$LS/narrate.py" ] || LS="$(dirname "$(find ~/.claude/plugins ~/.codex/plugins -path '*/lipsync/scripts/narrate.py' -print -quit 2>/dev/null)")"
+LS="$CLAUDE_PLUGIN_ROOT/scripts"
+[ -f "$LS/narrate.py" ] || LS="$(find ~/.claude/plugins ~/.codex/plugins -type d -path '*/lipsync/scripts' -print -quit 2>/dev/null)"
+[ -f "$LS/narrate.py" ] && echo "scripts: $LS" || echo "lipsync scripts not found"
 ```
 
-If `$LS/narrate.py` does not exist, the plugin is not installed where
-expected; report that and stop. The scripts need `uv` (`brew install uv`).
+If this prints "lipsync scripts not found", the plugin is not installed
+where expected; report that and stop.
+
+The scripts need `uv` (`brew install uv`).
 
 ## Narrate
 
@@ -28,9 +31,12 @@ uv run "$LS/narrate.py" --text-file script.txt --out narration.wav --phones-out 
 ```
 
 - `narration.wav`: mono, 24 kHz, 16-bit.
-- `phones.json`: `{"text", "duration", "source", "phones": [[start, end, label], ...]}`.
+- `phones.json`: `{"text", "duration", "voice", "source", "phones": [[start, end, label], ...]}`.
   Labels are ARPAbet with a stress digit on vowels (`AH0`, `IY1`), and `sil`
-  for silence.
+  for silence. The list starts and ends with `sil`, and two `sil` entries
+  can follow each other (a space, then a punctuation mark). Times are
+  full-precision floats such as `0.39999999999999997`; do not round them,
+  because a rounded time can move a phoneme across a frame edge.
 - The first run downloads the model (`mlx-community/Kokoro-82M-bf16`) to
   `~/.cache/huggingface/hub`. The full repository with its 54 voices is
   339 MB.
@@ -58,7 +64,9 @@ uv run "$LS/check_wer.py" narration.wav --text-file script.txt --out wer.json
 
 Whisper large-v3 transcribes the WAV, both texts go through Whisper's
 English normalizer, and the script prints `CHECK 2 PASS` when the word error
-rate is under 3% (exit code 0). The first run downloads about 3 GB. Measured
+rate is under 3% (exit code 0). This checks the words only, not the phoneme
+times; the closed-mouth check of `lipsync-plan` is the timing check. The
+first run downloads about 3 GB. Measured
 on Kokoro: 0.00% on a 159-word script, and 2.22%, 0.00%, and 2.63% on three
 clips of about 40 words. In a short clip one misheard word is already over
 2%, so judge a voice on at least 100 words, and avoid invented names in a
@@ -68,7 +76,9 @@ short test text.
 
 - Load one model at a time, each in its own process.
 - Before a run: `memory_pressure | tail -1` and `sysctl vm.swapusage`. Under
-  30% free, wait.
+  30% free, wait. Only `tts_bakeoff.py` enforces this itself; before
+  `narrate.py` and `check_wer.py`, check by hand. Swap that is already in
+  use and does not grow is not a reason to wait.
 - Kokoro's peak MLX memory was 2.84 GB, but its process footprint reached
   12.15 GB, because MLX keeps a buffer cache.
 

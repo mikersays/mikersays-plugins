@@ -26,9 +26,13 @@ speech recording, from the audio and its transcript.
 ## Locate the script
 
 ```bash
-LS="${CLAUDE_PLUGIN_ROOT}/scripts"
-[ -f "$LS/align_mfa.py" ] || LS="$(dirname "$(find ~/.claude/plugins ~/.codex/plugins -path '*/lipsync/scripts/align_mfa.py' -print -quit 2>/dev/null)")"
+LS="$CLAUDE_PLUGIN_ROOT/scripts"
+[ -f "$LS/align_mfa.py" ] || LS="$(find ~/.claude/plugins ~/.codex/plugins -type d -path '*/lipsync/scripts' -print -quit 2>/dev/null)"
+[ -f "$LS/align_mfa.py" ] && echo "scripts: $LS" || echo "lipsync scripts not found"
 ```
+
+If this prints "lipsync scripts not found", the plugin is not installed
+where expected; report that and stop.
 
 ## Install MFA once
 
