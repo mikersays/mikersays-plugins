@@ -1,0 +1,5 @@
+interface:
+  display_name: Lipsync Device
+  short_description: Play a talking character on an OLED or a StickS3
+policy:
+  allow_implicit_invocation: true

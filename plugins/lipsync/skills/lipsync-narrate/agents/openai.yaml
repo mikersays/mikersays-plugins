@@ -1,0 +1,5 @@
+interface:
+  display_name: Lipsync Narrate
+  short_description: Narrate text with a local model on Apple Silicon
+policy:
+  allow_implicit_invocation: true

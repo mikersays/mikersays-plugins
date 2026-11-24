@@ -1,0 +1,5 @@
+interface:
+  display_name: Lipsync Phonemes
+  short_description: Get phoneme timestamps from narration audio
+policy:
+  allow_implicit_invocation: true

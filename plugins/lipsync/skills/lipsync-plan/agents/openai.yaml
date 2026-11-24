@@ -1,0 +1,5 @@
+interface:
+  display_name: Lipsync Plan
+  short_description: Turn phoneme timestamps into a viseme frame plan
+policy:
+  allow_implicit_invocation: true
