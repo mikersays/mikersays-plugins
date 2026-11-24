@@ -1,6 +1,6 @@
 ---
 name: okf-new
-description: Author a new Open Knowledge Format (OKF v0.2) concept — a markdown document with YAML frontmatter describing a table, dataset, API, metric, playbook, policy, reference, or an Attested Computation with runtime, parameters, executor, and attester — with provenance (sources, footnotes), trust (generated, verified), and lifecycle (status, stale_after) fields filled honestly, then refresh index.md and log.md. Trigger on "okf new", "add a concept", "document this table as OKF", "write an OKF doc for X", "add X to the knowledge bundle", "capture this metric definition", or "make an attested computation".
+description: Author a new Open Knowledge Format (OKF v0.3) concept — a Markdown document with YAML frontmatter describing a table, dataset, API, metric, playbook, policy, reference, or an Attested Computation with runtime, parameters, executor, and attester — with provenance (sources, footnotes), trust (generated, verified), and lifecycle (status, stale_after) fields filled honestly, then refresh index.md and log.md. Trigger on "okf new", "add a concept", "document this table as OKF", "write an OKF doc for X", "add X to the knowledge bundle", "capture this metric definition", or "make an attested computation".
 argument-hint: "[type] [title] [from:<file|url>] [in:<subdir>] [resource:<uri>] [tags:a,b] [status:draft|stable]"
 allowed-tools: Bash, Read, Write, Edit, Glob, Grep, WebFetch, AskUserQuestion
 ---
@@ -45,29 +45,39 @@ title: Customer Orders
 description: One sentence; index.md and previews use it.
 resource: https://console.cloud.google.com/bigquery?p=acme&d=sales&t=orders   # only when bound
 tags: [sales, orders]
-generated: { by: claude-code/<model id>, at: <now, UTC> }
+generated: { by: claude-code/<model id>, at: "<now, UTC>" }
 status: draft
 sources:
   - id: warehouse-schema
-    resource: schemas/sales/orders.sql          # what you actually read
+    resource: https://github.com/acme/warehouse/blob/main/schemas/sales/orders.sql   # what you actually read
     title: Sales warehouse DDL
-    last_modified: <git log -1 --format=%cI on that file, if in git>
+    last_modified: "<git log -1 --format=%cI on that file, if in git>"
 ---
 ```
 
 - `generated.by` is your own actor id in `<producer>/<version>` form (`claude-code/<model id>`
-  in Claude Code, `codex-cli/<model>` in Codex). `generated.at` is `date -u +%Y-%m-%dT%H:%M:%SZ`.
+  in Claude Code, `codex-cli/<model>` in Codex). `generated.at` is `date -u +%Y-%m-%dT%H:%M:%SZ`,
+  quoted. Always a full date-time: consumers compare it with `verified[].at` (§5.3).
+- When you later edit a concept, change `generated` only for a meaningful content change, not for a
+  format, whitespace, or link fix. A meaningful change turns every earlier verification into history,
+  so the concept drops to unverified until someone confirms it again. Say so in your report.
+- Paths in frontmatter: a source file inside the bundle is `/references/...` (leading `/`, resolved
+  from the bundle root). A bare path resolves from the concept's own directory (§6). A file outside
+  the bundle gets a URL, such as its repository link; a bundle cannot point outside its root.
 - `status: draft` unless the user says the content is settled. `stable` is a claim.
 - **Never write `verified`.** A human saying "yes, that's right" in the conversation is the one
-  case that earns `verified: { by: human:<their id>, at: <now> }`; ask which id they want
-  (git `user.name`, email local part, or a handle) rather than inventing one.
+  case that earns `verified: { by: "human:<their id>", at: "<now, full date-time>" }`; ask which id
+  they want (git `user.name`, email local part, or a handle) rather than inventing one. A team name
+  (`team:<id>`) does not earn human-reviewed.
 - One `sources` entry per thing you derived content from, with an `id` whenever the body cites it.
   Fill `author`, `usage_count`, `last_modified` only from real data (git history, a catalog, a
   page's byline). Never guess a usage count; never write `usage_count` without `usage_window`.
 - `stale_after` only when there is a real review cadence to point at (an annual policy, a quarterly
   schema review). Absent is better than arbitrary.
-- Keep any extra keys the bundle's other concepts use (`owner`, `domain`, `not:` …); consistency
-  within a bundle matters more than the spec's minimum.
+- Keep any extra keys the bundle's other concepts use (`owner`, `domain`, …); consistency within a
+  bundle matters more than the spec's minimum. For a new key of your own, use the
+  `x-<producer>-<name>` form (`x-acme-owner`); future OKF versions will never claim `x-` keys.
+  When you edit an existing concept, keep every key you do not understand (§4.1).
 
 ## Write the body
 
@@ -82,10 +92,12 @@ Structure over prose. Use what the type calls for:
 - **Playbooks:** trigger, steps, escalation, with links to the concepts each step touches.
 - **Policies and references:** the substance, plus a `# Cited by` list if you know the consumers.
 
-Link generously. `[customers](/tables/customers.md)` bundle-relative links are the recommended
-form; a link to a concept that does not exist yet is allowed and tells the reader what to write
-next. Cite claims with footnotes keyed to `sources[].id` (`[^warehouse-schema]`), and close the
-body with the footnote definitions. Never use positional labels like `[^1]`.
+Link generously. Both `[customers](/tables/customers.md)` (from the bundle root) and
+`[customers](../tables/customers.md)` (from this file) are valid; match what the bundle already
+uses. Percent-encode spaces (`my%20concept.md`). Only `[text](target)` links count; never write
+`[[wikilinks]]`. A link to a concept that does not exist yet is allowed and tells the reader what
+to write next. Cite claims with footnotes keyed to `sources[].id` (`[^warehouse-schema]`), and close
+the body with the footnote definitions. Never use positional labels like `[^1]`.
 
 ## Attested Computation specifics
 
@@ -93,16 +105,26 @@ Only when the concept's job is to produce a number the sanctioned way. Then:
 
 - `runtime:` is required (`bigquery`, `postgres`, `dbt`, `python`, …) and defines what
   `parameters` mean.
-- `parameters:` lists every hole an agent may fill: `{ name, type, required }`. Bind variables in
-  the computation (`@year`, `{{ var('year') }}`) must match those names.
-- The computation goes in **one** place: a single fence under `# Computation`, or a file named by
-  `computation:`. Short SQL inline; long or shared SQL as a file under `references/`.
+- `parameters:` lists every hole an agent may fill: `{ name, type, required }`. `name` and `type`
+  are required; `required` defaults to `false`. Common types: `string`, `integer`, `number`,
+  `boolean`, `date`, `timestamp`. Bind variables in the computation (`@year`,
+  `{{ var('year') }}`) must match those names.
+- The computation goes in **one** place: a single fence in a section headed `Computation` (any
+  heading level), or a file named by `computation:`. Short SQL inline; long or shared SQL as a file
+  under `references/`, written `/references/...`.
 - `executor.resource` points at run instructions (a Skill doc in the bundle is the usual shape) and
   `executor.receipt` lists the evidence fields a run returns (`job_id`, `executed_sql`, `result`).
 - `attester.resource` points at deterministic, no-LLM code that checks a receipt. If none exists,
-  write the concept without `attester` and say so in the report; do not point at a file you did
-  not create.
+  write the concept without `attester` and say so in the report: without one, consumers MUST NOT
+  show its values as attested (§10.2). Do not point at a file you did not create.
 - The metric that uses the value is a separate concept that links here.
+
+## Retire, move, or replace a concept
+
+Do not delete a concept that others may link to. Set `status: deprecated` and, when a replacement
+exists, `superseded_by: /<path to the replacement>.md` (§5.4). To move or rename one, write the new
+file and leave a short deprecated concept at the old path with `superseded_by` pointing at it. Log
+it with `--kind Deprecation`.
 
 ## Wire it in
 
@@ -113,7 +135,7 @@ hand, so descriptions stay in sync with frontmatter:
 OKF="${CLAUDE_PLUGIN_ROOT}/scripts/okf.py"
 [ -f "$OKF" ] || OKF="$(find ~/.claude/plugins ~/.codex/plugins -path '*/okf/scripts/okf.py' -print -quit 2>/dev/null)"
 python3 "$OKF" index "<bundle>" --write
-python3 "$OKF" log "<bundle>" "Added [<title>](/<path>.md)." --kind Creation
+python3 "$OKF" log "<bundle>" "Added [<title>](<path from the bundle root>.md)." --kind Creation
 python3 "$OKF" validate "<bundle>"
 ```
 

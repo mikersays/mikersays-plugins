@@ -1,7 +1,7 @@
 {
   "name": "okf",
-  "description": "Author, index, and validate Open Knowledge Format (OKF v0.2) bundles — markdown concepts with YAML frontmatter for provenance, trust, lifecycle, and attested computations — so humans and agents share one vendor-neutral knowledge corpus",
-  "version": "1.0.0",
+  "description": "Author, index, and validate Open Knowledge Format (OKF v0.3) bundles — markdown concepts with YAML frontmatter for provenance, trust, lifecycle, and attested computations — so humans and agents share one vendor-neutral knowledge corpus",
+  "version": "2.0.0",
   "author": {
     "name": "mikersays"
   }

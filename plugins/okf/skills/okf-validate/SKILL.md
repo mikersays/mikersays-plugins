@@ -1,6 +1,6 @@
 ---
 name: okf-validate
-description: Check an Open Knowledge Format (OKF v0.2) bundle for conformance and lint problems — missing frontmatter or type, malformed index.md or log.md, bad timestamps and actor ids, footnotes with no matching source, broken links, stale concepts, incomplete Attested Computation contracts — and report trust tiers (unverified / machine-confirmed / human-reviewed) and lifecycle status across the bundle. Trigger on "okf validate", "check the bundle", "is this bundle conformant", "lint the knowledge bundle", "what's stale", or "audit the OKF docs".
+description: Check an Open Knowledge Format (OKF v0.3) bundle for conformance and lint problems — unparseable frontmatter, malformed index.md or log.md, files skipped as non-concepts, bad timestamps and actor ids, duplicate keys, footnotes with no matching source, broken links and path fields, stale concepts, verifications that predate the last change, incomplete Attested Computation contracts, v0.2 paths to migrate — and report trust tiers (unverified / machine-confirmed / human-reviewed, from current verifications only) and lifecycle status across the bundle. Trigger on "okf validate", "check the bundle", "is this bundle conformant", "lint the knowledge bundle", "what's stale", or "audit the OKF docs".
 argument-hint: "[bundle directory] [--strict]"
 allowed-tools: Bash, Read, Edit, Glob, Grep
 ---
@@ -30,26 +30,37 @@ If `find` returns nothing the plugin is not installed where expected; report tha
 
 Findings are `path[:line]: CODE message`. `E` codes break conformance (§11 of the spec); `W`
 codes are SHOULD-level guidance and lint. The summary at the end gives concept and type counts,
-trust tiers, status counts, stale count, and the declared `okf_version`.
+how many `.md` files were skipped as non-concepts, trust tiers, status counts (unknown values
+appear raw), stale count, concepts that dropped a trust tier, and the declared `okf_version`.
+
+The validator applies the v0.2 fallbacks (§12.1) when the bundle declares `okf_version` 0.2 or
+earlier, or no version; the summary says "v0.2 path fallback on".
 
 | Code | Meaning | Usually fixed by |
 |---|---|---|
-| E001–E003 | no frontmatter, unparseable YAML, missing `type` | you, editing the file |
-| E004 | frontmatter on an `index.md` (or extra keys on the root one) | you, or `index --write` |
-| E005 | `log.md` heading is not `## YYYY-MM-DD` | you |
+| E002 | frontmatter does not parse as a YAML mapping, or has no closing `---` | you, editing the file |
+| E004 | frontmatter on a subdirectory `index.md`, or unparseable root frontmatter | you |
+| E005 | `log.md` has frontmatter, or a `##` heading is not a real `YYYY-MM-DD` date | you |
 | E006 | Attested Computation without `runtime` | you, after asking what runs it |
 | W101 | no `description` | you, one sentence from the body |
-| W102–W104, W116 | bad timestamp / actor id / `generated` or `verified` shape | you, mechanically |
-| W105 | unknown `status` | you: draft, stable, or deprecated |
+| W102 | timestamp not an RFC 3339 date-time with an offset, or a `YYYY-MM-DD` date | you, mechanically |
+| W103, W104, W116 | bad actor id; `generated` or `verified` shape (an event needs `by` and `at`) | you, mechanically |
+| W105 | `status` outside draft, stable, deprecated (consumers treat it as not stable) | you, after asking which it is |
 | W106 | stale (`stale_after` passed) | a human re-verifying; you only flag it |
 | W107, W119 | `sources` entry without `resource`; `usage_count` without a window | you, from what you actually know |
 | W108 | footnote label with no `sources[].id` | add the source entry or fix the label |
-| W110, W111, W114 | broken link / path field / index target | fix the path, or leave a deliberate forward link |
-| W112, W113 | Attested Computation missing or doubled computation, weak contract | you, per §10 |
+| W110, W111, W114 | broken link, path field, or index target; a bare path that only resolves from the bundle root in a v0.3 bundle | fix the path (prefix `/`), or leave a deliberate forward link |
+| W112, W113 | Attested Computation without a findable computation, or with both forms; weak contract (parameter without `name`/`type`, no `receipt`, no `attester`) | you, per §10 |
 | W115, W120 | index out of sync or missing | `index --write` |
-| W117 | no or wrong `okf_version` at root | `index --write`, or edit |
+| W117 | root `okf_version` missing, unquoted, or not 0.3 | edit; for 0.2, migrate first |
 | W118 | v0.1 leftovers (`timestamp`, `# Citations`) | migrate to `generated` / `sources` |
 | W121 | log not newest-first | reorder |
+| W122, W123 | `.md` file skipped as a non-concept: no frontmatter, or no `type` | nothing if it is a README; else add `type` |
+| W124 | duplicate frontmatter key | you: keep the right value, delete the other |
+| W125 | verified before the last change (`generated.at`), so the tier dropped | a human or process confirming again; you only flag it |
+| W126 | `superseded_by` without `status: deprecated`, or not a single path | you |
+| W127 | v0.2 bundle: a bare path resolves only through the bundle-root fallback | prefix `/` before you declare 0.3 |
+| W128 | root `index.md` has no bundle `description`, or a non-string metadata value | you, after asking what the bundle is for |
 
 ## Act with judgment
 
@@ -58,12 +69,16 @@ trust tiers, status counts, stale count, and the declared `okf_version`.
 - **Findings that need knowledge you don't have**: don't guess. A missing `description` for a
   concept you understand from its body is fine to write; a `sources.resource` you would have to
   make up is not. A stale concept is stale until a human says otherwise; never touch `verified`
-  or `stale_after` to silence a warning.
+  or `stale_after` to silence a warning. The same goes for W125: never move `generated.at` back or
+  add a `verified` event to restore a tier. Remember that `generated.at` should change only on a
+  meaningful edit; a pure formatting or link fix leaves it alone (§5.2).
 - **Broken links** are legal OKF. Only "fix" one when it is a typo; a link to not-yet-written
   knowledge is information, and the right answer may be "these three concepts are missing".
 - **Trust summary**: if most of the bundle is unverified, say so plainly and name the concepts a
   human should sign off on first (the ones other concepts link to most, and any Attested
   Computation).
+- **A v0.2 bundle** (W117 says so): offer the migration in `../../references/okf-spec.md` ("Migrate
+  a bundle from v0.2 to v0.3"). Fix every W127 first, then bump `okf_version`, then re-run.
 
 Re-run after fixing. Report the before/after counts, what you changed, and what is left for a
 person. Do not commit.

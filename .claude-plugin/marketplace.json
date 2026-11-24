@@ -43,7 +43,7 @@
     {
       "name": "okf",
       "source": "./plugins/okf",
-      "description": "Author, index, and validate Open Knowledge Format (OKF v0.2) bundles — markdown concepts with YAML frontmatter for provenance, trust, lifecycle, and attested computations — /okf-init /okf-new /okf-index /okf-validate"
+      "description": "Author, index, and validate Open Knowledge Format (OKF v0.3) bundles — markdown concepts with YAML frontmatter for provenance, trust, lifecycle, and attested computations — /okf-init /okf-new /okf-index /okf-validate"
     },
     {
       "name": "expert",

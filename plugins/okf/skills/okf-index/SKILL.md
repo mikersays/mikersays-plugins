@@ -29,8 +29,13 @@ If `find` returns nothing the plugin is not installed where expected; report tha
 ## What the generator does
 
 - One `index.md` per directory that contains concepts or leads to them, root included.
-- Root index keeps its existing frontmatter, or gains `okf_version: "0.2"` if it had none. No other
+- The root index keeps its existing frontmatter untouched (`okf_version`, `title`, `description`,
+  `license`, and any extension keys; §8.1 requires this), or gains `okf_version: "0.3"` if it had
+  none. The generator never bumps an existing `okf_version`; that is a migration decision. No other
   index carries frontmatter.
+- Only concepts are listed: `.md` files with a non-empty `type` (§3.2). A `README.md` or
+  `AGENTS.md` without `type` is skipped.
+- Link targets are percent-encoded, so `my concept.md` is listed as `my%20concept.md` (§6).
 - Sections: `# Subdirectories` first, then one `# <Type>` section per concept type, entries sorted
   by title as `* [Title](file.md) - description`.
 - Descriptions come from each concept's `description`. When a concept has none, the description
@@ -41,7 +46,7 @@ If `find` returns nothing the plugin is not installed where expected; report tha
 
 ## Judgment
 
-Read the dry-run diff before writing. Two things are worth a human sentence rather than a silent
+Read the dry-run diff before writing. A few things are worth a human sentence rather than a silent
 apply:
 
 - A subdirectory placeholder like `3 concepts (Metric, Policy)`: replace it with a real one-line
@@ -49,5 +54,7 @@ apply:
 - Entries whose description changed because the concept's `description` was edited: expected.
   Entries whose description vanished: the concept has no `description`; add one to the concept
   (that is the fix) rather than to the index.
+- A new root `index.md` gets only `okf_version`. Suggest a `title` and a `description` that says
+  when to use the bundle, since agents pick bundles by it.
 
 Do not commit. Report which index files changed and anything that needs a human description.
