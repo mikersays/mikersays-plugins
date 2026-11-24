@@ -20,6 +20,16 @@ the user, then report.
    sessions, report each result, archive its brief and report, and clean up
    anything it left running, such as simulators. If the project instructions
    describe a procedure for finishing remote agents, follow it.
+
+   Then close every agent session that you started on another host and that
+   is idle: end its tmux session, delete what a build or a download can make
+   again (build output, environments, downloaded models), and remove
+   worktrees whose branches are merged. Open questions for the user are not
+   a reason to keep a session: record them where the project keeps open
+   work, and a later session starts a new agent. Leave a session open only
+   when its agent is still working or when the user said to keep it, and say
+   so in the report. First make sure that unpushed work, such as a local
+   branch, stays on disk and is recorded.
 3. **Persistent notes.** Find where this project keeps context for later
    sessions: the project instructions file (`CLAUDE.md` or `AGENTS.md`),
    memory files, a knowledge bundle, or a docs folder. Check that it records
