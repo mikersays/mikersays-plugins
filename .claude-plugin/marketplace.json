@@ -61,6 +61,11 @@
       "description": "Make a pixel-art character speak in sync with real audio: narrate text with a local model on Apple Silicon, get phoneme timestamps, turn them into a viseme frame plan, build a PixelLab mouth-shape sheet, render an MP4 or a web player, and export a device pack that an ESP32 with a 1-bit OLED or an M5Stack StickS3 plays — /lipsync-narrate /lipsync-phonemes /lipsync-plan /lipsync-sheet /lipsync-clip /lipsync-device"
     },
     {
+      "name": "shared-browser",
+      "source": "./plugins/shared-browser",
+      "description": "Run one persistent Chrome that you view and drive through noVNC while the agent drives it over CDP — systemd user units on Linux, a Docker or Podman container on any host including macOS, or a launchd-managed Chrome on a Mac desktop, locally or on a remote host over SSH — /shared-browser"
+    },
+    {
       "name": "maintenance",
       "source": "./plugins/maintenance",
       "description": "Maintenance skills for the mikersays-plugins marketplace — /sync-docs /install-marketplace /uninstall-marketplace"

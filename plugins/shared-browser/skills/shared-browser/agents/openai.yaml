@@ -1,0 +1,5 @@
+interface:
+  display_name: Shared Browser
+  short_description: A Chrome you and the agent share, through noVNC and CDP
+policy:
+  allow_implicit_invocation: true

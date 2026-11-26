@@ -29,6 +29,7 @@ codex plugin add <plugin>@mikersays-plugins
 - `expert` — Turn a task description into a deeper, expert-grade prompt — what a top professional would do, their raw sources, methods and tools, and independent proof the result is right
 - `end` — Check that a session's work is finished and persisted before you close it, so the next agent has the context it needs
 - `lipsync` — Make a pixel-art character speak in sync with real audio: narrate text with a local model on Apple Silicon, get phoneme timestamps, turn them into a viseme frame plan, build a PixelLab mouth-shape sheet, render an MP4 or a web player, and export a device pack that an ESP32 with a 1-bit OLED or an M5Stack StickS3 plays; includes `lipsync-narrate`, `lipsync-phonemes`, `lipsync-plan`, `lipsync-sheet`, `lipsync-clip`, and `lipsync-device`
+- `shared-browser` — Run one persistent Chrome that you view and drive through noVNC while the agent drives it over CDP — systemd user units on Linux, a Docker or Podman container on any host including macOS, or a launchd-managed Chrome on a Mac desktop, locally or on a remote host over SSH
 
 ## Install
 

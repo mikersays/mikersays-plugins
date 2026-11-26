@@ -137,6 +137,18 @@
       "category": "Creative Tools"
     },
     {
+      "name": "shared-browser",
+      "source": {
+        "source": "local",
+        "path": "./plugins/shared-browser"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    },
+    {
       "name": "maintenance",
       "source": {
         "source": "local",

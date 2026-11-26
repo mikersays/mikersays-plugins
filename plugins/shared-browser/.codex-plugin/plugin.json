@@ -1,0 +1,11 @@
+{
+  "name": "shared-browser",
+  "description": "Run one persistent Chrome that you view and drive through noVNC while the agent drives it over CDP: systemd user units on Linux, a Docker or Podman container on any host including macOS, or a launchd-managed Chrome on a Mac desktop, locally or on a remote host over SSH",
+  "version": "1.0.0",
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Shared Browser",
+    "shortDescription": "A Chrome you and the agent share, through noVNC and CDP",
+    "category": "Developer Tools"
+  }
+}

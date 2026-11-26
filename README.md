@@ -55,6 +55,7 @@ Codex records the marketplace and installed plugins in `~/.codex/config.toml`, t
 | [expert](plugins/expert/) | Rewrite a task prompt the way a top professional would approach it: expert habits, raw sources, named methods, and independent proof | `/expert [task]` |
 | [end](plugins/end/) | Check that a session's work is finished and persisted before you close it | `/end` |
 | [lipsync](plugins/lipsync/) | Make a pixel-art character speak in sync with real audio: narrate text with a local model on Apple Silicon, get phoneme timestamps, turn them into a viseme frame plan, build a PixelLab mouth-shape sheet, render an MP4 or a web player, and export a device pack that an ESP32 with a 1-bit OLED or an M5Stack StickS3 plays | `/lipsync-narrate` `/lipsync-phonemes` `/lipsync-plan` `/lipsync-sheet` `/lipsync-clip` `/lipsync-device` |
+| [shared-browser](plugins/shared-browser/) | Run one persistent Chrome that you view and drive through noVNC while the agent drives it over CDP — systemd user units on Linux, a Docker or Podman container on any host including macOS, or a launchd-managed Chrome on a Mac desktop, locally or on a remote host over SSH | `/shared-browser` |
 | [maintenance](plugins/maintenance/) | Sync docs, run installer, run uninstaller | `/sync-docs` `/install-marketplace` `/uninstall-marketplace` |
 
 ## Contributing

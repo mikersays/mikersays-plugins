@@ -663,6 +663,7 @@ codex plugin add ship@mikersays-plugins</code></pre>
     { id: 'expert',      desc: 'Turn a task description into a deeper, expert-grade prompt — what a top professional would do, their raw sources, methods and tools, and independent proof the result is right' },
     { id: 'end',         desc: 'Check that a session's work is finished and persisted before you close it, so the next agent has the context it needs' },
     { id: 'lipsync',     desc: 'Make a pixel-art character speak in sync with real audio — local narration on Apple Silicon, phoneme timestamps, a viseme frame plan, a PixelLab mouth sheet, an MP4 or web player, and a device pack for an ESP32 with a 1-bit OLED or an M5Stack StickS3' },
+    { id: 'shared-browser', desc: 'Run one persistent Chrome that you view and drive through noVNC while the agent drives it over CDP — systemd user units on Linux, a Docker or Podman container on any host including macOS, or a launchd-managed Chrome on a Mac desktop, locally or on a remote host over SSH' },
   ];
 
   let selected = new Set(PLUGINS.map(p => p.id));

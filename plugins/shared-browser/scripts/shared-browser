@@ -1,0 +1,830 @@
+#!/usr/bin/env bash
+# shared-browser: run one persistent Chrome that a person views and drives
+# through noVNC while an agent drives it over the Chrome DevTools Protocol
+# (CDP). Every port binds to 127.0.0.1; reach it from another machine through
+# an SSH tunnel.
+#
+# Modes:
+#   systemd    Linux host: Xvnc + Openbox + websockify/noVNC + Chrome as
+#              systemd user units (start at boot when linger is on).
+#   container  Any host with Docker or Podman, including macOS (Docker
+#              Desktop, colima, OrbStack): the same stack in one container.
+#   direct     A desktop you sit at: a real Chrome window with its own
+#              profile and CDP. No noVNC, because you see the screen.
+#
+# Runs on bash 3.2 (macOS) and later. Run `shared-browser help` for usage.
+
+set -euo pipefail
+
+VERSION="1.0.0"
+SELF="${BASH_SOURCE[0]}"
+SELF_DIR="$(cd "$(dirname "$SELF")" && pwd)"
+KIT_DIR="$(dirname "$SELF_DIR")"          # plugin root: scripts/ and container/
+REMOTE_KIT='.local/share/shared-browser/kit'  # relative to the remote $HOME
+OS="$(uname -s)"
+
+# ---------------------------------------------------------------- output ---
+
+say()  { printf '%s\n' "$*"; }
+info() { printf '==> %s\n' "$*"; }
+warn() { printf 'warning: %s\n' "$*" >&2; }
+die()  { printf 'error: %s\n' "$*" >&2; exit 1; }
+have() { command -v "$1" >/dev/null 2>&1; }
+
+usage() {
+  cat <<'EOF'
+Usage: shared-browser <command> [options]
+
+Commands:
+  up         Install (first run) and start the browser
+  down       Stop the browser; keep the profile and logins
+  restart    Stop, then start
+  status     Show each part and check CDP and noVNC
+  password   Print the VNC password (--reset makes a new one)
+  url        Print the noVNC and CDP URLs
+  tunnel     Open an SSH tunnel to --host (--print only prints the command)
+  mcp        Register a `chrome` MCP server for Claude Code and Codex CLI
+  logs       Show recent logs
+  uninstall  Remove units or container (--purge also deletes the profile)
+  doctor     Check this machine and list what each mode needs
+  version    Print the version
+
+Options:
+  --mode systemd|container|direct   Default: picked from this machine
+  --name NAME          Instance name (default shared-browser); also the unit,
+                       container, and volume prefix
+  --host USER@HOST     Run the command on HOST over SSH (up, down, restart,
+                       status, password, url, logs, uninstall, doctor)
+  --web-port N         noVNC port (default 6080)
+  --cdp-port N         CDP port (default 9222)
+  --vnc-port N         Raw VNC port, systemd mode (default 5999)
+  --display N          X display number, systemd mode (default 99)
+  --geometry WxH       Screen size (default 1600x1000)
+  --browser PATH       Browser binary (default: Google Chrome, else Chromium)
+  --mcp-name NAME      MCP server name for `mcp` (default chrome)
+  --rebuild            Container mode: rebuild the image before `up`
+  --reset              With `password`: make a new password
+  --purge              With `uninstall`: also delete profile, password, image
+  --print              With `tunnel`: print the ssh command only
+  -h, --help           Show this help
+
+Environment:
+  SHARED_BROWSER_DOCKER   Container CLI to use, e.g. "podman" or "sudo docker"
+EOF
+}
+
+# --------------------------------------------------------------- options ---
+
+CMD=""
+ORIG_ARGS=("$@")
+O_MODE="" O_NAME="" O_HOST="" O_WEB="" O_CDP="" O_VNC="" O_DISPLAY=""
+O_GEOMETRY="" O_BROWSER="" MCP_NAME="chrome"
+REBUILD=0 RESET=0 PURGE=0 PRINT_ONLY=0
+
+need_val() { [ $# -ge 2 ] && [ -n "$2" ] || die "$1 needs a value"; }
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --mode)     need_val "$@"; O_MODE="$2"; shift 2 ;;
+    --name)     need_val "$@"; O_NAME="$2"; shift 2 ;;
+    --host)     need_val "$@"; O_HOST="$2"; shift 2 ;;
+    --web-port) need_val "$@"; O_WEB="$2"; shift 2 ;;
+    --cdp-port) need_val "$@"; O_CDP="$2"; shift 2 ;;
+    --vnc-port) need_val "$@"; O_VNC="$2"; shift 2 ;;
+    --display)  need_val "$@"; O_DISPLAY="$2"; shift 2 ;;
+    --geometry) need_val "$@"; O_GEOMETRY="$2"; shift 2 ;;
+    --browser)  need_val "$@"; O_BROWSER="$2"; shift 2 ;;
+    --mcp-name) need_val "$@"; MCP_NAME="$2"; shift 2 ;;
+    --rebuild)  REBUILD=1; shift ;;
+    --reset)    RESET=1; shift ;;
+    --purge)    PURGE=1; shift ;;
+    --print)    PRINT_ONLY=1; shift ;;
+    -h|--help|help) usage; exit 0 ;;
+    -*) die "unknown option: $1 (see: shared-browser help)" ;;
+    *)  [ -z "$CMD" ] || die "more than one command: $CMD and $1"; CMD="$1"; shift ;;
+  esac
+done
+[ -n "$CMD" ] || { usage; exit 1; }
+
+NAME="${O_NAME:-shared-browser}"
+case "$NAME" in
+  [a-z0-9]*) ;;
+  *) die "--name must start with a lowercase letter or digit" ;;
+esac
+printf '%s' "$NAME" | grep -Eq '^[a-z0-9][a-z0-9-]{0,30}$' \
+  || die "--name may use only a-z, 0-9, and '-', up to 31 characters"
+
+CONF_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/shared-browser/$NAME"
+DATA_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/shared-browser/$NAME"
+STATE_FILE="$CONF_DIR/instance.env"
+
+# Defaults, then the saved instance, then the command line.
+MODE="" WEB_PORT=6080 CDP_PORT=9222 VNC_PORT=5999 DISPLAY_NUM=99
+GEOMETRY=1600x1000 BROWSER=""
+if [ -z "$O_HOST" ] && [ -f "$STATE_FILE" ]; then
+  # The file is ours: KEY=value lines written by save_state.
+  while IFS='=' read -r k v; do
+    case "$k" in
+      MODE) MODE="$v" ;; WEB_PORT) WEB_PORT="$v" ;; CDP_PORT) CDP_PORT="$v" ;;
+      VNC_PORT) VNC_PORT="$v" ;; DISPLAY_NUM) DISPLAY_NUM="$v" ;;
+      GEOMETRY) GEOMETRY="$v" ;; BROWSER) BROWSER="$v" ;;
+    esac
+  done < "$STATE_FILE"
+fi
+[ -n "$O_MODE" ] && MODE="$O_MODE"
+[ -n "$O_WEB" ] && WEB_PORT="$O_WEB"
+[ -n "$O_CDP" ] && CDP_PORT="$O_CDP"
+[ -n "$O_VNC" ] && VNC_PORT="$O_VNC"
+[ -n "$O_DISPLAY" ] && DISPLAY_NUM="$O_DISPLAY"
+[ -n "$O_GEOMETRY" ] && GEOMETRY="$O_GEOMETRY"
+[ -n "$O_BROWSER" ] && BROWSER="$O_BROWSER"
+
+for p in "$WEB_PORT" "$CDP_PORT" "$VNC_PORT"; do
+  printf '%s' "$p" | grep -Eq '^[0-9]{2,5}$' && [ "$p" -ge 1024 ] && [ "$p" -le 65535 ] \
+    || die "ports must be numbers from 1024 to 65535 (got $p)"
+done
+printf '%s' "$DISPLAY_NUM" | grep -Eq '^[0-9]{1,3}$' || die "--display must be a number"
+printf '%s' "$GEOMETRY" | grep -Eq '^[0-9]{3,5}x[0-9]{3,5}$' || die "--geometry must look like 1600x1000"
+case "$MODE" in ""|systemd|container|direct) ;; *) die "--mode must be systemd, container, or direct" ;; esac
+
+# ----------------------------------------------------------------- utils ---
+
+save_state() {
+  mkdir -p "$CONF_DIR"; chmod 700 "$CONF_DIR"
+  cat > "$STATE_FILE" <<EOF
+MODE=$MODE
+WEB_PORT=$WEB_PORT
+CDP_PORT=$CDP_PORT
+VNC_PORT=$VNC_PORT
+DISPLAY_NUM=$DISPLAY_NUM
+GEOMETRY=$GEOMETRY
+BROWSER=$BROWSER
+EOF
+}
+
+port_busy() { (exec 3<>"/dev/tcp/127.0.0.1/$1") 2>/dev/null; }
+
+http_code() {
+  curl -s -o /dev/null -w '%{http_code}' --max-time 3 "$1" 2>/dev/null || true
+}
+
+cdp_browser() {
+  # Prints the "Browser" field of /json/version, or nothing.
+  curl -fsS --max-time 3 "http://127.0.0.1:$CDP_PORT/json/version" 2>/dev/null \
+    | sed -n 's/.*"Browser": *"\([^"]*\)".*/\1/p' | head -n 1
+}
+
+wait_for_cdp() {
+  local i=0 limit="${1:-60}"
+  while [ "$i" -lt "$limit" ]; do
+    [ -n "$(cdp_browser)" ] && return 0
+    sleep 1; i=$((i + 1))
+  done
+  return 1
+}
+
+gen_password() {
+  # 8 characters: the VNC protocol ignores anything after the eighth.
+  local pw=""
+  while [ "${#pw}" -lt 8 ]; do
+    pw="$pw$(head -c 64 /dev/urandom | LC_ALL=C tr -dc 'A-HJ-NP-Za-km-z2-9')"
+  done
+  printf '%s' "${pw:0:8}"
+}
+
+file_size() { wc -c < "$1" | tr -d ' '; }
+
+host_tz() {
+  local t=""
+  [ -n "${TZ:-}" ] && { printf '%s' "$TZ"; return; }
+  if [ -L /etc/localtime ]; then
+    t="$(readlink /etc/localtime)"; t="${t##*zoneinfo/}"
+  fi
+  printf '%s' "${t:-UTC}"
+}
+
+find_browser() {
+  [ -n "$BROWSER" ] && { printf '%s' "$BROWSER"; return; }
+  local c
+  if [ "$OS" = Darwin ]; then
+    for c in "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
+             "$HOME/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
+             "/Applications/Chromium.app/Contents/MacOS/Chromium"; do
+      [ -x "$c" ] && { printf '%s' "$c"; return; }
+    done
+    return
+  fi
+  for c in google-chrome-stable google-chrome chromium chromium-browser; do
+    if have "$c"; then command -v "$c"; return; fi
+  done
+}
+
+novnc_dir() {
+  local d
+  for d in /usr/share/novnc /usr/share/webapps/novnc /usr/local/share/novnc /opt/novnc; do
+    [ -f "$d/vnc.html" ] && { printf '%s' "$d"; return; }
+  done
+}
+
+# ------------------------------------------------------- mode detection ---
+
+DOCKER_CMD=""
+docker_cli() {
+  # Sets DOCKER_CMD to a working container CLI, or returns 1.
+  [ -n "$DOCKER_CMD" ] && return 0
+  if [ -n "${SHARED_BROWSER_DOCKER:-}" ]; then
+    DOCKER_CMD="$SHARED_BROWSER_DOCKER"
+  elif have docker; then DOCKER_CMD=docker
+  elif have podman; then DOCKER_CMD=podman
+  else return 1
+  fi
+  # shellcheck disable=SC2086
+  $DOCKER_CMD info >/dev/null 2>&1 || { DOCKER_CMD=""; return 1; }
+}
+dk() { docker_cli || die "no working container CLI. $(docker_hint)"; $DOCKER_CMD "$@"; }  # word-split on purpose
+
+docker_hint() {
+  if [ "$OS" = Darwin ] && have colima; then echo "Start the VM with: colima start"
+  elif [ "$OS" = Darwin ]; then echo "Install and start Docker Desktop, OrbStack, or colima."
+  elif have docker; then echo "Docker is installed but this user cannot reach it. Add the user to the docker group, or set SHARED_BROWSER_DOCKER='sudo docker' or 'podman'."
+  else echo "Install Docker or Podman."
+  fi
+}
+
+systemd_ok() {
+  [ "$OS" = Linux ] && have systemctl && systemctl --user show-environment >/dev/null 2>&1
+}
+
+systemd_missing() {
+  # Prints the missing parts for systemd mode, one per line.
+  have Xvnc       || echo "Xvnc (TigerVNC server)"
+  have vncpasswd  || echo "vncpasswd (TigerVNC tools)"
+  have openbox    || echo "openbox"
+  have websockify || echo "websockify"
+  [ -n "$(novnc_dir)" ] || echo "noVNC web files (vnc.html)"
+  [ -n "$(find_browser)" ] || echo "Google Chrome or Chromium"
+  have curl       || echo "curl"
+}
+
+deps_hint() {
+  if have apt-get; then
+    say "  sudo apt-get install -y tigervnc-standalone-server tigervnc-tools openbox novnc websockify curl"
+    say "  Chrome: https://www.google.com/chrome/ (.deb), or: sudo apt-get install -y chromium"
+  elif have dnf; then
+    say "  sudo dnf install -y tigervnc-server openbox novnc python3-websockify curl chromium"
+  elif have pacman; then
+    say "  sudo pacman -S --needed tigervnc openbox websockify curl chromium  (noVNC: the novnc package, AUR on some setups)"
+  elif have zypper; then
+    say "  sudo zypper install tigervnc openbox novnc python3-websockify curl chromium"
+  else
+    say "  Install TigerVNC (Xvnc, vncpasswd), Openbox, websockify, noVNC, curl, and Chrome or Chromium."
+  fi
+}
+
+pick_mode() {
+  [ -n "$MODE" ] && return
+  if systemd_ok && [ -z "$(systemd_missing)" ]; then MODE=systemd
+  elif docker_cli; then MODE=container
+  elif [ "$OS" = Darwin ] && [ -n "$(find_browser)" ]; then MODE=direct
+  elif systemd_ok; then
+    say "systemd mode needs:"; systemd_missing | sed 's/^/  - /'; deps_hint
+    die "install the packages above, or set up Docker/Podman for --mode container"
+  else
+    die "no usable mode here. $(docker_hint)"
+  fi
+  info "mode: $MODE (picked automatically; pass --mode to choose)"
+}
+
+# --------------------------------------------------------- systemd mode ---
+
+UNIT_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/systemd/user"
+PROFILE_DIR="$DATA_DIR/profile"
+PW_FILE="$CONF_DIR/password"
+VNCPW_FILE="$CONF_DIR/vncpasswd"
+UNITS="display wm novnc chrome"
+
+write_password() {
+  # $1 = plain password. Writes the plain copy and the 8-byte vncpasswd file.
+  local pw="$1" tmp
+  umask 077; mkdir -p "$CONF_DIR"
+  tmp="$VNCPW_FILE.tmp"
+  printf '%s\n' "$pw" | vncpasswd -f > "$tmp"
+  [ "$(file_size "$tmp")" = 8 ] || { rm -f "$tmp"; die "vncpasswd wrote $(file_size "$tmp") bytes, expected 8"; }
+  mv "$tmp" "$VNCPW_FILE"
+  printf '%s\n' "$pw" > "$PW_FILE"
+  chmod 600 "$VNCPW_FILE" "$PW_FILE"
+}
+
+sd_write_units() {
+  local xvnc openbox ws browser web sh
+  xvnc="$(command -v Xvnc)"; openbox="$(command -v openbox)"
+  ws="$(command -v websockify)"; web="$(novnc_dir)"; browser="$(find_browser)"
+  sh="$(command -v sh)"
+  BROWSER="$browser"
+  case "$browser" in /snap/*) warn "snap Chromium confines its profile; if it fails, install Chrome or a .deb Chromium" ;; esac
+  mkdir -p "$UNIT_DIR" "$PROFILE_DIR"
+  local wait_x="$sh -c 'i=0; until [ -S /tmp/.X11-unix/X$DISPLAY_NUM ]; do i=\$((i+1)); [ \$i -gt 150 ] && exit 1; sleep 0.2; done'"
+
+  cat > "$UNIT_DIR/$NAME.target" <<EOF
+# Written by shared-browser $VERSION. Start or stop the whole instance.
+[Unit]
+Description=shared-browser $NAME (noVNC 127.0.0.1:$WEB_PORT, CDP 127.0.0.1:$CDP_PORT)
+Wants=$NAME-display.service $NAME-wm.service $NAME-novnc.service $NAME-chrome.service
+
+[Install]
+WantedBy=default.target
+EOF
+
+  cat > "$UNIT_DIR/$NAME-display.service" <<EOF
+# Written by shared-browser $VERSION.
+[Unit]
+Description=shared-browser $NAME: virtual display :$DISPLAY_NUM, VNC on 127.0.0.1:$VNC_PORT
+PartOf=$NAME.target
+
+[Service]
+ExecStart=$xvnc :$DISPLAY_NUM -geometry $GEOMETRY -depth 24 -localhost=1 -nolisten tcp -rfbport $VNC_PORT -SecurityTypes VncAuth -PasswordFile $VNCPW_FILE -AlwaysShared -AcceptSetDesktopSize=1
+Restart=on-failure
+RestartSec=2
+EOF
+
+  cat > "$UNIT_DIR/$NAME-wm.service" <<EOF
+# Written by shared-browser $VERSION.
+[Unit]
+Description=shared-browser $NAME: Openbox window manager
+PartOf=$NAME.target
+Requires=$NAME-display.service
+After=$NAME-display.service
+
+[Service]
+Environment=DISPLAY=:$DISPLAY_NUM
+ExecStartPre=$wait_x
+ExecStart=$openbox
+Restart=on-failure
+RestartSec=2
+EOF
+
+  cat > "$UNIT_DIR/$NAME-novnc.service" <<EOF
+# Written by shared-browser $VERSION.
+[Unit]
+Description=shared-browser $NAME: noVNC on 127.0.0.1:$WEB_PORT
+PartOf=$NAME.target
+Requires=$NAME-display.service
+After=$NAME-display.service
+
+[Service]
+ExecStart=$ws --web $web 127.0.0.1:$WEB_PORT 127.0.0.1:$VNC_PORT
+Restart=on-failure
+RestartSec=2
+EOF
+
+  # Chrome notes:
+  # - The profile is not Chrome's default one: Chrome 136+ refuses remote
+  #   debugging on the default profile.
+  # - After an update, Chrome may relaunch itself with --restart outside this
+  #   unit's cgroup. The unit then restarts every few seconds, and each start
+  #   opens a blank tab in the orphan. ExecStartPre kills any Chrome on this
+  #   profile first, and StartLimit* stops a runaway loop.
+  # - No automation flags, so Google sign-in accepts this browser.
+  cat > "$UNIT_DIR/$NAME-chrome.service" <<EOF
+# Written by shared-browser $VERSION.
+[Unit]
+Description=shared-browser $NAME: browser with CDP on 127.0.0.1:$CDP_PORT
+PartOf=$NAME.target
+Requires=$NAME-display.service
+After=$NAME-display.service $NAME-wm.service
+StartLimitIntervalSec=120
+StartLimitBurst=10
+
+[Service]
+Environment=DISPLAY=:$DISPLAY_NUM
+ExecStartPre=-$(command -v pkill) -U %U -f -- --user-data-dir=$PROFILE_DIR
+ExecStartPre=$wait_x
+ExecStart=$browser --user-data-dir=$PROFILE_DIR --remote-debugging-address=127.0.0.1 --remote-debugging-port=$CDP_PORT --no-first-run --no-default-browser-check --start-maximized --password-store=basic
+Restart=always
+RestartSec=3
+TimeoutStopSec=15
+EOF
+  systemctl --user daemon-reload
+}
+
+sd_active() { systemctl --user is-active --quiet "$NAME-$1.service"; }
+
+sd_up() {
+  systemd_ok || die "systemd user services are not available here (is this a login session with a user bus?)"
+  local missing; missing="$(systemd_missing)"
+  if [ -n "$missing" ]; then
+    say "systemd mode needs:"; printf '%s\n' "$missing" | sed 's/^/  - /'; deps_hint
+    die "install the packages above, then run up again"
+  fi
+  if ! sd_active chrome && ! sd_active display; then
+    local p
+    for p in "$WEB_PORT" "$CDP_PORT" "$VNC_PORT"; do
+      port_busy "$p" && die "port $p is in use. Pick others with --web-port, --cdp-port, --vnc-port (and --display), or another --name"
+    done
+    [ -e "/tmp/.X11-unix/X$DISPLAY_NUM" ] && die "display :$DISPLAY_NUM is in use. Pick another with --display"
+  fi
+  [ -s "$VNCPW_FILE" ] && [ "$(file_size "$VNCPW_FILE")" = 8 ] || write_password "$(gen_password)"
+  sd_write_units
+  save_state
+  systemctl --user enable --quiet "$NAME.target"
+  systemctl --user start "$NAME.target"
+  if have loginctl && [ "$(loginctl show-user "$USER" -p Linger --value 2>/dev/null || true)" != yes ]; then
+    if loginctl enable-linger "$USER" 2>/dev/null; then
+      info "turned on linger, so the browser starts at boot without a login"
+    else
+      warn "linger is off, so the browser stops when you log out. Fix: sudo loginctl enable-linger $USER"
+    fi
+  fi
+}
+
+sd_down() {
+  systemctl --user stop "$NAME.target" 2>/dev/null || true
+  local u
+  for u in $UNITS; do systemctl --user stop "$NAME-$u.service" 2>/dev/null || true; done
+}
+
+sd_status() {
+  local u
+  for u in $UNITS; do
+    printf '  %-8s %s\n' "$u" "$(systemctl --user is-active "$NAME-$u.service" 2>/dev/null || true)"
+  done
+  local pid; pid="$(systemctl --user show "$NAME-chrome.service" -p MainPID --value 2>/dev/null || echo 0)"
+  if [ "$pid" = 0 ] && pgrep -U "$(id -u)" -f -- "--user-data-dir=$PROFILE_DIR" >/dev/null 2>&1; then
+    warn "a browser runs on this profile outside its unit (orphaned relaunch). Fix: shared-browser restart"
+  fi
+}
+
+sd_uninstall() {
+  sd_down
+  systemctl --user disable --quiet "$NAME.target" 2>/dev/null || true
+  local u
+  for u in $UNITS; do rm -f "$UNIT_DIR/$NAME-$u.service"; done
+  rm -f "$UNIT_DIR/$NAME.target"
+  systemctl --user daemon-reload 2>/dev/null || true
+  systemctl --user reset-failed 2>/dev/null || true
+}
+
+# ------------------------------------------------------- container mode ---
+
+IMAGE="shared-browser:$VERSION"
+CONTAINER="$NAME"
+VOLUME="$NAME-data"
+NETWORK="$NAME-net"
+
+ct_exists()  { dk container inspect "$CONTAINER" >/dev/null 2>&1; }
+ct_running() { [ "$(dk container inspect -f '{{.State.Running}}' "$CONTAINER" 2>/dev/null)" = true ]; }
+
+ct_up() {
+  docker_cli || die "no working container CLI. $(docker_hint)"
+  if [ "$REBUILD" = 1 ] || ! dk image inspect "$IMAGE" >/dev/null 2>&1; then
+    info "building $IMAGE (first build takes a few minutes)"
+    dk build -t "$IMAGE" "$KIT_DIR/container"
+  fi
+  if ct_exists; then
+    if [ "$REBUILD" = 1 ] || [ -n "$O_WEB$O_CDP$O_GEOMETRY" ]; then
+      info "recreating $CONTAINER (the profile volume stays)"
+      dk rm -f "$CONTAINER" >/dev/null
+    elif ct_running; then
+      info "$CONTAINER is already running"; save_state; return
+    else
+      dk start "$CONTAINER" >/dev/null; save_state; return
+    fi
+  fi
+  local p
+  for p in "$WEB_PORT" "$CDP_PORT"; do
+    port_busy "$p" && die "port $p is in use. Pick others with --web-port and --cdp-port, or another --name"
+  done
+  # A network of its own keeps other containers away from the unauthenticated CDP port.
+  dk network inspect "$NETWORK" >/dev/null 2>&1 || dk network create "$NETWORK" >/dev/null
+  dk run -d --name "$CONTAINER" --hostname "$NAME" \
+    --restart unless-stopped --shm-size 1g --network "$NETWORK" \
+    -p "127.0.0.1:$WEB_PORT:6080" -p "127.0.0.1:$CDP_PORT:9222" \
+    -v "$VOLUME:/data" -e "GEOMETRY=$GEOMETRY" -e "TZ=$(host_tz)" \
+    --label "shared-browser.version=$VERSION" \
+    "$IMAGE" >/dev/null
+  save_state
+}
+
+ct_down()   { ct_exists && dk stop "$CONTAINER" >/dev/null; return 0; }
+ct_status() {
+  if ct_exists; then
+    printf '  %-8s %s\n' container "$(dk container inspect -f '{{.State.Status}} (health: {{if .State.Health}}{{.State.Health.Status}}{{else}}n/a{{end}})' "$CONTAINER")"
+  else
+    printf '  %-8s %s\n' container "not created"
+  fi
+}
+ct_uninstall() {
+  ct_exists && dk rm -f "$CONTAINER" >/dev/null
+  dk network inspect "$NETWORK" >/dev/null 2>&1 && dk network rm "$NETWORK" >/dev/null
+  if [ "$PURGE" = 1 ]; then
+    dk volume rm "$VOLUME" >/dev/null 2>&1 || true
+    dk image rm "$IMAGE" >/dev/null 2>&1 || true
+  fi
+  return 0
+}
+
+# ---------------------------------------------------------- direct mode ---
+
+PID_FILE="$DATA_DIR/browser.pid"
+LA_LABEL="dev.shared-browser.$NAME"
+LA_PLIST="$HOME/Library/LaunchAgents/$LA_LABEL.plist"
+LA_DOMAIN="gui/$(id -u)"
+
+# macOS: a launchd agent keeps Chrome running and starts it at login.
+# Linux: a background process for the current desktop session.
+
+dr_wrapper() {
+  # The wrapper kills any browser left on this profile (for example after
+  # Chrome relaunched itself for an update), then runs the browser. The
+  # profile path is not in the wrapper's own argv, so pkill spares it.
+  local w="$DATA_DIR/run-browser.sh"
+  cat > "$w" <<EOF
+#!/bin/sh
+# Written by shared-browser $VERSION.
+P='$PROFILE_DIR'
+pkill -U "\$(id -u)" -f -- "--user-data-dir=\$P" 2>/dev/null && sleep 2
+exec '$BROWSER' "--user-data-dir=\$P" --remote-debugging-port=$CDP_PORT --no-first-run --no-default-browser-check
+EOF
+  chmod 755 "$w"
+  printf '%s' "$w"
+}
+
+dr_pid() {
+  local pid=""
+  if [ "$OS" = Darwin ]; then
+    pid="$(launchctl print "$LA_DOMAIN/$LA_LABEL" 2>/dev/null | sed -n 's/^[[:space:]]*pid = \([0-9]*\).*/\1/p' | head -n 1)"
+  elif [ -f "$PID_FILE" ]; then
+    pid="$(cat "$PID_FILE")"; kill -0 "$pid" 2>/dev/null || pid=""
+  fi
+  [ -n "$pid" ] && printf '%s' "$pid"
+}
+
+dr_up() {
+  [ -n "$(dr_pid || true)" ] && { info "browser already running (pid $(dr_pid))"; save_state; return; }
+  if [ "$OS" != Darwin ] && [ -z "${DISPLAY:-}${WAYLAND_DISPLAY:-}" ]; then
+    die "direct mode needs a desktop session (no DISPLAY or WAYLAND_DISPLAY). Over SSH, use --mode systemd or container"
+  fi
+  BROWSER="$(find_browser)"
+  [ -n "$BROWSER" ] || die "no Chrome or Chromium found; pass --browser PATH"
+  port_busy "$CDP_PORT" && die "port $CDP_PORT is in use. Pick another with --cdp-port"
+  mkdir -p "$PROFILE_DIR"
+  local w; w="$(dr_wrapper)"
+  if [ "$OS" = Darwin ]; then
+    mkdir -p "$(dirname "$LA_PLIST")"
+    cat > "$LA_PLIST" <<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- Written by shared-browser $VERSION. -->
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>$LA_LABEL</string>
+  <key>ProgramArguments</key><array><string>/bin/sh</string><string>$w</string></array>
+  <key>RunAtLoad</key><true/>
+  <key>KeepAlive</key><true/>
+  <key>ThrottleInterval</key><integer>10</integer>
+  <key>LimitLoadToSessionType</key><string>Aqua</string>
+  <key>StandardOutPath</key><string>$DATA_DIR/browser.log</string>
+  <key>StandardErrorPath</key><string>$DATA_DIR/browser.log</string>
+</dict>
+</plist>
+EOF
+    launchctl bootout "$LA_DOMAIN/$LA_LABEL" 2>/dev/null || true
+    launchctl bootstrap "$LA_DOMAIN" "$LA_PLIST" \
+      || die "launchd refused the agent. Chrome needs a logged-in desktop: log in to the Mac (or turn on automatic login), then run up again"
+  else
+    nohup /bin/sh "$w" > "$DATA_DIR/browser.log" 2>&1 &
+    echo $! > "$PID_FILE"
+    warn "direct mode on Linux does not start at boot; run up again after a reboot"
+  fi
+  save_state
+}
+
+dr_down() {
+  if [ "$OS" = Darwin ]; then
+    launchctl bootout "$LA_DOMAIN/$LA_LABEL" 2>/dev/null || true
+  else
+    local pid; pid="$(dr_pid || true)"
+    if [ -n "$pid" ]; then kill "$pid" 2>/dev/null || true; fi
+    rm -f "$PID_FILE"
+  fi
+  pkill -U "$(id -u)" -f -- "--user-data-dir=$PROFILE_DIR" 2>/dev/null || true
+}
+
+dr_uninstall() {
+  dr_down
+  if [ "$OS" = Darwin ]; then rm -f "$LA_PLIST"; fi
+  rm -f "$DATA_DIR/run-browser.sh"
+}
+
+dr_status() {
+  local pid; pid="$(dr_pid || true)"
+  if [ -n "$pid" ]; then printf '  %-8s %s\n' browser "running (pid $pid)"
+  else printf '  %-8s %s\n' browser stopped; fi
+}
+
+# -------------------------------------------------------------- commands ---
+
+print_urls() {
+  if [ "$MODE" != direct ]; then
+    say "noVNC: http://localhost:$WEB_PORT/vnc.html?autoconnect=1&resize=remote"
+  fi
+  say "CDP:   http://127.0.0.1:$CDP_PORT"
+}
+
+check_endpoints() {
+  local b code ok=0
+  b="$(cdp_browser)"
+  if [ -n "$b" ]; then say "  cdp      ok ($b)"; else say "  cdp      not answering on 127.0.0.1:$CDP_PORT"; ok=1; fi
+  if [ "$MODE" != direct ]; then
+    code="$(http_code "http://127.0.0.1:$WEB_PORT/vnc.html")"
+    if [ "$code" = 200 ]; then say "  novnc    ok (HTTP 200)"; else say "  novnc    not answering on 127.0.0.1:$WEB_PORT (HTTP ${code:-none})"; ok=1; fi
+  fi
+  return "$ok"
+}
+
+require_instance() {
+  [ -n "$MODE" ] || die "no instance named $NAME here. Run: shared-browser up${O_NAME:+ --name $NAME}"
+}
+
+cmd_up() {
+  pick_mode
+  info "starting $NAME ($MODE mode)"
+  case "$MODE" in systemd) sd_up ;; container) ct_up ;; direct) dr_up ;; esac
+  if wait_for_cdp 90; then
+    info "ready"
+  else
+    warn "CDP did not answer within 90 s. Check: shared-browser logs${O_NAME:+ --name $NAME}"
+  fi
+  check_endpoints || true
+  print_urls
+  if [ "$MODE" != direct ]; then
+    say ""
+    say "VNC password: run 'shared-browser password${O_NAME:+ --name $NAME}'"
+    say "From another machine: ssh -N -L $WEB_PORT:127.0.0.1:$WEB_PORT -L $CDP_PORT:127.0.0.1:$CDP_PORT <this-host>"
+  elif [ "$OS" = Darwin ]; then
+    say ""
+    say "To view this Chrome from another machine, turn on Screen Sharing"
+    say "(System Settings > General > Sharing), then run there:"
+    say "  ssh -N -L 5901:127.0.0.1:5900 -L $CDP_PORT:127.0.0.1:$CDP_PORT <this-mac>"
+    say "and open vnc://localhost:5901 (on a Mac: Finder > Go > Connect to Server)."
+  fi
+}
+
+cmd_down() {
+  require_instance
+  case "$MODE" in systemd) sd_down ;; container) ct_down ;; direct) dr_down ;; esac
+  info "stopped $NAME; the profile and logins are kept"
+}
+
+cmd_status() {
+  require_instance
+  say "$NAME ($MODE mode)"
+  case "$MODE" in systemd) sd_status ;; container) ct_status ;; direct) dr_status ;; esac
+  check_endpoints && print_urls
+}
+
+cmd_password() {
+  require_instance
+  case "$MODE" in
+    systemd)
+      if [ "$RESET" = 1 ] || ! [ -s "$PW_FILE" ]; then
+        write_password "$(gen_password)"
+        info "new password set; Xvnc reads it on the next connection"
+      fi
+      cat "$PW_FILE" ;;
+    container)
+      ct_running || die "$CONTAINER is not running. Run: shared-browser up"
+      if [ "$RESET" = 1 ]; then dk exec "$CONTAINER" sb-password --reset; else dk exec "$CONTAINER" sb-password; fi ;;
+    direct) die "direct mode has no VNC password: the window is on your screen" ;;
+  esac
+}
+
+cmd_logs() {
+  require_instance
+  case "$MODE" in
+    systemd) journalctl --user -n 100 --no-pager -u "$NAME-display" -u "$NAME-wm" -u "$NAME-novnc" -u "$NAME-chrome" ;;
+    container) dk logs --tail 100 "$CONTAINER" ;;
+    direct) tail -n 100 "$DATA_DIR/browser.log" ;;
+  esac
+}
+
+cmd_uninstall() {
+  require_instance
+  case "$MODE" in systemd) sd_uninstall ;; container) ct_uninstall ;; direct) dr_uninstall ;; esac
+  if [ "$PURGE" = 1 ]; then
+    rm -rf "$CONF_DIR" "$DATA_DIR"
+    info "removed $NAME and deleted its profile, logins, and password"
+  else
+    rm -f "$STATE_FILE"
+    info "removed $NAME; kept the profile (rerun up to reuse it, or uninstall --purge to delete it)"
+  fi
+  say "If you registered the MCP server: claude mcp remove $MCP_NAME --scope user"
+}
+
+cmd_doctor() {
+  say "shared-browser $VERSION on $OS $(uname -m)"
+  say ""
+  if systemd_ok; then
+    local m; m="$(systemd_missing)"
+    if [ -z "$m" ]; then say "systemd mode:   ready (browser: $(find_browser))"
+    else say "systemd mode:   missing:"; printf '%s\n' "$m" | sed 's/^/                  - /'; deps_hint; fi
+  else
+    say "systemd mode:   unavailable (needs Linux with a systemd user session)"
+  fi
+  if docker_cli; then say "container mode: ready ($DOCKER_CMD)"; else say "container mode: unavailable. $(docker_hint)"; fi
+  local b; b="$(find_browser)"
+  if [ -n "$b" ]; then say "direct mode:    browser found ($b); needs a desktop you sit at"
+  else say "direct mode:    no Chrome or Chromium found"; fi
+  if have npx; then say "MCP:            npx found"; else say "MCP:            npx missing; install Node.js 18+ for the Playwright MCP server"; fi
+  if [ "$(uname -m)" != x86_64 ]; then
+    say ""
+    say "Note: Google Chrome has no Linux arm64 build, so the container uses Chromium here."
+    say "Google may refuse to sign in on Chromium; direct mode with Google Chrome avoids that."
+  fi
+}
+
+cmd_tunnel() {
+  [ -n "$O_HOST" ] || die "tunnel needs --host USER@HOST"
+  local args="-N -L $WEB_PORT:127.0.0.1:$WEB_PORT -L $CDP_PORT:127.0.0.1:$CDP_PORT $O_HOST"
+  if [ "$PRINT_ONLY" = 1 ]; then say "ssh $args"; return; fi
+  info "forwarding localhost:$WEB_PORT (noVNC) and localhost:$CDP_PORT (CDP) to $O_HOST; Ctrl-C to stop"
+  info "open http://localhost:$WEB_PORT/vnc.html?autoconnect=1&resize=remote"
+  # shellcheck disable=SC2086
+  exec ssh $args
+}
+
+cmd_mcp() {
+  local pkg="@playwright/mcp@latest" endpoint="http://127.0.0.1:$CDP_PORT" did=0
+  have npx || warn "npx is missing; the MCP server needs Node.js 18+"
+  if have claude; then
+    if claude mcp get "$MCP_NAME" >/dev/null 2>&1; then
+      info "Claude Code already has an MCP server named $MCP_NAME; left it as is (pick another with --mcp-name)"
+    else
+      claude mcp add --scope user "$MCP_NAME" -- npx -y "$pkg" --cdp-endpoint "$endpoint"
+      info "added $MCP_NAME to Claude Code (user scope); start a new session to load it"
+    fi
+    did=1
+  fi
+  if have codex; then
+    if codex mcp get "$MCP_NAME" >/dev/null 2>&1; then
+      info "Codex CLI already has an MCP server named $MCP_NAME; left it as is"
+    else
+      codex mcp add "$MCP_NAME" -- npx -y "$pkg" --cdp-endpoint "$endpoint"
+      info "added $MCP_NAME to Codex CLI"
+    fi
+    did=1
+  fi
+  if [ "$did" = 0 ]; then
+    say "Neither claude nor codex is on PATH. Register this MCP server in your client:"
+    say "  npx -y $pkg --cdp-endpoint $endpoint"
+  fi
+}
+
+run_remote() {
+  # Copies the kit to the remote host and runs the same command there.
+  local host="$O_HOST" i skip=0 qargs=""
+  for i in "${ORIG_ARGS[@]}"; do
+    if [ "$skip" = 1 ]; then skip=0; continue; fi
+    [ "$i" = --host ] && { skip=1; continue; }
+    case "$i" in *\'*) die "arguments for --host may not contain a single quote: $i" ;; esac
+    qargs="$qargs $(printf '%q' "$i")"
+  done
+  info "syncing the kit to $host:~/$REMOTE_KIT"
+  # shellcheck disable=SC2029  # REMOTE_KIT is a fixed relative path
+  tar -C "$KIT_DIR" -cf - scripts container \
+    | ssh "$host" "mkdir -p ~/$REMOTE_KIT && tar -C ~/$REMOTE_KIT -xf -"
+  # A login shell picks up Homebrew and similar PATH entries on the remote.
+  local tty=""; [ -t 0 ] && [ -t 1 ] && tty="-t"
+  # SC2086: tty is empty or -t. SC2029: qargs is expanded here on purpose.
+  # shellcheck disable=SC2086,SC2029
+  ssh $tty "$host" "bash -lc 'PATH=\"\$PATH:/opt/homebrew/bin:/usr/local/bin\"; ~/$REMOTE_KIT/scripts/shared-browser $qargs'"
+  if [ "$CMD" = up ]; then
+    say ""
+    say "Tunnel from this machine: $(basename "$SELF") tunnel --host $host${O_WEB:+ --web-port $O_WEB}${O_CDP:+ --cdp-port $O_CDP}"
+  fi
+}
+
+case "$CMD" in
+  tunnel)  cmd_tunnel; exit ;;
+  mcp)     cmd_mcp; exit ;;
+  version) say "shared-browser $VERSION"; exit ;;
+esac
+
+if [ -n "$O_HOST" ]; then run_remote; exit; fi
+
+if [ "$MODE" = container ] && [ "$CMD" != doctor ]; then
+  docker_cli || die "container mode needs a working container CLI. $(docker_hint)"
+fi
+
+case "$CMD" in
+  up)        cmd_up ;;
+  down|stop) cmd_down ;;
+  restart)   require_instance; cmd_down; cmd_up ;;
+  status)    cmd_status ;;
+  password)  cmd_password ;;
+  url)       require_instance; print_urls ;;
+  logs)      cmd_logs ;;
+  uninstall) cmd_uninstall ;;
+  doctor)    cmd_doctor ;;
+  *) die "unknown command: $CMD (see: shared-browser help)" ;;
+esac

@@ -4,7 +4,7 @@ okf_version: "0.2"
 
 # Subdirectories
 
-* [decisions](decisions/index.md) - Standing rules for writing and trimming skills, with reasons; read before editing a SKILL.md.
+* [decisions](decisions/index.md) - Standing rules for writing skills, and design decisions for individual plugins, with reasons; read before editing a SKILL.md or a plugin it covers.
 
 # Playbook
 
